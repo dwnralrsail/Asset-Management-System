@@ -44,6 +44,7 @@
   .toast{animation:tin .2s ease-out}
   @keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   .dz.over{border-color:#2563eb;background:#eff6ff}
+  body:not(.is-admin) .admin-only { display:none !important; }
 </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
@@ -104,10 +105,10 @@
           <button data-act="template"><i data-lucide="file-down"></i>Download import template</button>
           <hr>
           <button data-act="backup"><i data-lucide="hard-drive-download"></i>Backup all data (.json)</button>
-          <button data-act="restore"><i data-lucide="hard-drive-upload"></i>Restore from backup</button>
+          <button class="admin-only" data-act="restore"><i data-lucide="hard-drive-upload"></i>Restore from backup</button>
           <hr>
-          <button data-act="loadSample"><i data-lucide="flask-conical"></i>Load sample data</button>
-          <button data-act="clearAll" style="color:#e11d48"><i data-lucide="trash-2" style="color:#e11d48"></i>Clear all data</button>
+          <button class="admin-only" data-act="loadSample"><i data-lucide="flask-conical"></i>Load sample data</button>
+          <button class="admin-only" data-act="clearAll" style="color:#e11d48"><i data-lucide="trash-2" style="color:#e11d48"></i>Clear all data</button>
         </div>
       </div>
       <button class="btn btn-dark" data-act="logout" title="Sign out"><i data-lucide="log-out"></i><span class="hidden sm:inline">Logout</span></button>
@@ -221,7 +222,7 @@
   <span class="text-sm font-medium" id="bulkCount">0 selected</span>
   <div class="h-4 w-px bg-slate-700"></div>
   <select id="bulkStatus" class="bg-slate-800 border border-slate-600 text-sm rounded-lg px-2 py-1.5"></select>
-  <button id="btnBulkDelete" class="btn btn-danger" style="padding:.35rem .8rem" data-act="bulkDelete"><i data-lucide="trash-2"></i>Delete</button>
+  <button id="btnBulkDelete" class="btn btn-danger admin-only" style="padding:.35rem .8rem" data-act="bulkDelete"><i data-lucide="trash-2"></i>Delete</button>
   <button class="text-slate-400 hover:text-white" data-act="bulkClear" title="Clear selection"><i data-lucide="x" class="w-4 h-4"></i></button>
 </div>
 
@@ -418,7 +419,7 @@
           <div class="border border-slate-200 rounded-lg p-3 space-y-1.5">
             <p class="font-semibold text-slate-700 text-xs uppercase tracking-wide">If an asset code already exists</p>
             <label class="flex items-center gap-2"><input type="radio" name="impDup" value="skip" checked> Skip the row</label>
-            <label class="flex items-center gap-2"><input type="radio" name="impDup" value="update"> Update the existing asset</label>
+            <label class="flex items-center gap-2"><input type="radio" name="impDup" value="update"> Update the existing asset (overwrites it with the file's values)</label>
             <label class="flex items-center gap-2"><input type="radio" name="impDup" value="duplicate"> Import as a new asset (new code)</label>
           </div>
           <div class="border border-slate-200 rounded-lg p-3 space-y-1.5">
@@ -540,6 +541,42 @@ const ALIAS_ASSET = {
   rmUnit: ['intervalunit','satuaninterval'], rmLast: ['lastmaintenance','maintenanceterakhir'],
   rmRemind: ['reminddaysbefore','remind','pengingat']
 };
+function parseDate(v) {
+  if (v === null || v === undefined || v === '') return '';
+  if (v instanceof Date) return isNaN(v) ? '' : `${v.getFullYear()}-${pad2(v.getMonth() + 1)}-${pad2(v.getDate())}`;
+  if (typeof v === 'number') {
+    if (v > 20000 && v < 80000) {
+      const d = new Date(Math.round((v - 25569) * 86400000));
+      return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+    }
+    return '';
+  }
+  const s = String(v).trim();
+  if (/^\d{5}$/.test(s)) return parseDate(Number(s));
+  let m;
+  if ((m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s))) {
+    const y = +m[1], mo = +m[2], d = +m[3];
+    return validYMD(y, mo, d) ? `${y}-${pad2(mo)}-${pad2(d)}` : '';
+  }
+  if ((m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/.exec(s))) {
+    const d = +m[1], mo = +m[2], y = +m[3];
+    return validYMD(y, mo, d) ? `${y}-${pad2(mo)}-${pad2(d)}` : '';
+  }
+  return '';
+}
+function truthy(v) { return ['yes', 'ya', 'y', 'true', '1', 'x', 'aktif', 'active'].includes(hdrKey(v)); }
+function makeRefCode(name, takenCodes) {
+  const base = String(name).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'GEN';
+  let c = base, i = 2;
+  while (takenCodes.has(c)) { c = base + i; i++; }
+  return c;
+}
+const ALIAS_LOG = {
+  id: ['logid','id'], kode: ['assetcode','kodeaset','kode','code'], nama: ['assetname','namaaset','nama'],
+  tgl: ['date','logdate','tanggal'], tipe: ['actiontype','tipe','type'], asal: ['origin','asal'],
+  tujuan: ['destinationvendor','destination','tujuan','vendor'], biaya: ['costidr','cost','biaya'],
+  status: ['status'], ket: ['notes','keterangan','note']
+};
 function mapRow(row, aliases) {
   const km = {};
   Object.keys(row).forEach(h => { km[hdrKey(h)] = row[h]; });
@@ -603,6 +640,7 @@ function renderRoleUI() {
   $('btnAddAsset').disabled = !canWrite();
   $('btnAddLog').disabled = !canWrite();
   $('btnBulkDelete').disabled = !isSuperAdmin();
+  document.body.classList.toggle('is-admin', isSuperAdmin());
 }
 
 function todayStr() { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
@@ -648,8 +686,7 @@ const toDbAsset = a => ({
   qty: 1, unit_price: +a.harga || 0, acquired_date: a.tgl || null, condition: a.kondisi, status: a.status,
   pic: a.pic || '', serial_number: a.sn || '', specs: a.specs || '', warranty_until: a.garansi || null,
   next_maintenance: a.servis || null, routine_enabled: !!a.rm, routine_every: +a.rmEvery || 0,
-  routine_unit: a.rmUnit || 'months', routine_last: a.rmLast || null, routine_remind_days: +a.rmRemind || 7,
-  updated_at: new Date().toISOString()
+  routine_unit: a.rmUnit || 'months', routine_last: a.rmLast || null, routine_remind_days: a.rmRemind ?? 7
 });
 const fromDbAsset = r => normAsset({
   kode: r.code, nama: r.name, kategori: r.category, cabang: r.branch, lokasi: r.location,
@@ -684,76 +721,147 @@ async function archiveDeleted(tableName, recordKey, payloadObj) {
   return true;
 }
 
-async function syncToSupabase(quiet = false) {
-  if (!sb || !currentUser) return false;
-  try {
-    const [bRes, kRes, aRes, lRes] = await Promise.all([
-      sb.from('branches').select('code,name'),
-      sb.from('categories').select('code,name'),
-      sb.from('assets').select('code'),
-      sb.from('asset_logs').select('id')
-    ]);
-    if (bRes.error || kRes.error || aRes.error || lRes.error) throw (bRes.error || kRes.error || aRes.error || lRes.error);
-    if (cabangData.length) { const { error } = await sb.from('branches').upsert(cabangData.map(c => ({ code: c.kode, name: c.nama })), { onConflict: 'code' }); if (error) throw error; }
-    if (kategoriData.length) { const { error } = await sb.from('categories').upsert(kategoriData.map(k => ({ code: k.kode, name: k.nama })), { onConflict: 'code' }); if (error) throw error; }
-    if (assetData.length) { const { error } = await sb.from('assets').upsert(assetData.map(toDbAsset), { onConflict: 'code' }); if (error) throw error; }
-    if (mutasiData.length) { const { error } = await sb.from('asset_logs').upsert(mutasiData.map(toDbLog), { onConflict: 'id' }); if (error) throw error; }
+/* ================= CLOUD SYNC =================
+   Row-level and diff-based. This browser remembers what the server looked like at the last pull (snap).
+   On every save only rows that CHANGED are upserted, and only rows THIS user removed are deleted.
+   Rows added by other people in the meantime are never touched, so two people working at once cannot wipe each other's data. */
+const SYNC_SETS = [
+  { name:'branches',   table:'branches',   key:'code', order:'name' },
+  { name:'categories', table:'categories', key:'code', order:'name' },
+  { name:'assets',     table:'assets',     key:'code', order:'code' },
+  { name:'logs',       table:'asset_logs', key:'id',   order:'id'   }
+];
+const emptySnap = () => ({ branches:new Map(), categories:new Map(), assets:new Map(), logs:new Map() });
+let snap = emptySnap();
+let syncing = false, dirty = false, pulling = false, syncFailed = false, pulledOnce = false, syncTimer = null, pollTimer = null;
 
-    if (isSuperAdmin()) {
-      const extraCab = (bRes.data || []).map(x => x.code).filter(x => !new Set(cabangData.map(z => z.code)).has(x));
-      if (extraCab.length) await sb.from('branches').delete().in('code', extraCab);
-      const extraKat = (kRes.data || []).map(x => x.code).filter(x => !new Set(kategoriData.map(z => z.code)).has(x));
-      if (extraKat.length) await sb.from('categories').delete().in('code', extraKat);
-      const extraAst = (aRes.data || []).map(x => x.code).filter(x => !new Set(assetData.map(z => z.kode)).has(x));
-      if (extraAst.length) await sb.from('assets').delete().in('code', extraAst);
-      const extraLog = (lRes.data || []).map(x => x.id).filter(x => !new Set(mutasiData.map(z => z.id)).has(x));
-      if (extraLog.length) await sb.from('asset_logs').delete().in('id', extraLog);
-    }
-
-    setDbBadge('cloud', 'Supabase Connected');
-    if (!quiet) toast('Synced with Supabase.', 'success');
-    return true;
-  } catch (err) {
-    setDbBadge('error', 'Supabase Error');
-    if (!quiet) toast('Supabase sync failed: ' + err.message, 'error');
-    return false;
+function localRows() {
+  return {
+    branches:   new Map(cabangData.map(c => [c.kode, { code:c.kode, name:c.nama }])),
+    categories: new Map(kategoriData.map(k => [k.kode, { code:k.kode, name:k.nama }])),
+    assets:     new Map(assetData.map(a => [a.kode, toDbAsset(a)])),
+    logs:       new Map(mutasiData.map(m => [m.id, toDbLog(m)]))
+  };
+}
+function snapFromServer(res) {
+  const sn = emptySnap();
+  res.branches.forEach(r => sn.branches.set(r.code, JSON.stringify({ code:r.code, name:r.name })));
+  res.categories.forEach(r => sn.categories.set(r.code, JSON.stringify({ code:r.code, name:r.name })));
+  res.assets.forEach(r => { const a = fromDbAsset(r); sn.assets.set(a.kode, JSON.stringify(toDbAsset(a))); });
+  res.logs.forEach(r => { const m = fromDbLog(r); sn.logs.set(m.id, JSON.stringify(toDbLog(m))); });
+  return sn;
+}
+const mapsEqual = (a, b) => a.size === b.size && [...a].every(([k, v]) => b.get(k) === v);
+const modalOpen = () => !!document.querySelector('.modal:not(.hidden)');
+async function chunked(arr, n, fn) { for (let i = 0; i < arr.length; i += n) await fn(arr.slice(i, i + n)); }
+async function fetchAllRows(s) {
+  const out = [], PAGE = 1000;
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await sb.from(s.table).select('*').order(s.order).order(s.key).range(from, from + PAGE - 1);
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < PAGE) break;
   }
+  return out;
 }
 
-async function pullFromSupabase() {
-  if (!sb || !currentUser) return false;
+async function pushChanges() {
+  const cur = localRows(), now = new Date().toISOString();
+  let needsPull = false;
+  for (const s of SYNC_SETS) {                       // parents first
+    const changed = [];
+    cur[s.name].forEach((row, k) => { if (snap[s.name].get(k) !== JSON.stringify(row)) changed.push([k, row]); });
+    await chunked(changed, 200, async part => {
+      const rows = part.map(([, r]) => s.name === 'assets' ? { ...r, updated_at: now } : r);
+      const { error } = await sb.from(s.table).upsert(rows, { onConflict: s.key });
+      if (error) throw error;
+      part.forEach(([k, r]) => snap[s.name].set(k, JSON.stringify(r)));
+    });
+  }
+  for (const s of [...SYNC_SETS].reverse()) {        // children first
+    const gone = [...snap[s.name].keys()].filter(k => !cur[s.name].has(k));
+    if (!gone.length) continue;
+    if (!isSuperAdmin()) { needsPull = true; continue; }
+    await chunked(gone, 100, async part => {
+      const { data, error } = await sb.from(s.table).delete().in(s.key, part).select(s.key);
+      if (error) throw error;
+      if ((data || []).length < part.length) needsPull = true;
+      part.forEach(k => snap[s.name].delete(k));
+    });
+  }
+  return needsPull;
+}
+
+async function flushSync() {
+  if (!sb || !currentUser) return;
+  if (!canWrite()) { dirty = false; return; }
+  if (syncing) return;                                // the running loop will pick up newer changes
+  syncing = true; let needsPull = false;
   try {
-    const [bRes, kRes, aRes, lRes] = await Promise.all([
-      sb.from('branches').select('*').order('name'),
-      sb.from('categories').select('*').order('name'),
-      sb.from('assets').select('*').order('code'),
-      sb.from('asset_logs').select('*').order('log_date', { ascending: false })
-    ]);
-    if (bRes.error || kRes.error || aRes.error || lRes.error) throw (bRes.error || kRes.error || aRes.error || lRes.error);
-    if ((bRes.data?.length || kRes.data?.length || aRes.data?.length || lRes.data?.length)) {
-      if (bRes.data?.length) cabangData = bRes.data.map(r => ({ kode: r.code, nama: r.name }));
-      if (kRes.data?.length) kategoriData = kRes.data.map(r => ({ kode: r.code, nama: r.name }));
-      assetData = (aRes.data || []).map(fromDbAsset);
-      mutasiData = (lRes.data || []).map(fromDbLog);
-      enforceOneUnitPerCode();
-      saveLocal();
-      refreshAll();
-    } else if (assetData.length || mutasiData.length) {
-      await syncToSupabase(true);
+    do { dirty = false; setDbBadge('local', 'Saving…'); needsPull = (await pushChanges()) || needsPull; } while (dirty);
+    syncFailed = false; setDbBadge('cloud', 'Supabase Connected');
+  } catch (err) {
+    dirty = true; setDbBadge('error', 'Not saved — will retry');
+    if (!syncFailed) toast('Could not save to Supabase: ' + (err.message || err) + '. Your change is kept on this device and will be retried.', 'error');
+    syncFailed = true;
+  } finally { syncing = false; }
+  if (needsPull) { toast('Some changes were not allowed for your role and were reverted.', 'warn'); await pullFromSupabase(true); }
+}
+
+async function pullFromSupabase(force = false) {
+  if (!sb || !currentUser || pulling) return false;
+  if (!force && (syncing || dirty || modalOpen())) return false;
+  pulling = true;
+  try {
+    const [branches, categories, assets, logs] = await Promise.all(SYNC_SETS.map(fetchAllRows));
+    if (!force && (syncing || dirty || modalOpen())) return false;   // user started editing while we were fetching
+    const res = { branches, categories, assets, logs };
+    if (!branches.length && !categories.length && !assets.length && !logs.length) {
+      snap = emptySnap();
+      if (assetData.length) {
+        if (canWrite() && await confirmDialog(`The cloud database is empty, but this browser holds ${assetData.length} assets.\n\nUpload them to the cloud now?\n(Cancel = clear the local copy and start empty.)`, { title:'Upload local data', ok:'Upload', danger:false })) {
+          dirty = true; await flushSync();
+        } else { assetData = []; mutasiData = []; sel.clear(); saveLocal(); refreshAll(); }
+      }
+      pulledOnce = true; setDbBadge('cloud', 'Supabase Connected'); return true;
     }
-    setDbBadge('cloud', 'Supabase Connected');
+    const newSnap = snapFromServer(res);
+    const same = !force && pulledOnce && SYNC_SETS.every(s => mapsEqual(newSnap[s.name], snap[s.name]));
+    snap = newSnap;
+    if (!same) {
+      if (branches.length) cabangData = branches.map(r => ({ kode:r.code, nama:r.name }));
+      if (categories.length) kategoriData = categories.map(r => ({ kode:r.code, nama:r.name }));
+      assetData = assets.map(fromDbAsset); mutasiData = logs.map(fromDbLog);
+      const have = new Set(assetData.map(a => a.kode)); [...sel].forEach(k => { if (!have.has(k)) sel.delete(k); });
+      saveLocal(); refreshAll();
+    }
+    pulledOnce = true; syncFailed = false; setDbBadge('cloud', 'Supabase Connected');
     return true;
   } catch (err) {
     setDbBadge('error', 'Supabase Offline');
-    toast('Supabase connection issue: ' + err.message, 'warn');
+    if (!pulledOnce) toast('Supabase connection issue: ' + (err.message || err), 'warn');
     return false;
-  }
+  } finally { pulling = false; }
 }
 
 function saveAll(syncCloud = true) {
   saveLocal();
-  if (syncCloud && sb && currentUser) syncToSupabase(true);
+  if (syncCloud && sb && currentUser) { dirty = true; clearTimeout(syncTimer); syncTimer = setTimeout(flushSync, 300); }
 }
+async function syncTick() {
+  if (!sb || !currentUser) return;
+  if (dirty && !syncing) await flushSync(); else await pullFromSupabase();
+}
+function startPolling() { stopPolling(); pollTimer = setInterval(syncTick, 45000); }
+function stopPolling() { if (pollTimer) clearInterval(pollTimer); pollTimer = null; }
+async function manualSync() {
+  if (!(sb && currentUser)) return toast('Sign in first.', 'warn');
+  setDbBadge('local', 'Syncing…');
+  if (dirty) await flushSync();
+  const ok = await pullFromSupabase(true);
+  toast(ok ? 'Up to date with Supabase.' : 'Could not reach Supabase.', ok ? 'success' : 'error');
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncTick(); });
 
 function normAsset(a) {
   return {
@@ -842,6 +950,7 @@ async function applySession(session) {
   currentUser = session?.user || null;
   if (!currentUser) {
     currentRole = 'viewer';
+    stopPolling(); snap = emptySnap(); pulledOnce = false; dirty = false;
     renderRoleUI();
     setDbBadge('local', 'Signed Out');
     $('authGate').classList.remove('hidden');
@@ -851,7 +960,8 @@ async function applySession(session) {
   currentRole = await fetchRoleForUser(currentUser.id);
   renderRoleUI();
   setDbBadge('local', 'Syncing...');
-  await pullFromSupabase();
+  await pullFromSupabase(true);
+  startPolling();
 }
 
 async function handleLogin(e) {
@@ -1012,7 +1122,7 @@ function renderMaster() {
   const start = (F.page - 1) * PAGE, slice = list.slice(start, start + PAGE), cols = visibleCols();
   const allSel = list.length > 0 && list.every(a => sel.has(a.kode));
   $('masterHead').innerHTML = `<tr><th class="p-3 w-10 text-center"><input type="checkbox" id="selAll" ${allSel ? 'checked' : ''}></th>` + cols.map(c => `<th class="p-3 ${c.cls && c.cls.includes('text-center') ? 'text-center' : c.cls && c.cls.includes('text-right') ? 'text-right' : ''} ${c.sort ? 'sortable' : ''}" ${c.sort ? `data-act="sort" data-id="${c.k}"` : ''}>${c.l}${F.sortK === c.k ? (F.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '<th class="p-3 text-center">Actions</th></tr>';
-  $('masterBody').innerHTML = slice.length ? slice.map((a, i) => `<tr class="hover:bg-slate-50 ${sel.has(a.kode) ? 'bg-blue-50/60' : ''}"><td class="p-3 text-center"><input type="checkbox" class="item-chk" data-id="${esc(a.kode)}" ${sel.has(a.kode) ? 'checked' : ''}></td>${cols.map(c => `<td class="p-3 ${c.cls || ''}">${c.html(a, start + i)}</td>`).join('')}<td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-slate-100 text-slate-600" data-act="view" data-id="${esc(a.kode)}" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editAsset" data-id="${esc(a.kode)}" title="Edit" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 disabled:opacity-30" data-act="delAsset" data-id="${esc(a.kode)}" title="Delete" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="${cols.length + 2}" class="p-12 text-center text-slate-400">No units found.</td></tr>`;
+  $('masterBody').innerHTML = slice.length ? slice.map((a, i) => `<tr class="hover:bg-slate-50 ${sel.has(a.kode) ? 'bg-blue-50/60' : ''}"><td class="p-3 text-center"><input type="checkbox" class="item-chk" data-id="${esc(a.kode)}" ${sel.has(a.kode) ? 'checked' : ''}></td>${cols.map(c => `<td class="p-3 ${c.cls || ''}">${c.html(a, start + i)}</td>`).join('')}<td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-slate-100 text-slate-600" data-act="view" data-id="${esc(a.kode)}" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editAsset" data-id="${esc(a.kode)}" title="Edit" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 admin-only" data-act="delAsset" data-id="${esc(a.kode)}" title="Delete" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="${cols.length + 2}" class="p-12 text-center text-slate-400">No units found.</td></tr>`;
   const from = list.length ? start + 1 : 0, to = Math.min(start + PAGE, list.length), totalVal = list.reduce((s, a) => s + a.harga, 0);
   $('masterFooter').innerHTML = `<span>Showing <b>${from}–${to}</b> of <b>${list.length}</b> physical units • Total value ${fmtIDR(totalVal)}</span><div class="flex items-center gap-2"><button class="btn btn-ghost" data-act="page" data-id="${F.page - 1}" ${F.page <= 1 ? 'disabled' : ''}><i data-lucide="chevron-left"></i></button><span>Page ${F.page} / ${pages}</span><button class="btn btn-ghost" data-act="page" data-id="${F.page + 1}" ${F.page >= pages ? 'disabled' : ''}><i data-lucide="chevron-right"></i></button></div>`;
   icons();
@@ -1024,7 +1134,7 @@ function filteredLogs() {
 }
 function renderLogs() {
   const list = filteredLogs();
-  $('logBody').innerHTML = list.length ? list.map((m, i) => `<tr class="hover:bg-slate-50"><td class="p-3 text-center text-slate-400">${i + 1}</td><td class="p-3 font-mono text-slate-500">${esc(m.id)}</td><td class="p-3"><button class="text-left" data-act="view" data-id="${esc(m.kode)}"><span class="font-mono font-semibold text-blue-600">${esc(m.kode)}</span><br><span class="text-xs text-slate-500">${esc(m.nama)}</span></button></td><td class="p-3">${fmtDate(m.tgl)}</td><td class="p-3">${badge(m.tipe, TYPE_CLS)}</td><td class="p-3 text-slate-600">${esc(m.asal) || '-'}</td><td class="p-3 font-medium text-blue-700">${esc(m.tujuan) || '-'}</td><td class="p-3 text-right">${fmtIDR(m.biaya)}</td><td class="p-3">${badge(m.status, LOGST_CLS)}</td><td class="p-3 text-slate-500 max-w-xs truncate">${esc(m.ket) || '-'}</td><td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editLog" data-id="${esc(m.id)}" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 disabled:opacity-30" data-act="delLog" data-id="${esc(m.id)}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="11" class="p-12 text-center text-slate-400">No log entries</td></tr>`;
+  $('logBody').innerHTML = list.length ? list.map((m, i) => `<tr class="hover:bg-slate-50"><td class="p-3 text-center text-slate-400">${i + 1}</td><td class="p-3 font-mono text-slate-500">${esc(m.id)}</td><td class="p-3"><button class="text-left" data-act="view" data-id="${esc(m.kode)}"><span class="font-mono font-semibold text-blue-600">${esc(m.kode)}</span><br><span class="text-xs text-slate-500">${esc(m.nama)}</span></button></td><td class="p-3">${fmtDate(m.tgl)}</td><td class="p-3">${badge(m.tipe, TYPE_CLS)}</td><td class="p-3 text-slate-600">${esc(m.asal) || '-'}</td><td class="p-3 font-medium text-blue-700">${esc(m.tujuan) || '-'}</td><td class="p-3 text-right">${fmtIDR(m.biaya)}</td><td class="p-3">${badge(m.status, LOGST_CLS)}</td><td class="p-3 text-slate-500 max-w-xs truncate">${esc(m.ket) || '-'}</td><td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editLog" data-id="${esc(m.id)}" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 admin-only" data-act="delLog" data-id="${esc(m.id)}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="11" class="p-12 text-center text-slate-400">No log entries</td></tr>`;
   const cost = list.filter(m => m.status !== 'Cancelled').reduce((s, m) => s + m.biaya, 0);
   $('logFooter').innerHTML = `<b>${list.length}</b> entries • Total cost (excl. cancelled): <b>${fmtIDR(cost)}</b>`;
   icons();
@@ -1074,9 +1184,10 @@ async function deleteAsset(kode) {
   if (!isSuperAdmin()) return toast('Only Super Admin can delete assets.', 'warn');
   const target = assetData.find(a => a.kode === kode);
   if (!target) return;
-  if (!(await confirmDialog(`Archive & delete asset ${kode}?\nSnapshot will be saved to Deleted / Restore.`, { title:'Delete asset', ok:'Delete' }))) return;
+  if (!(await confirmDialog(`Archive & delete asset ${kode}?\nIts log history is archived too. You can restore both from Deleted / Restore.`, { title:'Delete asset', ok:'Delete' }))) return;
   const ok = await archiveDeleted('assets', kode, target);
   if (!ok) return;
+  for (const m of mutasiData.filter(x => x.kode === kode)) { if (!(await archiveDeleted('asset_logs', m.id, m))) return; }
   assetData = assetData.filter(a => a.kode !== kode);
   mutasiData = mutasiData.filter(m => m.kode !== kode);
   sel.delete(kode);
@@ -1090,6 +1201,7 @@ async function bulkDelete() {
     if (target) {
       const ok = await archiveDeleted('assets', kode, target);
       if (!ok) return;
+      for (const m of mutasiData.filter(x => x.kode === kode)) { if (!(await archiveDeleted('asset_logs', m.id, m))) return; }
     }
   }
   assetData = assetData.filter(a => !sel.has(a.kode));
@@ -1192,6 +1304,14 @@ async function restoreArchived(recId) {
     const restored = normAsset(p);
     const idx = assetData.findIndex(a => a.kode === restored.kode);
     if (idx > -1) assetData[idx] = restored; else assetData.push(restored);
+    const { data: lrows } = await sb.from('deleted_records').select('*').eq('table_name', 'asset_logs').is('restored_at', null);
+    for (const lr of (lrows || [])) {
+      const lp = lr.payload || {};
+      if ((lp.kode || lp.asset_code) !== restored.kode) continue;
+      const lg = normLog(lp);
+      if (!mutasiData.some(m => m.id === lg.id)) mutasiData.push(lg);
+      await sb.from('deleted_records').update({ restored_at: new Date().toISOString() }).eq('id', lr.id);
+    }
   } else if (rec.table_name === 'asset_logs') {
     const restored = normLog(p);
     const idx = mutasiData.findIndex(m => m.id === restored.id);
@@ -1213,7 +1333,7 @@ async function restoreArchived(recId) {
 function openSettings(mode) { settingsMode = mode; $('settingsTitle').textContent = mode === 'cabang' ? 'Manage Branches' : 'Manage Categories'; $('setKode').value = ''; $('setNama').value = ''; renderSettings(); openModal('modalSettings'); }
 function renderSettings() {
   const list = settingsMode === 'cabang' ? cabangData : kategoriData, key = settingsMode === 'cabang' ? 'cabang' : 'kategori';
-  $('settingsBody').innerHTML = list.map((it, i) => `<tr><td class="p-2.5 font-mono font-bold text-blue-600">${esc(it.kode)}</td><td class="p-2.5">${esc(it.nama)}</td><td class="p-2.5 text-center text-slate-500">${assetData.filter(a => a[key] === it.nama).length}</td><td class="p-2.5 text-center"><button class="text-rose-600 p-1 disabled:opacity-30" data-act="delSetting" data-id="${i}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
+  $('settingsBody').innerHTML = list.map((it, i) => `<tr><td class="p-2.5 font-mono font-bold text-blue-600">${esc(it.kode)}</td><td class="p-2.5">${esc(it.nama)}</td><td class="p-2.5 text-center text-slate-500">${assetData.filter(a => a[key] === it.nama).length}</td><td class="p-2.5 text-center"><button class="text-rose-600 p-1 admin-only" data-act="delSetting" data-id="${i}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
   icons();
 }
 function addSetting(e) {
@@ -1239,82 +1359,317 @@ const LOG_HDRS = ['No.','Log ID','Asset Code','Asset Name','Date','Action Type',
 const assetRows = list => list.map((a, i) => ({ 'No.':i + 1, 'Asset Code':a.kode, 'Asset Name':a.nama, 'Category':a.kategori, 'Branch':a.cabang, 'Location':a.lokasi, 'Qty':1, 'Unit Price (IDR)':a.harga, 'Total Price (IDR)':a.harga, 'Acquisition Date':a.tgl, 'Condition':a.kondisi, 'Status':a.status, 'PIC':a.pic, 'S/N':a.sn, 'Specifications':a.specs, 'Warranty Until':a.garansi, 'Routine Maintenance':a.rm ? 'Yes' : 'No', 'Interval':a.rm ? a.rmEvery : '', 'Interval Unit':a.rm ? (UNIT_SING[a.rmUnit][0].toUpperCase() + UNIT_SING[a.rmUnit].slice(1) + 's') : '', 'Last Maintenance':a.rmLast, 'Remind Days Before':a.rm ? a.rmRemind : '', 'Next Maintenance Due':a.servis }));
 const logRows = list => list.map((m, i) => ({ 'No.':i + 1, 'Log ID':m.id, 'Asset Code':m.kode, 'Asset Name':m.nama, 'Date':m.tgl, 'Action Type':m.tipe, 'Origin':m.asal, 'Destination / Vendor':m.tujuan, 'Cost (IDR)':m.biaya, 'Status':m.status, 'Notes':m.ket }));
 function downloadBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
-function exportExcel(scope, useFilter) {
-  if (typeof XLSX === 'undefined') return toast('Excel library unavailable.', 'error');
-  const wb = XLSX.utils.book_new(), assets = useFilter ? filteredAssets() : assetData;
-  if (scope === 'all' || scope === 'master') XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(assetRows(assets), { header:ASSET_HDRS }), 'Assets');
-  if (scope === 'all' || scope === 'mutasi') XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(logRows(mutasiData), { header:LOG_HDRS }), 'Asset Logs');
-  if (scope === 'dashboard' || scope === 'all') XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Metric','Value'],['Total Units',computeStats().qty],['Total Value',computeStats().value]]), 'Summary');
-  XLSX.writeFile(wb, `Asset_${scope}_${stamp()}.xlsx`);
+async function ensureXLSX() {
+  if (typeof XLSX !== 'undefined') return true;
+  for (const url of ['https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', 'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js']) {
+    try { await new Promise((res, rej) => { const s = document.createElement('script'); s.src = url; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); if (typeof XLSX !== 'undefined') return true; } catch {}
+  }
+  return false;
+}
+function finishSheet(ws, hdrs, rows, moneyHdrs = []) {
+  ws['!cols'] = hdrs.map(h => ({ wch: Math.min(45, Math.max(h.length, ...rows.slice(0, 500).map(r => String(r[h] ?? '').length)) + 2) }));
+  if (ws['!ref']) ws['!autofilter'] = { ref: ws['!ref'] };
+  hdrs.forEach((h, ci) => { if (moneyHdrs.includes(h)) for (let r = 1; r <= rows.length; r++) { const c = ws[XLSX.utils.encode_cell({ r, c:ci })]; if (c && typeof c.v === 'number') c.z = '#,##0'; } });
+  return ws;
+}
+function summarySheet() {
+  const s = computeStats();
+  const aoa = [['Asset Management System — Summary'], ['Generated', new Date().toLocaleString('en-GB')], [],
+    ['Metric', 'Value'], ['Total units (excl. disposed)', s.qty], ['Total asset value (IDR)', s.value], ['Active units', s.active],
+    ['Under repair / in transit units', s.attention], ['Disposed units', s.disposed], ['Open logs', s.openLogs], ['Routine-maintenance assets', s.routineCount], ['Maintenance due / overdue', s.dueCount], ['Maintenance overdue', s.overdueCount], [`Maintenance cost ${s.year} (IDR)`, s.spend], [],
+    ['By Branch'], ['Branch', 'Units', 'Valuation (IDR)'], ...s.byBranch.map(b => [b.name, b.qty, b.value]), [],
+    ['By Category'], ['Category', 'Units', 'Valuation (IDR)'], ...s.byCat.map(c => [c.name, c.qty, c.value])];
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  Object.keys(ws).forEach(k => { if (k[0] !== '!' && k[0] !== 'A' && typeof ws[k].v === 'number') ws[k].z = '#,##0'; });
+  ws['!cols'] = [{ wch:38 }, { wch:20 }, { wch:22 }];
+  return ws;
+}
+async function exportExcel(scope, useFilter) {
+  if (!(await ensureXLSX())) { toast('Excel library could not be loaded (check your internet). Exporting CSV instead.', 'warn'); return exportCSV(scope, useFilter); }
+  const assets = useFilter ? filteredAssets() : assetData;
+  const wb = XLSX.utils.book_new();
+  if (scope === 'all' || scope === 'dashboard') XLSX.utils.book_append_sheet(wb, summarySheet(), 'Summary');
+  if (scope === 'all' || scope === 'master') { const r = assetRows(assets); XLSX.utils.book_append_sheet(wb, finishSheet(XLSX.utils.json_to_sheet(r, { header:ASSET_HDRS }), ASSET_HDRS, r, ['Unit Price (IDR)', 'Total Price (IDR)']), 'Assets'); }
+  if (scope === 'all' || scope === 'mutasi') { const r = logRows(mutasiData); XLSX.utils.book_append_sheet(wb, finishSheet(XLSX.utils.json_to_sheet(r, { header:LOG_HDRS }), LOG_HDRS, r, ['Cost (IDR)']), 'Asset Logs'); }
+  XLSX.writeFile(wb, `Asset_${scope === 'all' ? 'Report' : scope}_${stamp()}.xlsx`);
+  toast('Excel file downloaded.', 'success');
+}
+function exportCSV(scope, useFilter) {
+  const sets = [];
+  if (scope === 'all' || scope === 'master') sets.push(['Assets', ASSET_HDRS, assetRows(useFilter ? filteredAssets() : assetData)]);
+  if (scope === 'all' || scope === 'mutasi') sets.push(['Logs', LOG_HDRS, logRows(mutasiData)]);
+  if (scope === 'dashboard') { const s = computeStats(); sets.push(['Summary', ['Branch','Units','Valuation (IDR)'], s.byBranch.map(b => ({ 'Branch':b.name, 'Units':b.qty, 'Valuation (IDR)':b.value }))]); }
+  sets.forEach(([name, hdrs, rows], i) => setTimeout(() => {
+    const body = [hdrs.join(';'), ...rows.map(r => hdrs.map(h => `"${String(r[h] ?? '').replace(/"/g, '""')}"`).join(';'))].join('\r\n');
+    downloadBlob(new Blob(['\uFEFF' + body], { type:'text/csv;charset=utf-8;' }), `Asset_${name}_${stamp()}.csv`);
+  }, i * 400));
 }
 function exportPDF(scope, useFilter) {
-  if (!(window.jspdf && window.jspdf.jsPDF)) return toast('PDF library unavailable.', 'error');
+  if (!(window.jspdf && window.jspdf.jsPDF)) return toast('PDF library is still loading or blocked. Please try again.', 'error');
   const doc = new window.jspdf.jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
-  const list = useFilter ? filteredAssets() : assetData;
-  doc.autoTable({ head:[['Code','Name','Category','Branch','Value','Status']], body:list.map(a => [a.kode, a.nama, a.kategori, a.cabang, fmtIDR(a.harga), a.status]) });
-  doc.save(`Asset_${scope}_${stamp()}.pdf`);
+  const head = [30, 41, 59];
+  let first = true;
+  const title = (t, sub) => { if (!first) doc.addPage(); first = false; doc.setFontSize(15); doc.setTextColor(15, 23, 42); doc.text(t, 14, 15); doc.setFontSize(9); doc.setTextColor(100); doc.text(sub || `Generated ${new Date().toLocaleString('en-GB')}`, 14, 21); doc.setTextColor(0); };
+  if (scope === 'all' || scope === 'dashboard') {
+    const s = computeStats(); title('Asset Summary');
+    doc.autoTable({ startY:26, head:[['Metric', 'Value']], theme:'striped', headStyles:{ fillColor:head }, body:[
+      ['Total units (excl. disposed)', fmtNum(s.qty)], ['Total asset value', fmtIDR(s.value)], ['Active units', fmtNum(s.active)],
+      ['Under repair / in transit', fmtNum(s.attention)], ['Disposed units', fmtNum(s.disposed)], ['Open logs', fmtNum(s.openLogs)], ['Routine-maintenance assets', fmtNum(s.routineCount)], ['Maintenance due / overdue', `${s.dueCount} (${s.overdueCount} overdue)`], [`Maintenance cost ${s.year}`, fmtIDR(s.spend)]] });
+    doc.autoTable({ startY:doc.lastAutoTable.finalY + 8, head:[['Branch', 'Units', 'Valuation']], theme:'grid', headStyles:{ fillColor:[37, 99, 235] }, columnStyles:{ 1:{ halign:'right' }, 2:{ halign:'right' } },
+      body:s.byBranch.map(b => [b.name, fmtNum(b.qty), fmtIDR(b.value)]) });
+    doc.autoTable({ startY:doc.lastAutoTable.finalY + 8, head:[['Category', 'Units', 'Valuation']], theme:'grid', headStyles:{ fillColor:[37, 99, 235] }, columnStyles:{ 1:{ halign:'right' }, 2:{ halign:'right' } },
+      body:s.byCat.filter(c => c.qty).map(c => [c.name, fmtNum(c.qty), fmtIDR(c.value)]) });
+  }
+  if (scope === 'all' || scope === 'master') {
+    const list = useFilter ? filteredAssets() : assetData;
+    title('Asset Data', `${list.length} assets • Generated ${new Date().toLocaleString('en-GB')}`);
+    doc.autoTable({ startY:26, styles:{ fontSize:7.5, cellPadding:1.6 }, headStyles:{ fillColor:head }, columnStyles:{ 6:{ halign:'right' } },
+      head:[['No.', 'Code', 'Asset Name', 'Category', 'Branch', 'Location', 'Value', 'Condition', 'Status', 'PIC', 'Next Maint.']],
+      body:list.map((a, i) => [i + 1, a.kode, a.nama, a.kategori, a.cabang, a.lokasi || '-', fmtIDR(a.harga), a.kondisi, a.status, a.pic || '-', a.servis || '-']) });
+  }
+  if (scope === 'all' || scope === 'mutasi') {
+    title('Mutation & Service Logs', `${mutasiData.length} entries • Generated ${new Date().toLocaleString('en-GB')}`);
+    doc.autoTable({ startY:26, styles:{ fontSize:7.5, cellPadding:1.6 }, headStyles:{ fillColor:head }, columnStyles:{ 8:{ halign:'right' } },
+      head:[['No.', 'Log ID', 'Code', 'Asset Name', 'Date', 'Action', 'Origin', 'Destination / Vendor', 'Cost', 'Status']],
+      body:filteredLogs().map((m, i) => [i + 1, m.id, m.kode, m.nama, m.tgl, m.tipe, m.asal || '-', m.tujuan || '-', fmtIDR(m.biaya), m.status]) });
+  }
+  const n = doc.getNumberOfPages();
+  for (let i = 1; i <= n; i++) { doc.setPage(i); doc.setFontSize(8); doc.setTextColor(140); doc.text(`Page ${i} of ${n}`, doc.internal.pageSize.getWidth() - 14, doc.internal.pageSize.getHeight() - 7, { align:'right' }); }
+  doc.save(`Asset_${scope === 'all' ? 'Report' : scope}_${stamp()}.pdf`);
+  toast('PDF downloaded.', 'success');
 }
 function doExport(scope) { const useFilter = $('expFilter').checked; closeModal('modalExport'); exportKind === 'excel' ? exportExcel(scope, useFilter) : exportPDF(scope, useFilter); }
 
-function downloadTemplate() {
-  if (typeof XLSX === 'undefined') return toast('Excel library unavailable.', 'error');
+async function downloadTemplate() {
+  if (!(await ensureXLSX())) return toast('Excel library could not be loaded. Check your internet connection.', 'error');
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{ 'Asset Code':'', 'Asset Name':'Sample AC', 'Category':'Air Conditioner', 'Branch':'Depok', 'Location':'Room 1', 'Qty':2, 'Unit Price (IDR)':4000000, 'Status':'Active' }], { header:['Asset Code','Asset Name','Category','Branch','Location','Qty','Unit Price (IDR)','Status'] }), 'Assets');
+  const ex = { 'No.':'', 'Asset Code':'', 'Asset Name':'[EXAMPLE - delete this row] Laptop Dell Latitude', 'Category':kategoriData[0]?.nama || 'IT & Office Equipment', 'Branch':cabangData[0]?.nama || 'Depok',
+    'Location':'Finance Room', 'Qty':1, 'Unit Price (IDR)':15000000, 'Total Price (IDR)':'', 'Acquisition Date':'2025-01-31', 'Condition':'Good', 'Status':'Active', 'PIC':'Jane Doe', 'S/N':'SN-12345',
+    'Specifications':'i7 16GB 512GB', 'Warranty Until':'2028-01-31', 'Routine Maintenance':'Yes', 'Interval':6, 'Interval Unit':'Months', 'Last Maintenance':'2026-06-30', 'Remind Days Before':14, 'Next Maintenance Due':'2026-12-30' };
+  const exl = { 'No.':'', 'Log ID':'', 'Asset Code':'AST-DPK-IT-001', 'Asset Name':'[EXAMPLE - delete this row]', 'Date':'2026-11-01', 'Action Type':'Service / Repair', 'Origin':'Depok', 'Destination / Vendor':'Official Service Center', 'Cost (IDR)':500000, 'Status':'Completed', 'Notes':'Screen replacement' };
+  XLSX.utils.book_append_sheet(wb, finishSheet(XLSX.utils.json_to_sheet([ex], { header:ASSET_HDRS }), ASSET_HDRS, [ex]), 'Assets');
+  XLSX.utils.book_append_sheet(wb, finishSheet(XLSX.utils.json_to_sheet([exl], { header:LOG_HDRS }), LOG_HDRS, [exl]), 'Asset Logs');
+  const guide = [['Import guide'], [], ['Sheet "Assets"', 'Required: Asset Name. Everything else is optional. Leave Asset Code empty to auto-generate (AST-BRANCH-CATEGORY-001). Qty greater than 1 is split into separate units, each with its own code.'],
+    ['Sheet "Asset Logs"', 'Required: Asset Code (must exist), Date. Log ID is auto-generated if empty.'], [],
+    ['Condition', CONDITIONS.join(' | ')], ['Status', STATUSES.join(' | ')], ['Log Action Type', LOG_TYPES.join(' | ')], ['Log Status', LOG_STATUSES.join(' | ')],
+    ['Routine Maintenance', 'Yes / No. If Yes, fill Interval + Interval Unit (Days | Weeks | Months | Years). Last Maintenance, Remind Days Before and Next Maintenance Due are optional (calculated if empty).'],
+    ['Dates', 'YYYY-MM-DD, DD/MM/YYYY, or real Excel dates'], ['Prices', 'Plain numbers (Rp / thousand separators are tolerated)'], ['Branches', cabangData.map(c => c.nama).join(' | ')], ['Categories', kategoriData.map(c => c.nama).join(' | ')]];
+  const g = XLSX.utils.aoa_to_sheet(guide); g['!cols'] = [{ wch:20 }, { wch:110 }];
+  XLSX.utils.book_append_sheet(wb, g, 'Guide');
   XLSX.writeFile(wb, 'Asset_Import_Template.xlsx');
 }
 function backupData() { downloadBlob(new Blob([JSON.stringify({ app:'asset-management-system', version:4, exportedAt:new Date().toISOString(), cabang:cabangData, kategori:kategoriData, assets:assetData, logs:mutasiData }, null, 2)], { type:'application/json' }), `AMS_Backup_${stamp()}.json`); }
 function restoreData(file) {
-  if (!file || !canWrite()) return;
+  if (!file) return;
+  if (!isSuperAdmin()) return toast('Only Super Admin can restore a backup.', 'warn');
   const r = new FileReader();
-  r.onload = () => { try { const d = JSON.parse(r.result); if (!Array.isArray(d.assets)) throw new Error('Invalid file'); cabangData = d.cabang || structuredClone(DEFAULT_CAB); kategoriData = d.kategori || structuredClone(DEFAULT_KAT); assetData = d.assets.map(normAsset); mutasiData = (d.logs || []).map(normLog); enforceOneUnitPerCode(); saveAll(); refreshAll(); toast('Backup restored.', 'success'); } catch (e) { toast(e.message, 'error'); } };
+  r.onload = async () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!Array.isArray(d.assets)) throw new Error('Invalid backup file');
+      if (!(await confirmDialog(`Restore this backup (${d.assets.length} assets)?\n\nThis REPLACES all current data for everyone. A backup of the current data is downloaded first.`, { title:'Restore backup', ok:'Restore' }))) return;
+      backupData();
+      cabangData = d.cabang || structuredClone(DEFAULT_CAB); kategoriData = d.kategori || structuredClone(DEFAULT_KAT);
+      assetData = d.assets.map(normAsset); mutasiData = (d.logs || []).map(normLog); enforceOneUnitPerCode(); sel.clear();
+      saveAll(); refreshAll(); toast('Backup restored.', 'success');
+    } catch (e) { toast(e.message, 'error'); }
+  };
   r.readAsText(file); $('restoreFile').value = '';
 }
-async function loadSample() { if (!canWrite()) return; if (!(await confirmDialog('Load sample data?', { title:'Sample data', ok:'Load' }))) return; cabangData = structuredClone(DEFAULT_CAB); kategoriData = structuredClone(DEFAULT_KAT); assetData = sampleAssets(); mutasiData = sampleLogs(); saveAll(); refreshAll(); }
-async function clearAll() { if (!isSuperAdmin()) return toast('Super Admin only.', 'warn'); if (!(await confirmDialog('Clear all assets and logs?', { title:'Clear all', ok:'Clear' }))) return; assetData = []; mutasiData = []; sel.clear(); saveAll(); refreshAll(); }
+async function loadSample() {
+  if (!isSuperAdmin()) return toast('Only Super Admin can load sample data.', 'warn');
+  if (!(await confirmDialog('Replace ALL current data (for everyone) with sample data?\n\nA backup of the current data is downloaded first.', { title:'Sample data', ok:'Replace' }))) return;
+  backupData();
+  cabangData = structuredClone(DEFAULT_CAB); kategoriData = structuredClone(DEFAULT_KAT); assetData = sampleAssets(); mutasiData = sampleLogs(); sel.clear(); saveAll(); refreshAll();
+}
+async function clearAll() {
+  if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
+  if (!(await confirmDialog('Delete ALL assets and logs for everyone?\n\nA backup file is downloaded first. This cannot be undone from the app.', { title:'Clear all data', ok:'Clear everything' }))) return;
+  backupData();
+  assetData = []; mutasiData = []; sel.clear(); saveAll(); refreshAll();
+}
 
 function openImport() { if (!canWrite()) return toast('Read-only role.', 'warn'); imp = null; $('importFile').value = ''; $('importFileName').textContent = 'No file selected'; $('importResult').classList.add('hidden'); $('importCommit').disabled = true; openModal('modalImport'); }
-function handleImportFile(file) {
-  if (!file || typeof XLSX === 'undefined') return;
+async function handleImportFile(file) {
+  if (!file) return;
+  if (!(await ensureXLSX())) return toast('Excel reader could not be loaded. Check your internet connection.', 'error');
   $('importFileName').textContent = file.name;
   const reader = new FileReader();
+  reader.onerror = () => toast('Could not read the file.', 'error');
   reader.onload = ev => {
-    const wb = XLSX.read(new Uint8Array(ev.target.result), { type:'array' });
-    const assets = [];
-    wb.SheetNames.forEach(name => {
-      XLSX.utils.sheet_to_json(wb.Sheets[name], { defval:'', raw:true }).forEach((row, i) => {
-        const g = mapRow(row, ALIAS_ASSET);
-        if (!String(g.nama || '').trim() || /^\[example/i.test(String(g.nama))) return;
-        assets.push({ rowNo:i + 2, d:{ kode:String(g.kode || '').trim(), nama:String(g.nama).trim(), kategori:String(g.kategori || '').trim() || 'Others', cabang:String(g.cabang || '').trim() || (cabangData[0]?.nama || 'Depok'), lokasi:String(g.lokasi || '').trim(), qty:1, rawQty:Math.max(1, Math.min(500, Math.round(num(g.qty) || 1))), harga:Math.max(0, num(g.harga)), kondisi:normCondition(g.kondisi) || 'Good', status:normStatus(g.status) || 'Active', pic:String(g.pic || '').trim(), sn:String(g.sn || '').trim(), specs:String(g.specs || '').trim() } });
-      });
-    });
-    imp = { assets, plan:null }; $('importResult').classList.remove('hidden'); rebuildImport();
+    try {
+      const wb = XLSX.read(new Uint8Array(ev.target.result), { type:'array' });
+      const parsed = parseWorkbook(wb);
+      if (!parsed.assets.length && !parsed.logs.length) return toast('No asset or log rows were found. Check the column headers (download the template for reference).', 'error');
+      imp = { parsed, plan:null };
+      $('importResult').classList.remove('hidden'); rebuildImport();
+    } catch (err) { toast('Could not read this file: ' + err.message, 'error'); }
   };
   reader.readAsArrayBuffer(file);
 }
-function rebuildImport() {
-  const taken = new Set(assetData.map(a => a.kode.toUpperCase())), planned = [];
-  imp.assets.forEach(p => {
-    const d = { ...p.d };
-    if (!d.kode) d.kode = nextCode('AST-IMP-GEN', taken);
-    expandUnits(d, d.rawQty || 1, taken).forEach(u => planned.push({ rowNo:p.rowNo, d:u, action:'new' }));
+function parseWorkbook(wb) {
+  const out = { assets:[], logs:[] }, LIMIT = 5000;
+  wb.SheetNames.forEach(name => {
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], { defval:'', raw:true });
+    if (!rows.length) return;
+    const keys = new Set(Object.keys(rows[0]).map(hdrKey));
+    if (keys.has('metric') || keys.has('branch') && keys.has('units')) return;
+    const isLog = keys.has('logid') || keys.has('actiontype');
+    const isAsset = !isLog && (keys.has('assetname') || keys.has('namaaset') || keys.has('nama') || keys.has('name'));
+    rows.slice(0, LIMIT).forEach((row, i) => {
+      if (isLog) { const r = parseLogRow(row, i + 2); if (r) out.logs.push(r); }
+      else if (isAsset) { const r = parseAssetRow(row, i + 2); if (r) out.assets.push(r); }
+    });
   });
-  imp.plan = planned;
-  $('importChips').innerHTML = `<span class="badge bg-emerald-100 text-emerald-700" style="font-size:.78rem;padding:.25rem .7rem">${planned.length} unit rows ready</span>`;
-  $('importPreview').innerHTML = planned.slice(0, 100).map(r => `<tr><td class="p-2">Asset</td><td class="p-2">${r.rowNo}</td><td class="p-2"><span class="badge bg-emerald-100 text-emerald-700">new</span></td><td class="p-2 font-mono">${esc(r.d.kode)}</td><td class="p-2">${esc(r.d.nama)}</td><td class="p-2">${esc(r.d.cabang)}</td><td class="p-2">${esc(r.d.kategori)}</td><td class="p-2 text-right">1</td><td class="p-2 text-right">${fmtNum(r.d.harga)}</td><td class="p-2">1 unit</td></tr>`).join('');
-  $('importCommit').disabled = planned.length === 0;
-  $('importCommit').querySelector('span').textContent = `Import ${planned.length} units`;
+  return out;
+}
+function parseAssetRow(row, rowNo) {
+  const g = mapRow(row, ALIAS_ASSET), issues = [], errors = [];
+  const nama = String(g.nama || '').trim();
+  if (/^\[example/i.test(nama)) return null;
+  if (!nama) errors.push('Asset name is empty');
+  let qty = g.qty === '' ? 1 : num(g.qty); if (qty < 1) { issues.push('Qty invalid → 1'); qty = 1; }
+  const d = { kode:String(g.kode || '').trim(), nama, kategori:String(g.kategori || '').trim(), cabang:String(g.cabang || '').trim(), lokasi:String(g.lokasi || '').trim(),
+    qty:Math.round(qty), harga:Math.max(0, num(g.harga)), tgl:parseDate(g.tgl), kondisi:normCondition(g.kondisi) || 'Good', status:normStatus(g.status) || 'Active',
+    pic:String(g.pic || '').trim(), sn:String(g.sn || '').trim(), specs:String(g.specs || '').trim(), garansi:parseDate(g.garansi), servis:parseDate(g.servis) };
+  if (g.tgl !== '' && !d.tgl) issues.push('Acquisition date not recognised (left blank)');
+  if (g.garansi !== '' && !d.garansi) issues.push('Warranty date not recognised');
+  if (g.servis !== '' && !d.servis) issues.push('Next maintenance date not recognised');
+  const rmOn = truthy(g.rm), every = Math.round(num(g.rmEvery)), unit = normUnit(g.rmUnit) || 'months';
+  d.rm = rmOn && every >= 1; d.rmEvery = Math.max(0, every); d.rmUnit = unit; d.rmLast = parseDate(g.rmLast);
+  d.rmRemind = g.rmRemind === '' ? 7 : Math.max(0, Math.round(num(g.rmRemind)));
+  if (rmOn && every < 1) issues.push('Routine maintenance needs an interval → routine turned off');
+  if (g.rmUnit !== '' && !normUnit(g.rmUnit)) issues.push(`Unknown interval unit "${g.rmUnit}" → Months`);
+  if (g.rmLast !== '' && !d.rmLast) issues.push('Last maintenance date not recognised');
+  if (d.rm && !d.servis) d.servis = addInterval(d.rmLast || todayStr(), every, unit);
+  if (g.kondisi !== '' && !normCondition(g.kondisi)) issues.push(`Unknown condition "${g.kondisi}" → Good`);
+  if (g.status !== '' && !normStatus(g.status)) issues.push(`Unknown status "${g.status}" → Active`);
+  return { rowNo, d, issues, errors };
+}
+function parseLogRow(row, rowNo) {
+  const g = mapRow(row, ALIAS_LOG), issues = [], errors = [];
+  if (/^\[example/i.test(String(g.nama || ''))) return null;
+  const d = { id:String(g.id || '').trim(), kode:String(g.kode || '').trim(), nama:String(g.nama || '').trim(), tgl:parseDate(g.tgl), tipe:normLogType(g.tipe) || 'Service / Repair',
+    asal:String(g.asal || '').trim(), tujuan:String(g.tujuan || '').trim(), biaya:Math.max(0, num(g.biaya)), status:normLogStatus(g.status) || 'Completed', ket:String(g.ket || '').trim() };
+  if (!d.kode) errors.push('Asset code is empty');
+  if (!d.tgl) errors.push('Date missing or not recognised');
+  if (g.tipe !== '' && !normLogType(g.tipe)) issues.push(`Unknown action type "${g.tipe}" → Service / Repair`);
+  if (g.status !== '' && !normLogStatus(g.status)) issues.push(`Unknown status "${g.status}" → Completed`);
+  return { rowNo, d, issues, errors };
+}
+function buildImportPlan() {
+  const opts = { dup:(document.querySelector('input[name="impDup"]:checked') || {}).value || 'skip', create:$('impCreate').checked };
+  const existing = new Map(assetData.map(a => [a.kode.toUpperCase(), a]));
+  const taken = new Set(existing.keys()), seen = new Set();
+  const pendCab = new Map(), pendKat = new Map();
+  const usedCab = new Set(cabangData.map(c => c.kode)), usedKat = new Set(kategoriData.map(c => c.kode));
+  const resolve = (list, val, pend, used) => {
+    const v = String(val || '').trim(); if (!v) return null;
+    const f = list.find(x => x.nama.toLowerCase() === v.toLowerCase() || x.kode.toLowerCase() === v.toLowerCase());
+    if (f) return { nama:f.nama, kode:f.kode, isNew:false };
+    if (pend.has(v.toLowerCase())) return pend.get(v.toLowerCase());
+    if (!opts.create) return null;
+    const code = makeRefCode(v, used); used.add(code);
+    const r = { nama:v, kode:code, isNew:true }; pend.set(v.toLowerCase(), r); return r;
+  };
+  const assets = imp.parsed.assets.map(p => {
+    const d = { ...p.d }, issues = [...p.issues], errors = [...p.errors];
+    let action = 'new', units = null;
+    if (!errors.length) {
+      const cab = resolve(cabangData, d.cabang, pendCab, usedCab) || (d.cabang ? null : (cabangData[0] ? { nama:cabangData[0].nama, kode:cabangData[0].kode } : null));
+      const kat = resolve(kategoriData, d.kategori, pendKat, usedKat) || (d.kategori ? null : (kategoriData.find(k => k.kode === 'OTH') || kategoriData[0] ? { nama:(kategoriData.find(k => k.kode === 'OTH') || kategoriData[0]).nama, kode:(kategoriData.find(k => k.kode === 'OTH') || kategoriData[0]).kode } : null));
+      if (!cab) errors.push(d.cabang ? `Unknown branch "${d.cabang}"` : 'No branch available');
+      else { if (!d.cabang) issues.push(`Branch empty → ${cab.nama}`); d.cabang = cab.nama; }
+      if (!kat) errors.push(d.kategori ? `Unknown category "${d.kategori}"` : 'No category available');
+      else { if (!d.kategori) issues.push(`Category empty → ${kat.nama}`); d.kategori = kat.nama; }
+      if (!errors.length) {
+        const newCode = () => { const c = nextCode(`AST-${cab.kode}-${kat.kode}`, taken); return c; };
+        const key = d.kode.toUpperCase();
+        if (!key) { d.kode = newCode(); issues.push('Code auto-generated'); }
+        else if (existing.has(key) || seen.has(key)) {
+          if (opts.dup === 'duplicate') { d.kode = newCode(); issues.push('Duplicate code → new code assigned'); }
+          else if (opts.dup === 'update' && existing.has(key) && !seen.has(key)) { action = 'update'; d.kode = existing.get(key).kode; }
+          else { action = 'skip'; issues.push(seen.has(key) ? 'Duplicate code inside the file' : 'Code already exists'); }
+        }
+        if (action !== 'skip') { taken.add(d.kode.toUpperCase()); }
+        seen.add(key || d.kode.toUpperCase());
+        if (action === 'new' && d.qty > 1) {
+          units = expandUnits({ ...d, qty:1 }, d.qty, taken);
+          issues.push(`Qty ${d.qty} → ${units.length} separate units (${units[0].kode} … ${units[units.length - 1].kode})`);
+        } else if (action === 'update' && d.qty > 1) issues.push('Qty ignored on update (1 code = 1 unit)');
+      }
+    }
+    if (errors.length) action = 'error';
+    return { sheet:'Asset', rowNo:p.rowNo, d, issues, errors, action, units };
+  });
+  const finalAssets = new Set([...existing.keys(), ...assets.filter(a => a.action === 'new' || a.action === 'update').flatMap(a => (a.units || [a.d]).map(u => u.kode.toUpperCase()))]);
+  const sigs = new Set(mutasiData.map(m => [m.kode, m.tgl, m.tipe, m.tujuan, m.biaya].join('|').toUpperCase()));
+  const takenLogIds = new Set(mutasiData.map(m => m.id));
+  const logs = imp.parsed.logs.map(p => {
+    const d = { ...p.d }, issues = [...p.issues], errors = [...p.errors];
+    let action = 'new';
+    if (!errors.length) {
+      const key = d.kode.toUpperCase();
+      if (!finalAssets.has(key)) errors.push(`Asset code ${d.kode} not found`);
+      else {
+        const real = assetData.find(a => a.kode.toUpperCase() === key) || assets.flatMap(a => a.units || [a.d]).find(u => u.kode.toUpperCase() === key);
+        if (real) { d.kode = real.kode; if (!d.nama) d.nama = real.nama; }
+        const sig = [d.kode, d.tgl, d.tipe, d.tujuan, d.biaya].join('|').toUpperCase();
+        if (sigs.has(sig)) { action = 'skip'; issues.push('Same log already exists'); }
+        else {
+          sigs.add(sig);
+          if (!d.id || takenLogIds.has(d.id)) { let max = 0; takenLogIds.forEach(i => { const r = /^LOG-(\d+)$/.exec(i); if (r) max = Math.max(max, +r[1]); }); d.id = `LOG-${String(max + 1).padStart(3, '0')}`; }
+          takenLogIds.add(d.id);
+        }
+      }
+    }
+    if (errors.length) action = 'error';
+    return { sheet:'Log', rowNo:p.rowNo, d, issues, errors, action };
+  });
+  return { assets, logs, pendCab, pendKat };
+}
+function rebuildImport() {
+  imp.plan = buildImportPlan();
+  const { assets, logs } = imp.plan;
+  const cnt = (l, a) => l.filter(x => x.action === a).length;
+  const newUnits = assets.filter(a => a.action === 'new').reduce((s, a) => s + (a.units ? a.units.length : 1), 0);
+  const chip = (t, c) => `<span class="badge ${c}" style="font-size:.78rem;padding:.25rem .7rem">${t}</span>`;
+  $('importChips').innerHTML =
+    (assets.length ? chip(`Assets: ${newUnits} new`, 'bg-emerald-100 text-emerald-700') + chip(`${cnt(assets, 'update')} update`, 'bg-blue-100 text-blue-700') + chip(`${cnt(assets, 'skip')} skip`, 'bg-slate-200 text-slate-600') + chip(`${cnt(assets, 'error')} error`, 'bg-rose-100 text-rose-700') : '') +
+    (logs.length ? chip(`Logs: ${cnt(logs, 'new')} new`, 'bg-emerald-100 text-emerald-700') + chip(`${cnt(logs, 'skip')} skip`, 'bg-slate-200 text-slate-600') + chip(`${cnt(logs, 'error')} error`, 'bg-rose-100 text-rose-700') : '');
+  const ACT = { new:'bg-emerald-100 text-emerald-700', update:'bg-blue-100 text-blue-700', skip:'bg-slate-200 text-slate-600', error:'bg-rose-100 text-rose-700' };
+  const all = [...assets, ...logs].sort((a, b) => (a.action === 'error' ? 0 : 1) - (b.action === 'error' ? 0 : 1));
+  $('importPreview').innerHTML = all.slice(0, 100).map(r => `<tr class="${r.action === 'error' ? 'bg-rose-50/50' : ''}">
+    <td class="p-2">${r.sheet}</td><td class="p-2 text-slate-400">${r.rowNo}</td><td class="p-2"><span class="badge ${ACT[r.action]}">${r.action}</span></td>
+    <td class="p-2 font-mono">${esc(r.d.kode)}</td><td class="p-2">${esc(r.d.nama)}</td><td class="p-2">${esc(r.d.cabang || r.d.asal || '')}</td><td class="p-2">${esc(r.d.kategori || r.d.tipe || '')}</td>
+    <td class="p-2 text-right">${r.sheet === 'Asset' ? r.d.qty : ''}</td><td class="p-2 text-right">${r.sheet === 'Asset' ? fmtNum(r.d.harga) : fmtNum(r.d.biaya)}</td>
+    <td class="p-2 text-slate-500">${esc([...r.errors, ...r.issues].join('; '))}</td></tr>`).join('');
+  $('importMore').textContent = all.length > 100 ? `Showing the first 100 of ${all.length} rows (errors first). All valid rows will be imported.` : '';
+  const ok = newUnits + cnt(assets, 'update') + cnt(logs, 'new');
+  $('importCommit').disabled = ok === 0;
+  $('importCommit').querySelector('span').textContent = ok ? `Import ${ok} record${ok > 1 ? 's' : ''}` : 'Nothing to import';
 }
 function commitImport() {
-  if (!imp?.plan?.length || !canWrite()) return;
-  imp.plan.forEach(r => assetData.push(normAsset(r.d)));
-  enforceOneUnitPerCode(); saveAll(); closeModal('modalImport'); refreshAll(); toast(`${imp.plan.length} units imported.`, 'success'); imp = null;
+  if (!imp || !imp.plan || !canWrite()) return;
+  const { assets, logs, pendCab, pendKat } = imp.plan;
+  pendCab.forEach(c => cabangData.push({ kode:c.kode, nama:c.nama }));
+  pendKat.forEach(c => kategoriData.push({ kode:c.kode, nama:c.nama }));
+  let n = 0, u = 0, l = 0;
+  assets.forEach(r => {
+    if (r.action === 'new') { (r.units || [r.d]).forEach(x => { assetData.push(normAsset({ ...x, qty:1 })); n++; }); }
+    else if (r.action === 'update') { const i = assetData.findIndex(a => a.kode.toUpperCase() === r.d.kode.toUpperCase()); if (i > -1) { assetData[i] = normAsset({ ...r.d, qty:1 }); u++; } }
+  });
+  logs.forEach(r => { if (r.action === 'new') { mutasiData.push(normLog(r.d)); l++; } });
+  saveAll(); closeModal('modalImport'); refreshAll();
+  toast(`Import complete: ${n} new, ${u} updated assets, ${l} logs.`, 'success');
+  imp = null;
 }
 
 function closeMenus() { document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden')); }
 function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden'); closeMenus(); if (was) m.classList.remove('hidden'); }
 const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
-  syncNow: () => (sb && currentUser) ? syncToSupabase(false) : toast('Sign in and connect to Supabase first.', 'warn'),
+  syncNow: () => manualSync(),
   openDeleted: openDeletedModal, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
   doExport, template: downloadTemplate, backup: backupData, restore: () => $('restoreFile').click(), loadSample, clearAll, commitImport,
@@ -1362,7 +1717,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await applySession(data.session);
     sb.auth.onAuthStateChange(async (_event, session) => {
       if (!session?.user) {
-        currentUser = null;
+        currentUser = null; stopPolling();
         currentRole = 'viewer';
         renderRoleUI();
         setDbBadge('local', 'Signed Out');

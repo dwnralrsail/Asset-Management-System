@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asset Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body{font-family:'Inter',system-ui,-apple-system,Segoe UI,sans-serif}
+  .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .8rem;border-radius:.6rem;font-size:.85rem;font-weight:500;transition:.15s;cursor:pointer;white-space:nowrap}
+  .btn svg{width:1rem;height:1rem;flex-shrink:0}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-primary{background:#2563eb;color:#fff}.btn-primary:hover:not(:disabled){background:#1d4ed8}
+  .btn-ghost{background:#fff;border:1px solid #cbd5e1;color:#334155}.btn-ghost:hover{background:#f1f5f9}
+  .btn-dark{background:#1e293b;border:1px solid #334155;color:#e2e8f0}.btn-dark:hover{background:#334155}
+  .btn-danger{background:#e11d48;color:#fff}.btn-danger:hover{background:#be123c}
+  .input{width:100%;border:1px solid #cbd5e1;border-radius:.6rem;padding:.55rem .75rem;font-size:.875rem;background:#fff;color:#0f172a}
+  .input:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+  .input[readonly]{background:#f1f5f9;color:#475569}
+  .lbl{display:block;font-size:.78rem;font-weight:600;color:#475569;margin-bottom:.25rem}
+  .badge{display:inline-block;padding:.12rem .55rem;border-radius:999px;font-size:.72rem;font-weight:600;white-space:nowrap}
+  .menu{position:absolute;right:0;margin-top:.4rem;min-width:15rem;background:#fff;color:#1e293b;border:1px solid #e2e8f0;border-radius:.75rem;box-shadow:0 10px 30px rgba(15,23,42,.18);padding:.35rem;z-index:60}
+  .menu button{display:flex;width:100%;align-items:center;gap:.6rem;padding:.5rem .65rem;border-radius:.5rem;font-size:.85rem;text-align:left}
+  .menu button:hover{background:#f1f5f9}
+  .menu svg{width:1rem;height:1rem;color:#64748b}
+  .menu hr{margin:.3rem 0;border-color:#e2e8f0}
+  .tab{padding:.85rem .25rem;color:#64748b;font-weight:500;display:flex;align-items:center;gap:.5rem;border-bottom:2px solid transparent;white-space:nowrap}
+  .tab:hover{color:#0f172a}
+  .tab.active{color:#2563eb;border-bottom-color:#2563eb;font-weight:600}
+  .tab svg{width:1.1rem;height:1.1rem}
+  th.sortable{cursor:pointer;user-select:none}
+  th.sortable:hover{color:#2563eb}
+  .card{background:#fff;border:1px solid #e2e8f0;border-radius:.9rem;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .bar{height:.5rem;border-radius:999px;background:#e2e8f0;overflow:hidden}
+  .bar>div{height:100%;border-radius:999px;background:#2563eb}
+  .toast{animation:tin .2s ease-out}
+  @keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .dz.over{border-color:#2563eb;background:#eff6ff}
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+<header class="bg-slate-900 text-white">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="p-2 bg-blue-600 rounded-lg shrink-0"><i data-lucide="box" class="w-5 h-5"></i></div>
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <h1 class="text-base sm:text-lg font-bold leading-tight">Asset Management System</h1>
+          <span id="dbBadge" class="badge bg-slate-800 text-slate-300 border border-slate-700">Local Mode</span>
+        </div>
+        <p id="headerSub" class="text-xs text-slate-400 truncate">Operational asset tracking for General Affairs</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="btn btn-dark" data-act="settings" data-id="cabang"><i data-lucide="building"></i><span class="hidden md:inline">Branches</span></button>
+      <button class="btn btn-dark" data-act="settings" data-id="kategori"><i data-lucide="tags"></i><span class="hidden md:inline">Categories</span></button>
+      <div class="relative">
+        <button class="btn btn-primary" data-act="menu" data-id="dataMenu"><i data-lucide="database"></i><span>Data</span><i data-lucide="chevron-down"></i></button>
+        <div id="dataMenu" class="menu hidden">
+          <button data-act="syncNow"><i data-lucide="refresh-cw"></i>Sync with Supabase</button>
+          <hr>
+          <button data-act="openImport"><i data-lucide="upload"></i>Import from Excel / CSV</button>
+          <button data-act="openExport" data-id="excel"><i data-lucide="file-spreadsheet"></i>Export to Excel</button>
+          <button data-act="openExport" data-id="pdf"><i data-lucide="file-text"></i>Export to PDF</button>
+          <button data-act="template"><i data-lucide="file-down"></i>Download import template</button>
+          <hr>
+          <button data-act="backup"><i data-lucide="hard-drive-download"></i>Backup all data (.json)</button>
+          <button data-act="restore"><i data-lucide="hard-drive-upload"></i>Restore from backup</button>
+          <hr>
+          <button data-act="loadSample"><i data-lucide="flask-conical"></i>Load sample data</button>
+          <button data-act="clearAll" style="color:#e11d48"><i data-lucide="trash-2" style="color:#e11d48"></i>Clear all data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-20">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 flex gap-6 overflow-x-auto text-sm">
+    <button class="tab active" id="tab-dashboard" data-act="tab" data-id="dashboard"><i data-lucide="layout-dashboard"></i>Dashboard</button>
+    <button class="tab" id="tab-master" data-act="tab" data-id="master"><i data-lucide="database"></i>Assets <span id="cntAssets" class="badge bg-slate-100 text-slate-600">0</span></button>
+    <button class="tab" id="tab-mutasi" data-act="tab" data-id="mutasi"><i data-lucide="arrow-left-right"></i>Mutation & Service Logs <span id="cntLogs" class="badge bg-slate-100 text-slate-600">0</span></button>
+  </div>
+</nav>
+
+<main class="max-w-[1600px] w-full mx-auto px-4 sm:px-6 py-6 grow">
+  <section id="sec-dashboard" class="space-y-6">
+    <div id="kpiGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4"></div>
+    <div class="card p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-slate-900 flex items-center gap-2"><i data-lucide="calendar-clock" class="w-5 h-5 text-blue-600"></i>Maintenance Schedule</h3>
+        <button class="btn btn-ghost" style="padding:.3rem .7rem" data-act="filterDue">View all due</button>
+      </div>
+      <div id="scheduleList" class="divide-y divide-slate-100"></div>
+    </div>
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div class="card p-5 xl:col-span-2">
+        <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="map-pin" class="w-5 h-5 text-blue-600"></i>Distribution by Branch</h3>
+        <div id="branchCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </div>
+      <div class="card p-5">
+        <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="bell-ring" class="w-5 h-5 text-amber-500"></i>Needs Attention</h3>
+        <div id="attentionList" class="space-y-2"></div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="card p-5">
+        <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="tags" class="w-5 h-5 text-blue-600"></i>Units by Category</h3>
+        <div id="catBars" class="space-y-3"></div>
+      </div>
+      <div class="card p-5">
+        <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="activity" class="w-5 h-5 text-blue-600"></i>Status Breakdown</h3>
+        <div id="statusBars"></div>
+      </div>
+      <div class="card p-5">
+        <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5 text-blue-600"></i>Recent Activity</h3>
+        <div id="recentLogs" class="space-y-3"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sec-master" class="hidden space-y-4">
+    <div class="card p-4 flex flex-col lg:flex-row justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="relative w-full sm:w-64">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+          <input id="fSearch" type="text" placeholder="Search name, code, S/N, PIC..." class="input" style="padding-left:2.2rem">
+        </div>
+        <select id="fCab" class="input" style="width:auto"></select>
+        <select id="fKat" class="input" style="width:auto"></select>
+        <select id="fSt" class="input" style="width:auto"></select>
+        <select id="fRm" class="input" style="width:auto"></select>
+        <button class="btn btn-ghost" data-act="clearFilters" title="Clear filters"><i data-lucide="filter-x"></i></button>
+        <div class="relative">
+          <button class="btn btn-ghost" data-act="menu" data-id="colMenu"><i data-lucide="columns-3"></i>Columns</button>
+          <div id="colMenu" class="menu hidden" style="right:auto;left:0;min-width:13rem"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary justify-center" data-act="addAsset"><i data-lucide="plus"></i>Add New Asset</button>
+    </div>
+    <div class="card overflow-x-auto">
+      <table class="w-full text-left text-sm border-collapse min-w-max">
+        <thead id="masterHead" class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wide"></thead>
+        <tbody id="masterBody" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+    <div id="masterFooter" class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500"></div>
+  </section>
+
+  <section id="sec-mutasi" class="hidden space-y-4">
+    <div class="card p-4 flex flex-col lg:flex-row justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="relative w-full sm:w-64">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+          <input id="lSearch" type="text" placeholder="Search code, name, vendor..." class="input" style="padding-left:2.2rem">
+        </div>
+        <select id="lType" class="input" style="width:auto"></select>
+        <select id="lSt" class="input" style="width:auto"></select>
+      </div>
+      <button class="btn btn-primary justify-center" data-act="addLog"><i data-lucide="plus"></i>Add Log Entry</button>
+    </div>
+    <div class="card overflow-x-auto">
+      <table class="w-full text-left text-sm border-collapse min-w-max">
+        <thead class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wide">
+          <tr>
+            <th class="p-3 text-center">No.</th><th class="p-3">Log ID</th><th class="p-3">Asset</th><th class="p-3">Date</th>
+            <th class="p-3">Action Type</th><th class="p-3">Origin</th><th class="p-3">Destination / Vendor</th>
+            <th class="p-3 text-right">Cost</th><th class="p-3">Status</th><th class="p-3">Notes</th><th class="p-3 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="logBody" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+    <div id="logFooter" class="text-sm text-slate-500"></div>
+  </section>
+</main>
+
+<footer class="text-center text-xs text-slate-400 py-4">1 asset code = 1 physical unit.</footer>
+
+<div id="bulkBar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-3 rounded-full shadow-2xl hidden items-center gap-3 border border-slate-700 z-40">
+  <span class="text-sm font-medium" id="bulkCount">0 selected</span>
+  <div class="h-4 w-px bg-slate-700"></div>
+  <select id="bulkStatus" class="bg-slate-800 border border-slate-600 text-sm rounded-lg px-2 py-1.5"></select>
+  <button class="btn btn-danger" style="padding:.35rem .8rem" data-act="bulkDelete"><i data-lucide="trash-2"></i>Delete</button>
+  <button class="text-slate-400 hover:text-white" data-act="bulkClear" title="Clear selection"><i data-lucide="x" class="w-4 h-4"></i></button>
+</div>
+
+<div id="toasts" class="fixed bottom-5 right-5 z-[70] space-y-2"></div>
+
+<div id="modalConfirm" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-[65] p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
+    <h3 id="confirmTitle" class="font-bold text-lg text-slate-900">Please confirm</h3>
+    <p id="confirmMsg" class="text-sm text-slate-600 mt-2 whitespace-pre-line"></p>
+    <div class="flex justify-end gap-2 mt-6">
+      <button class="btn btn-ghost" data-act="confirmNo">Cancel</button>
+      <button id="confirmOk" class="btn btn-danger" data-act="confirmYes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalAsset" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden">
+    <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
+      <h3 class="font-bold" id="assetTitle">Add New Asset</h3>
+      <button data-act="closeModal" data-id="modalAsset" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <form id="formAsset" class="p-6 overflow-y-auto space-y-4 text-sm">
+      <input type="hidden" id="editOrig">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label class="lbl">Branch *</label><select id="inpCab" required class="input"></select></div>
+        <div><label class="lbl">Category *</label><select id="inpKat" required class="input"></select></div>
+        <div class="sm:col-span-2"><label class="lbl">Asset Code (auto, 1 code = 1 physical unit)</label><input id="inpKode" readonly class="input font-mono font-bold text-blue-600"></div>
+        <div class="sm:col-span-2"><label class="lbl">Asset Name *</label><input id="inpNama" required maxlength="120" class="input" placeholder="e.g. ThinkPad X1 Carbon"></div>
+        <div><label class="lbl">Units to Create *</label><input id="inpQty" type="number" min="1" max="500" step="1" value="1" required class="input"></div>
+        <div><label class="lbl">Location / Room</label><input id="inpLok" class="input" placeholder="Server Room / Floor 2"></div>
+        <div><label class="lbl">Unit Price (IDR)</label><input id="inpHarga" type="number" min="0" step="any" placeholder="0" class="input"></div>
+        <div><label class="lbl">Acquisition Date</label><input id="inpTgl" type="date" class="input"></div>
+        <div><label class="lbl">Condition</label><select id="inpKond" class="input"></select></div>
+        <div><label class="lbl">Status</label><select id="inpStat" class="input"></select></div>
+        <div><label class="lbl">PIC (Person in Charge)</label><input id="inpPIC" class="input" placeholder="e.g. John Doe"></div>
+        <div><label class="lbl">Serial Number (S/N)</label><input id="inpSN" class="input" placeholder="SN-XXXX-XXXX"></div>
+        <div><label class="lbl">Warranty Until</label><input id="inpGar" type="date" class="input"></div>
+        <div><label class="lbl">Next Maintenance Due</label><input id="inpServ" type="date" class="input"></div>
+        <div class="sm:col-span-2 border border-slate-200 rounded-lg p-3 bg-slate-50">
+          <label class="flex items-center gap-2 font-semibold text-slate-700 cursor-pointer"><input type="checkbox" id="inpRm"><i data-lucide="calendar-clock" class="w-4 h-4 text-blue-600"></i>This asset needs routine maintenance</label>
+          <div id="rmFields" class="hidden mt-3">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="col-span-2"><label class="lbl">Repeat every</label>
+                <div class="flex gap-2"><input id="inpRmEvery" type="number" min="1" step="1" value="3" class="input" style="width:35%">
+                  <select id="inpRmUnit" class="input"><option value="days">Days</option><option value="weeks">Weeks</option><option value="months" selected>Months</option><option value="years">Years</option></select></div></div>
+              <div><label class="lbl">Last maintenance</label><input id="inpRmLast" type="date" class="input"></div>
+              <div><label class="lbl">Remind (days before)</label><input id="inpRmRemind" type="number" min="0" step="1" value="7" class="input"></div>
+            </div>
+          </div>
+        </div>
+        <div id="unitNotice" class="sm:col-span-2 hidden text-xs text-blue-800 bg-blue-50 border border-blue-200 rounded-lg p-3"></div>
+        <div class="sm:col-span-2"><label class="lbl">Specifications / Notes</label><textarea id="inpSpec" rows="2" class="input"></textarea></div>
+      </div>
+      <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+        <button type="button" class="btn btn-ghost" data-act="closeModal" data-id="modalAsset">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Asset</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modalLog" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden">
+    <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
+      <h3 class="font-bold" id="logTitle">Add Mutation / Service Log</h3>
+      <button data-act="closeModal" data-id="modalLog" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <form id="formLog" class="p-6 overflow-y-auto space-y-4 text-sm">
+      <input type="hidden" id="editLogId">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label class="lbl">Asset Code *</label><input id="logKode" required list="assetCodes" autocomplete="off" class="input font-mono uppercase"><datalist id="assetCodes"></datalist></div>
+        <div><label class="lbl">Asset Name</label><input id="logNama" readonly class="input"></div>
+        <div><label class="lbl">Log Date *</label><input id="logTgl" type="date" required class="input"></div>
+        <div><label class="lbl">Action Type *</label><select id="logTipe" class="input"></select></div>
+        <div><label class="lbl">Origin / Current Branch</label><input id="logAsal" class="input"></div>
+        <div><label class="lbl">Destination / Service Vendor</label><input id="logTujuan" class="input" list="branchNames"><datalist id="branchNames"></datalist></div>
+        <div><label class="lbl">Cost (IDR)</label><input id="logBiaya" type="number" min="0" step="any" placeholder="0" class="input"></div>
+        <div><label class="lbl">Log Status</label><select id="logStat" class="input"></select></div>
+        <div class="sm:col-span-2"><label class="lbl">Notes</label><textarea id="logKet" rows="2" class="input"></textarea></div>
+        <label class="sm:col-span-2 flex items-start gap-2 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-3 cursor-pointer">
+          <input type="checkbox" id="logApply" class="mt-0.5">
+          <span><b>Update the asset automatically</b> (status / branch) based on this log.</span>
+        </label>
+      </div>
+      <div class="pt-4 flex justify-end gap-2 border-t border-slate-100">
+        <button type="button" class="btn btn-ghost" data-act="closeModal" data-id="modalLog">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Log</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="modalDetail" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden">
+    <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
+      <h3 class="font-bold">Asset Details</h3>
+      <button data-act="closeModal" data-id="modalDetail" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div id="detailBody" class="p-6 overflow-y-auto text-sm space-y-5"></div>
+    <div id="detailFooter" class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2"></div>
+  </div>
+</div>
+
+<div id="modalSettings" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+    <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
+      <h3 class="font-bold" id="settingsTitle">Manage</h3>
+      <button data-act="closeModal" data-id="modalSettings" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="p-6 space-y-4 text-sm">
+      <form id="formSettings" class="flex gap-2">
+        <input id="setKode" maxlength="6" placeholder="CODE" class="input uppercase font-mono" style="width:32%">
+        <input id="setNama" placeholder="Name" class="input" style="width:68%">
+        <button class="btn btn-primary" type="submit">Add</button>
+      </form>
+      <div class="border border-slate-200 rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+        <table class="w-full text-left"><thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-2.5">Code</th><th class="p-2.5">Name</th><th class="p-2.5 text-center">In use</th><th class="p-2.5"></th></tr></thead>
+        <tbody id="settingsBody" class="divide-y divide-slate-100"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modalExport" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+    <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
+      <h3 class="font-bold" id="exportTitle">Export</h3>
+      <button data-act="closeModal" data-id="modalExport" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="p-5 space-y-2.5 text-sm">
+      <button class="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition" data-act="doExport" data-id="all"><div class="font-semibold">Everything</div><div class="text-xs text-slate-400">Summary + Assets + Logs</div></button>
+      <button class="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition" data-act="doExport" data-id="dashboard"><div class="font-semibold">Dashboard Summary</div><div class="text-xs text-slate-400">KPIs, per branch, per category</div></button>
+      <button class="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition" data-act="doExport" data-id="master"><div class="font-semibold">Asset Data</div><div class="text-xs text-slate-400">Full asset listing</div></button>
+      <button class="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50 transition" data-act="doExport" data-id="mutasi"><div class="font-semibold">Mutation & Service Logs</div><div class="text-xs text-slate-400">Maintenance and transfer history</div></button>
+      <label class="flex items-center gap-2 text-xs text-slate-600 pt-2 cursor-pointer"><input type="checkbox" id="expFilter"> Only export assets matching the current filter / search</label>
+    </div>
+  </div>
+</div>
+
+<div id="modalImport" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden">
+    <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
+      <h3 class="font-bold">Import from Excel / CSV</h3>
+      <button data-act="closeModal" data-id="modalImport" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="p-5 overflow-y-auto space-y-4 text-sm grow">
+      <div id="dropZone" class="dz border-2 border-dashed border-slate-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-400 transition">
+        <i data-lucide="file-up" class="w-8 h-8 mx-auto text-slate-400"></i>
+        <p class="mt-2 font-medium text-slate-700">Drop your file here, or click to browse</p>
+        <p class="text-xs text-slate-400 mt-1">.xlsx, .xls, .csv — Qty > 1 is automatically split into 1 code = 1 physical unit.</p>
+        <input type="file" id="importFile" accept=".xlsx,.xls,.csv" class="hidden">
+      </div>
+      <div class="flex items-center justify-between text-xs text-slate-500">
+        <span id="importFileName">No file selected</span>
+        <button class="btn btn-ghost" data-act="template"><i data-lucide="file-down"></i>Download template</button>
+      </div>
+      <div id="importResult" class="hidden space-y-4">
+        <div id="importChips" class="flex flex-wrap gap-2"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="border border-slate-200 rounded-lg p-3 space-y-1.5">
+            <p class="font-semibold text-slate-700 text-xs uppercase tracking-wide">If an asset code already exists</p>
+            <label class="flex items-center gap-2"><input type="radio" name="impDup" value="skip" checked> Skip the row</label>
+            <label class="flex items-center gap-2"><input type="radio" name="impDup" value="update"> Update the existing asset</label>
+            <label class="flex items-center gap-2"><input type="radio" name="impDup" value="duplicate"> Import as a new asset (new code)</label>
+          </div>
+          <div class="border border-slate-200 rounded-lg p-3 space-y-1.5">
+            <p class="font-semibold text-slate-700 text-xs uppercase tracking-wide">Unknown branches / categories</p>
+            <label class="flex items-center gap-2"><input type="checkbox" id="impCreate" checked> Create them automatically</label>
+          </div>
+        </div>
+        <div class="border border-slate-200 rounded-lg overflow-auto max-h-80">
+          <table class="w-full text-left text-xs min-w-max">
+            <thead class="bg-slate-100 text-slate-600 uppercase sticky top-0"><tr><th class="p-2">Type</th><th class="p-2">Row</th><th class="p-2">Result</th><th class="p-2">Code</th><th class="p-2">Name</th><th class="p-2">Branch</th><th class="p-2">Category</th><th class="p-2 text-right">Qty</th><th class="p-2 text-right">Unit price</th><th class="p-2">Notes</th></tr></thead>
+            <tbody id="importPreview" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+        <p id="importMore" class="text-xs text-slate-400"></p>
+      </div>
+    </div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0">
+      <button class="btn btn-ghost" data-act="closeModal" data-id="modalImport">Cancel</button>
+      <button id="importCommit" class="btn btn-primary" data-act="commitImport" disabled><i data-lucide="check"></i><span>Import</span></button>
+    </div>
+  </div>
+</div>
+<input type="file" id="restoreFile" accept=".json,application/json" class="hidden">
+
+<script>
+const SUPABASE_URL = 'https://drwdhaxmlgfwvgrayoqu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_ZzbQxs-3AUL_l-8TfhTUpw_RLsXPkIS';
+
+const sb = (window.supabase && SUPABASE_URL.startsWith('https://') && !SUPABASE_ANON_KEY.includes('PASTE_YOUR'))
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+const esc = s => String(s ?? '').replace(/[&<>\x22']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\x22':'&quot;',"'":'&#39;'}[c]));
+const hdrKey = s => String(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const pad2 = n => String(n).padStart(2, '0');
+
+function num(v) {
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+  let s = String(v ?? '').replace(/[^\d,.\-]/g, '');
+  if (!s) return 0;
+  if (s.includes(',') && s.includes('.')) {
+    if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
+    else s = s.replace(/,/g, '');
+  } else if (s.includes(',')) {
+    const p = s.split(',');
+    s = (p.length === 2 && p[1].length <= 2) ? p[0] + '.' + p[1] : s.replace(/,/g, '');
+  } else if ((s.match(/\./g) || []).length > 1 || /\.\d{3}$/.test(s)) {
+    s = s.replace(/\./g, '');
+  }
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+
+function validYMD(y, m, d) {
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
+}
+
+function parseDate(v) {
+  if (v === null || v === undefined || v === '') return '';
+  if (v instanceof Date) return isNaN(v) ? '' : `${v.getFullYear()}-${pad2(v.getMonth() + 1)}-${pad2(v.getDate())}`;
+  if (typeof v === 'number') {
+    if (v > 20000 && v < 80000) {
+      const d = new Date(Math.round((v - 25569) * 86400000));
+      return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
+    }
+    return '';
+  }
+  const s = String(v).trim();
+  if (/^\d{5}$/.test(s)) return parseDate(Number(s));
+  let m;
+  if ((m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s))) {
+    const y = +m[1], mo = +m[2], d = +m[3];
+    return validYMD(y, mo, d) ? `${y}-${pad2(mo)}-${pad2(d)}` : '';
+  }
+  if ((m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/.exec(s))) {
+    const d = +m[1], mo = +m[2], y = +m[3];
+    return validYMD(y, mo, d) ? `${y}-${pad2(mo)}-${pad2(d)}` : '';
+  }
+  return '';
+}
+
+const STATUS_MAP = { active:'Active', aktif:'Active', underrepair:'Under Repair', repair:'Under Repair', perbaikan:'Under Repair', service:'Under Repair', intransit:'In Transit', transit:'In Transit', transfer:'In Transit', mutasi:'In Transit', disposed:'Disposed', dispose:'Disposed', writtenoff:'Disposed', dihapus:'Disposed' };
+const COND_MAP = { excellent:'Excellent', sangatbaik:'Excellent', good:'Good', baik:'Good', minordamage:'Minor Damage', rusakringan:'Minor Damage', majordamage:'Major Damage', rusakberat:'Major Damage' };
+const LOGSTATUS_MAP = { inprogress:'In Progress', proses:'In Progress', dalamproses:'In Progress', completed:'Completed', selesai:'Completed', cancelled:'Cancelled', canceled:'Cancelled', batal:'Cancelled', dibatalkan:'Cancelled' };
+const normStatus = v => STATUS_MAP[hdrKey(v)] || null;
+const normCondition = v => COND_MAP[hdrKey(v)] || null;
+const normLogStatus = v => LOGSTATUS_MAP[hdrKey(v)] || null;
+function normLogType(v) {
+  const k = hdrKey(v);
+  if (!k) return null;
+  if (k.includes('transfer') || k.includes('mutasi')) return 'Branch Transfer';
+  if (k.includes('routine') || k.includes('rutin')) return 'Routine Maintenance';
+  if (k.includes('dispos') || k.includes('writtenoff') || k.includes('hapus')) return 'Disposed / Written Off';
+  if (k.includes('service') || k.includes('repair') || k.includes('perbaikan')) return 'Service / Repair';
+  return null;
+}
+
+const UNIT_SING = { days:'day', weeks:'week', months:'month', years:'year' };
+function normUnit(v) {
+  const k = hdrKey(v);
+  if (!k) return null;
+  if (k.startsWith('day') || k.includes('hari')) return 'days';
+  if (k.startsWith('week') || k.includes('minggu')) return 'weeks';
+  if (k.startsWith('month') || k.includes('bulan')) return 'months';
+  if (k.startsWith('year') || k.includes('tahun')) return 'years';
+  return null;
+}
+function truthy(v) { return ['yes', 'ya', 'y', 'true', '1', 'x', 'aktif', 'active'].includes(hdrKey(v)); }
+function addInterval(s, n, unit) {
+  if (!s || !(n > 0)) return '';
+  const [y, m, d] = s.split('-').map(Number);
+  let dt;
+  if (unit === 'days') dt = new Date(Date.UTC(y, m - 1, d + n));
+  else if (unit === 'weeks') dt = new Date(Date.UTC(y, m - 1, d + n * 7));
+  else {
+    const total = (m - 1) + (unit === 'years' ? n * 12 : n);
+    const ty = y + Math.floor(total / 12), tm = ((total % 12) + 12) % 12;
+    const last = new Date(Date.UTC(ty, tm + 1, 0)).getUTCDate();
+    dt = new Date(Date.UTC(ty, tm, Math.min(d, last)));
+  }
+  return `${dt.getUTCFullYear()}-${pad2(dt.getUTCMonth() + 1)}-${pad2(dt.getUTCDate())}`;
+}
+
+function nextCode(prefix, taken) {
+  const P = prefix.toUpperCase();
+  const re = new RegExp('^' + P.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '-(\\d+)$');
+  let max = 0;
+  taken.forEach(c => { const m = re.exec(c); if (m) max = Math.max(max, +m[1]); });
+  let n = max + 1, code;
+  do { code = `${P}-${String(n).padStart(3, '0')}`; n++; } while (taken.has(code));
+  return code;
+}
+
+function makeRefCode(name, takenCodes) {
+  const base = String(name).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'GEN';
+  let c = base, i = 2;
+  while (takenCodes.has(c)) { c = base + i; i++; }
+  return c;
+}
+
+const ALIAS_ASSET = {
+  kode: ['assetcode','kodeaset','kode','code'], nama: ['assetname','namaaset','nama','name'],
+  kategori: ['category','kategori'], cabang: ['branch','cabang'], lokasi: ['location','lokasi','locationroom','room'],
+  qty: ['qty','quantity','jumlah'], harga: ['unitpriceidr','unitprice','hargasatuanrp','hargasatuan','harga','price'],
+  tgl: ['acquisitiondate','tanggalperolehan','tanggal','date'], kondisi: ['condition','kondisi'], status: ['status'],
+  pic: ['pic','personincharge','penanggungjawab'], sn: ['sn','serialnumber','serialno','nomorseri'],
+  specs: ['specifications','spesifikasi','specs','notes'], garansi: ['warrantyuntil','garansi','warranty','garansisampai'],
+  servis: ['nextmaintenancedue','nextmaintenance','nextservice','nextservicedate','servisberikutnya','jadwalservis'],
+  rm: ['routinemaintenance','maintenancerutin','rutin'], rmEvery: ['interval','maintenanceinterval','intervalrutin'],
+  rmUnit: ['intervalunit','satuaninterval'], rmLast: ['lastmaintenance','maintenanceterakhir'],
+  rmRemind: ['reminddaysbefore','remind','pengingat']
+};
+const ALIAS_LOG = {
+  id: ['logid','id'], kode: ['assetcode','kodeaset','kode','code'], nama: ['assetname','namaaset','nama'],
+  tgl: ['date','logdate','tanggal'], tipe: ['actiontype','tipe','type'], asal: ['origin','asal'],
+  tujuan: ['destinationvendor','destination','tujuan','vendor'], biaya: ['costidr','cost','biaya'],
+  status: ['status'], ket: ['notes','keterangan','note']
+};
+function mapRow(row, aliases) {
+  const km = {};
+  Object.keys(row).forEach(h => { km[hdrKey(h)] = row[h]; });
+  const out = {};
+  Object.keys(aliases).forEach(f => {
+    out[f] = '';
+    for (const a of aliases[f]) { if (km[a] !== undefined && km[a] !== '') { out[f] = km[a]; break; } }
+  });
+  return out;
+}
+
+const KEYS = { cab:'ams_cabang', kat:'ams_kategori', ast:'ams_asset', mut:'ams_mutasi', col:'ams_col_vis3' };
+const STATUSES = ['Active','Under Repair','In Transit','Disposed'];
+const CONDITIONS = ['Excellent','Good','Minor Damage','Major Damage'];
+const LOG_TYPES = ['Service / Repair','Branch Transfer','Routine Maintenance','Disposed / Written Off'];
+const LOG_STATUSES = ['In Progress','Completed','Cancelled'];
+const PAGE = 20;
+
+const DEFAULT_CAB = [{kode:'DPK',nama:'Depok'},{kode:'BTN',nama:'Bintaro'},{kode:'TJD',nama:'Tanjung Duren'},{kode:'BKS',nama:'Bekasi'}];
+const DEFAULT_KAT = [{kode:'AC',nama:'Air Conditioner'},{kode:'EL',nama:'Electrical'},{kode:'IT',nama:'IT & Office Equipment'},{kode:'TRT',nama:'Treatment Tools'},{kode:'MED',nama:'Medical Equipment'},{kode:'FUR',nama:'Furniture'},{kode:'SAF',nama:'Safety & Security'},{kode:'HOU',nama:'Housekeeping'},{kode:'TOOL',nama:'Tools'},{kode:'OTH',nama:'Others'}];
+
+let cabangData = [], kategoriData = [], assetData = [], mutasiData = [], colVis = {};
+const sel = new Set();
+const F = { q:'', cab:'', kat:'', st:'', rm:'', page:1, sortK:'kode', sortDir:1 };
+const LF = { q:'', tipe:'', st:'' };
+let settingsMode = 'cabang', exportKind = 'excel', confirmResolve = null, imp = null;
+
+const $ = id => document.getElementById(id);
+const icons = () => { if (window.lucide) lucide.createIcons(); };
+
+function setDbBadge(mode, label) {
+  const el = $('dbBadge');
+  if (!el) return;
+  const map = {
+    cloud: 'bg-emerald-950 text-emerald-300 border-emerald-700',
+    local: 'bg-slate-800 text-slate-300 border-slate-700',
+    error: 'bg-rose-950 text-rose-300 border-rose-700'
+  };
+  el.className = `badge border ${map[mode] || map.local}`;
+  el.textContent = label;
+}
+
+function todayStr() { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+function addDays(s, n) { const d = new Date(s + 'T00:00:00'); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+function daysUntil(s) { return Math.round((new Date(s + 'T00:00:00') - new Date(todayStr() + 'T00:00:00')) / 86400000); }
+function fmtDate(s) { if (!s) return '-'; const d = new Date(s + 'T00:00:00'); return isNaN(d) ? s : d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); }
+const fmtIDR = v => new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', maximumFractionDigits:0 }).format(+v || 0);
+const fmtNum = v => new Intl.NumberFormat('id-ID').format(+v || 0);
+const stamp = () => { const d = new Date(); return `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}_${pad2(d.getHours())}${pad2(d.getMinutes())}`; };
+
+function toast(msg, type = 'info') {
+  const colors = { info:'bg-slate-900', success:'bg-emerald-600', error:'bg-rose-600', warn:'bg-amber-600' };
+  const el = document.createElement('div');
+  el.className = `toast ${colors[type] || colors.info} text-white text-sm px-4 py-3 rounded-lg shadow-lg max-w-sm`;
+  el.textContent = msg;
+  $('toasts').appendChild(el);
+  setTimeout(() => el.remove(), type === 'error' ? 6000 : 3500);
+}
+function openModal(id) { $(id).classList.remove('hidden'); icons(); }
+function closeModal(id) { $(id).classList.add('hidden'); }
+function confirmDialog(msg, { title = 'Please confirm', ok = 'Confirm', danger = true } = {}) {
+  $('confirmTitle').textContent = title;
+  $('confirmMsg').textContent = msg;
+  const b = $('confirmOk'); b.textContent = ok; b.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+  openModal('modalConfirm');
+  return new Promise(r => { confirmResolve = r; });
+}
+function resolveConfirm(v) { closeModal('modalConfirm'); if (confirmResolve) { confirmResolve(v); confirmResolve = null; } }
+
+function readLS(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
+function saveLocal() {
+  try {
+    localStorage.setItem(KEYS.cab, JSON.stringify(cabangData));
+    localStorage.setItem(KEYS.kat, JSON.stringify(kategoriData));
+    localStorage.setItem(KEYS.ast, JSON.stringify(assetData));
+    localStorage.setItem(KEYS.mut, JSON.stringify(mutasiData));
+    localStorage.setItem(KEYS.col, JSON.stringify(colVis));
+  } catch { toast('Could not save to browser storage.', 'error'); }
+}
+
+const toDbAsset = a => ({
+  code: a.kode, name: a.nama, category: a.kategori, branch: a.cabang, location: a.lokasi || '',
+  qty: 1, unit_price: +a.harga || 0, acquired_date: a.tgl || null, condition: a.kondisi, status: a.status,
+  pic: a.pic || '', serial_number: a.sn || '', specs: a.specs || '', warranty_until: a.garansi || null,
+  next_maintenance: a.servis || null, routine_enabled: !!a.rm, routine_every: +a.rmEvery || 0,
+  routine_unit: a.rmUnit || 'months', routine_last: a.rmLast || null, routine_remind_days: +a.rmRemind || 7,
+  updated_at: new Date().toISOString()
+});
+const fromDbAsset = r => normAsset({
+  kode: r.code, nama: r.name, kategori: r.category, cabang: r.branch, lokasi: r.location,
+  qty: 1, harga: r.unit_price, tgl: r.acquired_date || '', kondisi: r.condition, status: r.status,
+  pic: r.pic, sn: r.serial_number, specs: r.specs, garansi: r.warranty_until || '', servis: r.next_maintenance || '',
+  rm: r.routine_enabled, rmEvery: r.routine_every, rmUnit: r.routine_unit, rmLast: r.routine_last || '',
+  rmRemind: r.routine_remind_days
+});
+const toDbLog = m => ({
+  id: m.id, asset_code: m.kode, asset_name: m.nama || '', log_date: m.tgl || todayStr(),
+  action_type: m.tipe, origin: m.asal || '', destination: m.tujuan || '', cost: +m.biaya || 0,
+  status: m.status, notes: m.ket || ''
+});
+const fromDbLog = r => normLog({
+  id: r.id, kode: r.asset_code, nama: r.asset_name, tgl: r.log_date || '', tipe: r.action_type,
+  asal: r.origin, tujuan: r.destination, biaya: r.cost, status: r.status, ket: r.notes
+});
+
+async function syncToSupabase(quiet = false) {
+  if (!sb) return false;
+  try {
+    const [bRes, kRes, aRes, lRes] = await Promise.all([
+      sb.from('branches').select('code,name'),
+      sb.from('categories').select('code,name'),
+      sb.from('assets').select('code'),
+      sb.from('asset_logs').select('id')
+    ]);
+    if (bRes.error || kRes.error || aRes.error || lRes.error) throw (bRes.error || kRes.error || aRes.error || lRes.error);
+    if (cabangData.length) { const { error } = await sb.from('branches').upsert(cabangData.map(c => ({ code: c.kode, name: c.nama })), { onConflict: 'code' }); if (error) throw error; }
+    if (kategoriData.length) { const { error } = await sb.from('categories').upsert(kategoriData.map(k => ({ code: k.kode, name: k.nama })), { onConflict: 'code' }); if (error) throw error; }
+    if (assetData.length) { const { error } = await sb.from('assets').upsert(assetData.map(toDbAsset), { onConflict: 'code' }); if (error) throw error; }
+    if (mutasiData.length) { const { error } = await sb.from('asset_logs').upsert(mutasiData.map(toDbLog), { onConflict: 'id' }); if (error) throw error; }
+
+    const extraCab = (bRes.data || []).map(x => x.code).filter(x => !new Set(cabangData.map(z => z.code)).has(x));
+    if (extraCab.length) await sb.from('branches').delete().in('code', extraCab);
+    const extraKat = (kRes.data || []).map(x => x.code).filter(x => !new Set(kategoriData.map(z => z.code)).has(x));
+    if (extraKat.length) await sb.from('categories').delete().in('code', extraKat);
+    const extraAst = (aRes.data || []).map(x => x.code).filter(x => !new Set(assetData.map(z => z.kode)).has(x));
+    if (extraAst.length) await sb.from('assets').delete().in('code', extraAst);
+    const extraLog = (lRes.data || []).map(x => x.id).filter(x => !new Set(mutasiData.map(z => z.id)).has(x));
+    if (extraLog.length) await sb.from('asset_logs').delete().in('id', extraLog);
+
+    setDbBadge('cloud', 'Supabase Connected');
+    if (!quiet) toast('Synced with Supabase.', 'success');
+    return true;
+  } catch (err) {
+    setDbBadge('error', 'Supabase Error');
+    if (!quiet) toast('Supabase sync failed: ' + err.message, 'error');
+    return false;
+  }
+}
+
+async function pullFromSupabase() {
+  if (!sb) return false;
+  try {
+    const [bRes, kRes, aRes, lRes] = await Promise.all([
+      sb.from('branches').select('*').order('name'),
+      sb.from('categories').select('*').order('name'),
+      sb.from('assets').select('*').order('code'),
+      sb.from('asset_logs').select('*').order('log_date', { ascending: false })
+    ]);
+    if (bRes.error || kRes.error || aRes.error || lRes.error) throw (bRes.error || kRes.error || aRes.error || lRes.error);
+    if ((bRes.data?.length || kRes.data?.length || aRes.data?.length || lRes.data?.length)) {
+      if (bRes.data?.length) cabangData = bRes.data.map(r => ({ kode: r.code, nama: r.name }));
+      if (kRes.data?.length) kategoriData = kRes.data.map(r => ({ kode: r.code, nama: r.name }));
+      assetData = (aRes.data || []).map(fromDbAsset);
+      mutasiData = (lRes.data || []).map(fromDbLog);
+      enforceOneUnitPerCode();
+      saveLocal();
+      refreshAll();
+    } else if (assetData.length || mutasiData.length) {
+      await syncToSupabase(true);
+    }
+    setDbBadge('cloud', 'Supabase Connected');
+    return true;
+  } catch (err) {
+    setDbBadge('error', 'Supabase Offline');
+    toast('Supabase connection issue: ' + err.message, 'warn');
+    return false;
+  }
+}
+
+function saveAll(syncCloud = true) {
+  saveLocal();
+  if (syncCloud && sb) syncToSupabase(true);
+}
+
+function normAsset(a) {
+  return {
+    kode: String(a.kode || '').trim(), nama: String(a.nama || '').trim() || 'Unnamed asset',
+    kategori: a.kategori === 'Alat Treatment' ? 'Treatment Tools' : (a.kategori || 'Others'),
+    cabang: a.cabang || '', lokasi: a.lokasi || '', qty: 1, harga: Math.max(0, +a.harga || 0),
+    tgl: a.tgl || '', kondisi: normCondition(a.kondisi) || 'Good', status: normStatus(a.status) || 'Active',
+    pic: a.pic || '', sn: a.sn || '', specs: a.specs || '', garansi: a.garansi || '', servis: a.servis || '',
+    rm: !!a.rm && Math.round(+a.rmEvery) >= 1, rmEvery: Math.max(0, Math.round(+a.rmEvery || 0)),
+    rmUnit: normUnit(a.rmUnit) || 'months', rmLast: a.rmLast || '',
+    rmRemind: (a.rmRemind === undefined || a.rmRemind === null || a.rmRemind === '') ? 7 : Math.max(0, Math.round(+a.rmRemind) || 0)
+  };
+}
+
+function normLog(m) {
+  return {
+    id: String(m.id || ''), kode: String(m.kode || '').trim(), nama: m.nama || '', tgl: m.tgl || '',
+    tipe: normLogType(m.tipe) || 'Service / Repair', asal: m.asal || '', tujuan: m.tujuan || '',
+    biaya: Math.max(0, +m.biaya || 0), status: normLogStatus(m.status) || 'In Progress', ket: m.ket || ''
+  };
+}
+
+function expandUnits(rawAsset, count, taken) {
+  const totalUnits = Math.max(1, Math.min(500, Math.round(+count || 1)));
+  const base = normAsset({ ...rawAsset, qty: 1 });
+  const m = /^(.*)-(\d+)$/.exec(base.kode);
+  const prefix = m ? m[1] : base.kode;
+  const result = [];
+  for (let i = 0; i < totalUnits; i++) {
+    const code = i === 0 ? base.kode : nextCode(prefix, taken);
+    taken.add(code.toUpperCase());
+    result.push(normAsset({ ...base, kode: code, qty: 1, sn: i === 0 ? base.sn : '' }));
+  }
+  return result;
+}
+
+function enforceOneUnitPerCode() {
+  const taken = new Set(assetData.map(a => a.kode.toUpperCase()));
+  const out = [];
+  assetData.forEach(raw => {
+    const rawQty = Math.max(1, Math.round(+raw.qty || 1));
+    out.push(...(rawQty > 1 ? expandUnits(raw, rawQty, taken) : [normAsset({ ...raw, qty: 1 })]));
+  });
+  assetData = out;
+}
+
+const rmx = (last, n, u, rem = 14) => ({ rm:true, rmEvery:n, rmUnit:u, rmLast:last, rmRemind:rem, servis:addInterval(last, n, u) });
+function sampleAssets() {
+  const t = todayStr();
+  const list = [
+    { kode:'AST-DPK-IT-001', nama:'MacBook Pro M2 14-inch', kategori:'IT & Office Equipment', cabang:'Depok', lokasi:'IT Dev Room', qty:1, harga:28000000, tgl:'2023-01-15', kondisi:'Major Damage', status:'Under Repair', pic:'Budi Santoso', sn:'SN-MBP-9921', specs:'M2 Pro 16GB RAM 512GB SSD', garansi:addDays(t, 14), servis:'' },
+    { kode:'AST-DPK-FUR-001', nama:'Ergonomic Desk', kategori:'Furniture', cabang:'Depok', lokasi:'2nd Floor Workstation', qty:3, harga:3500000, tgl:'2023-02-10', kondisi:'Good', status:'Active', pic:'Siti Rahma', sn:'', specs:'Pine Wood 120x60cm', garansi:'', servis:'' },
+    { kode:'AST-TJD-IT-001', nama:'Mikrotik Router CCR1009', kategori:'IT & Office Equipment', cabang:'Tanjung Duren', lokasi:'Server Room', qty:1, harga:8500000, tgl:'2022-11-05', kondisi:'Excellent', status:'Active', pic:'Andi Wijaya', sn:'SN-MK-1009', specs:'9 Core CPU 1GB RAM', garansi:'', ...rmx(addDays(t, -170), 6, 'months') },
+    { kode:'AST-BKS-OTH-001', nama:'Honda Vario 160 Operational', kategori:'Others', cabang:'Bekasi', lokasi:'Parking Area', qty:1, harga:27500000, tgl:'2023-05-20', kondisi:'Excellent', status:'Active', pic:'Ahmad Fauzi', sn:'B 4912 KLS', specs:'Black Automatic Scooter 160cc', garansi:'', ...rmx(addDays(t, -100), 3, 'months') },
+    { kode:'AST-BTN-AC-001', nama:'Daikin AC Unit', kategori:'Air Conditioner', cabang:'Bintaro', lokasi:'Meeting Room A', qty:3, harga:3500000, tgl:'2022-08-14', kondisi:'Excellent', status:'Active', pic:'', sn:'', specs:'Inverter R32', garansi:'', ...rmx(addDays(t, -30), 3, 'months') }
+  ];
+  const taken = new Set(), expanded = [];
+  list.forEach(item => expanded.push(...expandUnits(item, Math.max(1, Math.round(+item.qty || 1)), taken)));
+  return expanded;
+}
+function sampleLogs() {
+  return [{ id:'LOG-001', kode:'AST-DPK-IT-001', nama:'MacBook Pro M2 14-inch', tgl:addDays(todayStr(), -6), tipe:'Service / Repair', asal:'Depok', tujuan:'iBox Official Service', biaya:1200000, status:'In Progress', ket:'Logic board replacement' }].map(normLog);
+}
+
+function loadAll() {
+  const has = localStorage.getItem(KEYS.ast) !== null;
+  cabangData = (Array.isArray(readLS(KEYS.cab)) && readLS(KEYS.cab).length) ? readLS(KEYS.cab) : structuredClone(DEFAULT_CAB);
+  kategoriData = (Array.isArray(readLS(KEYS.kat)) && readLS(KEYS.kat).length) ? readLS(KEYS.kat).map(k => k.nama === 'Alat Treatment' ? { ...k, nama:'Treatment Tools' } : k) : structuredClone(DEFAULT_KAT);
+  const a = readLS(KEYS.ast), m = readLS(KEYS.mut);
+  assetData = has && Array.isArray(a) ? a.map(normAsset) : sampleAssets();
+  mutasiData = has && Array.isArray(m) ? m.map(normLog) : sampleLogs();
+  const c = readLS(KEYS.col);
+  colVis = c && !Array.isArray(c) && typeof c === 'object' ? c : {};
+  enforceOneUnitPerCode();
+  saveLocal();
+  if (sb) { setDbBadge('local', 'Syncing...'); pullFromSupabase(); }
+  else setDbBadge('local', 'Local Mode');
+}
+
+function computeStats() {
+  const act = assetData.filter(a => a.status !== 'Disposed');
+  const qty = l => l.length, val = l => l.reduce((s, a) => s + (+a.harga || 0), 0);
+  const year = new Date().getFullYear();
+  const spend = mutasiData.filter(m => m.status !== 'Cancelled' && String(m.tgl).startsWith(String(year))).reduce((s, m) => s + (+m.biaya || 0), 0);
+  const group = (list, key) => {
+    const rows = list.map(x => { const l = act.filter(a => a[key] === x.nama); return { name:x.nama, qty:qty(l), value:val(l), skus:l.length }; });
+    const known = new Set(list.map(x => x.nama)), rest = act.filter(a => !known.has(a[key]));
+    if (rest.length) rows.push({ name:'(Unassigned)', qty:qty(rest), value:val(rest), skus:rest.length });
+    return rows;
+  };
+  return {
+    skus: act.length, qty: qty(act), value: val(act), active: qty(act.filter(a => a.status === 'Active')),
+    attention: qty(act.filter(a => a.status === 'Under Repair' || a.status === 'In Transit')),
+    disposed: qty(assetData.filter(a => a.status === 'Disposed')),
+    openLogs: mutasiData.filter(m => m.status === 'In Progress').length, ...maintStats(), spend, year,
+    byBranch: group(cabangData, 'cabang'), byCat: group(kategoriData, 'kategori'),
+    byStatus: STATUSES.map(s => ({ name:s, qty:qty(assetData.filter(a => a.status === s)) }))
+  };
+}
+
+const STATUS_CLS = { 'Active':'bg-emerald-100 text-emerald-700', 'Under Repair':'bg-amber-100 text-amber-700', 'In Transit':'bg-sky-100 text-sky-700', 'Disposed':'bg-slate-200 text-slate-600' };
+const COND_CLS = { 'Excellent':'bg-emerald-50 text-emerald-700', 'Good':'bg-blue-50 text-blue-700', 'Minor Damage':'bg-amber-50 text-amber-700', 'Major Damage':'bg-rose-50 text-rose-700' };
+const LOGST_CLS = { 'In Progress':'bg-amber-100 text-amber-700', 'Completed':'bg-emerald-100 text-emerald-700', 'Cancelled':'bg-slate-200 text-slate-600' };
+const TYPE_CLS = { 'Service / Repair':'bg-orange-100 text-orange-700', 'Branch Transfer':'bg-sky-100 text-sky-700', 'Routine Maintenance':'bg-violet-100 text-violet-700', 'Disposed / Written Off':'bg-slate-200 text-slate-600' };
+const badge = (txt, map) => `<span class="badge ${map[txt] || 'bg-slate-100 text-slate-600'}">${esc(txt)}</span>`;
+function maintInfo(a) {
+  if (a.status === 'Disposed' || !a.servis) return null;
+  const d = daysUntil(a.servis), win = a.rm ? a.rmRemind : 30;
+  return { d, win, state: d < 0 ? 'overdue' : (d <= win ? 'soon' : 'ok') };
+}
+const dueNow = a => { const i = maintInfo(a); return !!i && i.state !== 'ok'; };
+const rmText = a => `Every ${a.rmEvery} ${UNIT_SING[a.rmUnit] || 'month'}${a.rmEvery > 1 ? 's' : ''}`;
+function maintStats() {
+  const info = assetData.map(a => maintInfo(a)).filter(Boolean);
+  return { dueCount: info.filter(i => i.state !== 'ok').length, overdueCount: info.filter(i => i.state === 'overdue').length, routineCount: assetData.filter(a => a.rm && a.status !== 'Disposed').length };
+}
+function dueHtml(s, kind, win = 30) {
+  if (!s) return '<span class="text-slate-300">-</span>';
+  const d = daysUntil(s); let cls = 'text-slate-600', note = '';
+  if (kind === 'service') { if (d < 0) { cls = 'text-rose-600 font-semibold'; note = ' (overdue)'; } else if (d <= win) { cls = 'text-amber-600 font-semibold'; note = ` (${d}d)`; } }
+  else { if (d < 0) { cls = 'text-slate-400'; note = ' (expired)'; } else if (d <= 30) { cls = 'text-sky-600 font-semibold'; note = ` (${d}d)`; } }
+  return `<span class="${cls}">${fmtDate(s)}${note}</span>`;
+}
+
+const COLS = [
+  { k:'no', l:'No.', cls:'text-center text-slate-400', html:(a, i) => i + 1 },
+  { k:'kode', l:'Asset Code', sort:1, html:a => `<span class="font-mono font-semibold text-blue-600">${esc(a.kode)}</span>` },
+  { k:'nama', l:'Asset Name', sort:1, html:a => `<div class="font-medium text-slate-900">${esc(a.nama)}</div>${a.specs ? `<div class="text-xs text-slate-400 truncate max-w-xs">${esc(a.specs)}</div>` : ''}` },
+  { k:'kategori', l:'Category', sort:1, html:a => esc(a.kategori) },
+  { k:'cabang', l:'Branch', sort:1, html:a => `<span class="font-medium">${esc(a.cabang)}</span>` },
+  { k:'lokasi', l:'Location / Room', sort:1, html:a => esc(a.lokasi) || '-' },
+  { k:'sn', l:'Serial Number', sort:1, html:a => `<span class="font-mono text-xs text-slate-600">${esc(a.sn) || '-'}</span>` },
+  { k:'harga', l:'Asset Value', sort:1, cls:'text-right font-bold text-blue-700', html:a => fmtIDR(a.harga) },
+  { k:'kondisi', l:'Condition', sort:1, html:a => badge(a.kondisi, COND_CLS) },
+  { k:'status', l:'Status', sort:1, html:a => badge(a.status, STATUS_CLS) },
+  { k:'pic', l:'PIC', sort:1, html:a => esc(a.pic) || '-' },
+  { k:'rm', l:'Routine', html:a => a.rm ? `<span class="badge bg-violet-100 text-violet-700">${esc(rmText(a))}</span>` : '<span class="text-slate-300">-</span>' },
+  { k:'servis', l:'Next Maintenance', sort:1, html:a => dueHtml(a.servis, 'service', a.rm ? a.rmRemind : 30) },
+  { k:'garansi', l:'Warranty', sort:1, html:a => dueHtml(a.garansi, 'warranty') }
+];
+const visibleCols = () => COLS.filter(c => colVis[c.k] !== false);
+const sortVal = (a, k) => typeof a[k] === 'number' ? a[k] : String(a[k] || '').toLowerCase();
+function filteredAssets() {
+  const q = F.q.trim().toLowerCase();
+  const list = assetData.filter(a => (!q || [a.nama, a.kode, a.sn, a.pic, a.lokasi].some(x => String(x || '').toLowerCase().includes(q))) && (!F.cab || a.cabang === F.cab) && (!F.kat || a.kategori === F.kat) && (!F.st || a.status === F.st) && (!F.rm || (F.rm === 'routine' ? a.rm : dueNow(a))));
+  const k = F.sortK, d = F.sortDir;
+  return list.sort((x, y) => { const a = sortVal(x, k), b = sortVal(y, k); if ((k === 'servis' || k === 'garansi') && (!a || !b)) return (a ? -1 : 0) - (b ? -1 : 0) || 0; return (a < b ? -1 : a > b ? 1 : 0) * d; });
+}
+
+function refreshAll() {
+  populateSelects(); renderDashboard(); renderSchedule(); renderMaster(); renderLogs(); updateBulkBar();
+  $('cntAssets').textContent = assetData.length; $('cntLogs').textContent = mutasiData.length;
+  $('headerSub').textContent = cabangData.map(c => c.nama).join(' • ') || 'Operational asset tracking';
+  icons();
+}
+function opt(list, sel, allLabel) { return (allLabel !== undefined ? `<option value="">${allLabel}</option>` : '') + list.map(x => `<option value="${esc(x)}" ${x === sel ? 'selected' : ''}>${esc(x)}</option>`).join(''); }
+function populateSelects() {
+  const cn = cabangData.map(c => c.nama), kn = kategoriData.map(k => k.nama);
+  $('fCab').innerHTML = opt(cn, F.cab, 'All Branches'); $('fKat').innerHTML = opt(kn, F.kat, 'All Categories');
+  $('fSt').innerHTML = opt(STATUSES, F.st, 'All Statuses');
+  $('fRm').innerHTML = [['', 'All Maintenance'], ['routine', 'Routine only'], ['due', 'Due / overdue']].map(([v, l]) => `<option value="${v}" ${v === F.rm ? 'selected' : ''}>${l}</option>`).join('');
+  $('lType').innerHTML = opt(LOG_TYPES, LF.tipe, 'All Types'); $('lSt').innerHTML = opt(LOG_STATUSES, LF.st, 'All Statuses');
+  const keepC = $('inpCab').value, keepK = $('inpKat').value;
+  $('inpCab').innerHTML = opt(cn, keepC); $('inpKat').innerHTML = opt(kn, keepK);
+  $('inpKond').innerHTML = opt(CONDITIONS, $('inpKond').value || 'Good'); $('inpStat').innerHTML = opt(STATUSES, $('inpStat').value || 'Active');
+  $('logTipe').innerHTML = opt(LOG_TYPES, $('logTipe').value); $('logStat').innerHTML = opt(LOG_STATUSES, $('logStat').value);
+  $('bulkStatus').innerHTML = '<option value="">Set status…</option>' + STATUSES.map(s => `<option>${s}</option>`).join('');
+  $('assetCodes').innerHTML = assetData.map(a => `<option value="${esc(a.kode)}">${esc(a.nama)}</option>`).join('');
+  $('branchNames').innerHTML = cn.map(n => `<option value="${esc(n)}">`).join('');
+  $('colMenu').innerHTML = '<p class="px-2 py-1 text-xs font-bold text-slate-500">Display columns</p>' + COLS.map(c => `<label class="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-slate-50 cursor-pointer"><input type="checkbox" data-col="${c.k}" ${colVis[c.k] !== false ? 'checked' : ''}>${c.l}</label>`).join('');
+}
+
+function renderDashboard() {
+  const s = computeStats();
+  const kpi = (label, value, sub, color, icon) => `<div class="card p-4"><div class="flex items-center justify-between"><p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">${label}</p><i data-lucide="${icon}" class="w-4 h-4 ${color}"></i></div><h3 class="text-xl lg:text-2xl font-bold mt-2 ${color} truncate">${value}</h3><p class="text-xs text-slate-400 mt-1">${sub}</p></div>`;
+  $('kpiGrid').innerHTML = kpi('Total Units', fmtNum(s.qty), `${s.skus} physical units`, 'text-slate-900', 'package') + kpi('Total Asset Value', fmtIDR(s.value), 'Excludes disposed assets', 'text-blue-600', 'wallet') + kpi('Active', fmtNum(s.active), 'Ready for operation', 'text-emerald-600', 'circle-check') + kpi('Maintenance Due', fmtNum(s.dueCount), `${s.overdueCount} overdue`, s.overdueCount ? 'text-rose-600' : (s.dueCount ? 'text-amber-600' : 'text-emerald-600'), 'calendar-clock') + kpi('Repair / Transit', fmtNum(s.attention), 'Under repair or in transit', 'text-amber-600', 'wrench') + kpi('Open Logs', fmtNum(s.openLogs), 'Service / transfer in progress', 'text-violet-600', 'clipboard-list') + kpi(`Maintenance ${s.year}`, fmtIDR(s.spend), 'Total cost of logs this year', 'text-rose-600', 'receipt') + kpi('Routine Assets', fmtNum(s.routineCount), 'With a maintenance schedule', 'text-violet-600', 'repeat');
+  const maxV = Math.max(1, ...s.byBranch.map(b => b.value));
+  $('branchCards').innerHTML = s.byBranch.map(b => `<button class="text-left bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded-lg p-4 transition" data-act="filterBranch" data-id="${esc(b.name)}"><div class="flex justify-between items-center mb-2"><span class="font-semibold text-sm">${esc(b.name)}</span><span class="badge bg-blue-100 text-blue-700">${fmtNum(b.qty)} units</span></div><p class="text-xs text-slate-500">Asset value</p><p class="font-bold text-slate-900 text-sm mb-2">${fmtIDR(b.value)}</p><div class="bar"><div style="width:${Math.round(b.value / maxV * 100)}%"></div></div></button>`).join('');
+  const maxC = Math.max(1, ...s.byCat.map(c => c.qty));
+  const cats = s.byCat.filter(c => c.qty > 0).sort((a, b) => b.qty - a.qty);
+  $('catBars').innerHTML = cats.length ? cats.map(c => `<div><div class="flex justify-between text-xs mb-1"><span class="font-medium text-slate-700">${esc(c.name)}</span><span class="text-slate-500">${fmtNum(c.qty)}</span></div><div class="bar"><div style="width:${Math.round(c.qty / maxC * 100)}%"></div></div></div>`).join('') : '<p class="text-sm text-slate-400">No data yet.</p>';
+  const total = s.byStatus.reduce((t, x) => t + x.qty, 0) || 1;
+  const segCol = { 'Active':'#10b981', 'Under Repair':'#f59e0b', 'In Transit':'#0ea5e9', 'Disposed':'#94a3b8' };
+  $('statusBars').innerHTML = `<div class="flex h-3 rounded-full overflow-hidden bg-slate-200 mb-4">${s.byStatus.map(x => `<div style="width:${x.qty / total * 100}%;background:${segCol[x.name]}"></div>`).join('')}</div><div class="space-y-2">${s.byStatus.map(x => `<div class="flex items-center justify-between text-sm"><span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:${segCol[x.name]}"></span>${x.name}</span><span class="font-semibold">${fmtNum(x.qty)} <span class="text-xs font-normal text-slate-400">(${Math.round(x.qty / total * 100)}%)</span></span></div>`).join('')}</div>`;
+  const items = [];
+  assetData.filter(a => a.status !== 'Disposed').forEach(a => {
+    if (a.servis && !a.rm) { const d = daysUntil(a.servis); if (d < 0) items.push({ p:1, tag:'Service overdue', c:'bg-rose-100 text-rose-700', txt:`${a.nama} [${a.kode}] — overdue ${-d}d`, k:a.kode }); else if (d <= 30) items.push({ p:3, tag:'Service due', c:'bg-amber-100 text-amber-700', txt:`${a.nama} [${a.kode}] — due in ${d}d`, k:a.kode }); }
+    if (a.garansi) { const d = daysUntil(a.garansi); if (d >= 0 && d <= 30) items.push({ p:4, tag:'Warranty ending', c:'bg-sky-100 text-sky-700', txt:`${a.nama} [${a.kode}] — ends in ${d}d`, k:a.kode }); }
+    if (a.kondisi === 'Major Damage' && a.status === 'Active') items.push({ p:2, tag:'Major damage', c:'bg-rose-100 text-rose-700', txt:`${a.nama} [${a.kode}] marked Active`, k:a.kode });
+  });
+  mutasiData.filter(m => m.status === 'In Progress').forEach(m => items.push({ p:2, tag:'Open log', c:'bg-violet-100 text-violet-700', txt:`${m.tipe}: ${m.nama} [${m.kode}]`, k:m.kode }));
+  items.sort((a, b) => a.p - b.p);
+  $('attentionList').innerHTML = items.length ? items.slice(0, 8).map(i => `<button class="w-full text-left flex items-start gap-2 p-2 rounded-lg hover:bg-slate-50" data-act="view" data-id="${esc(i.k)}"><span class="badge ${i.c} shrink-0">${i.tag}</span><span class="text-xs text-slate-600">${esc(i.txt)}</span></button>`).join('') : '<div class="text-center py-6 text-sm text-slate-400">All clear.</div>';
+  const recent = [...mutasiData].sort((a, b) => String(b.tgl).localeCompare(String(a.tgl))).slice(0, 5);
+  $('recentLogs').innerHTML = recent.length ? recent.map(m => `<button class="w-full text-left flex gap-3 hover:bg-slate-50 rounded-lg p-1" data-act="view" data-id="${esc(m.kode)}"><div class="w-1 rounded bg-blue-500 shrink-0"></div><div class="min-w-0"><p class="text-sm font-medium text-slate-800 truncate">${esc(m.nama)} <span class="font-mono text-xs text-blue-600">(${esc(m.kode)})</span></p><p class="text-xs text-slate-500">${esc(m.tipe)} • ${fmtDate(m.tgl)}</p><div class="mt-1">${badge(m.status, LOGST_CLS)}</div></div></button>`).join('') : '<p class="text-sm text-slate-400">No logs yet.</p>';
+}
+
+function renderSchedule() {
+  const routine = assetData.filter(a => a.rm && a.status !== 'Disposed');
+  const rows = routine.filter(a => a.servis).map(a => ({ a, i:maintInfo(a) })).filter(x => x.i && (x.i.d <= 60 || x.i.state !== 'ok')).sort((x, y) => x.i.d - y.i.d);
+  if (!routine.length) { $('scheduleList').innerHTML = `<div class="text-center py-8 text-sm text-slate-400">No routine maintenance set up yet.</div>`; return icons(); }
+  if (!rows.length) { $('scheduleList').innerHTML = `<div class="text-center py-8 text-sm text-slate-400">Nothing due in the next 60 days (${routine.length} routine units tracked).</div>`; return icons(); }
+  const tag = i => i.state === 'overdue' ? [`Overdue ${-i.d}d`, 'bg-rose-100 text-rose-700'] : i.state === 'soon' ? [i.d === 0 ? 'Due today' : `Due in ${i.d}d`, 'bg-amber-100 text-amber-700'] : [`In ${i.d}d`, 'bg-slate-100 text-slate-600'];
+  $('scheduleList').innerHTML = rows.slice(0, 8).map(({ a, i }) => { const [t, c] = tag(i); return `<div class="flex flex-wrap items-center justify-between gap-2 py-2.5"><div class="flex items-center gap-3 min-w-0"><span class="badge ${c} w-24 text-center shrink-0">${t}</span><button class="text-left min-w-0" data-act="view" data-id="${esc(a.kode)}"><p class="text-sm font-medium text-slate-900 truncate"><span class="font-mono text-blue-600 mr-1.5">${esc(a.kode)}</span>${esc(a.nama)}</p><p class="text-xs text-slate-500 truncate">${esc(a.cabang)}${a.lokasi ? ' • ' + esc(a.lokasi) : ''} • ${esc(rmText(a))}</p></button></div><div class="flex items-center gap-3"><span class="text-xs text-slate-500">${fmtDate(a.servis)}</span><button class="btn btn-ghost" style="padding:.3rem .7rem" data-act="doneRM" data-id="${esc(a.kode)}"><i data-lucide="check-check"></i>Log done</button></div></div>`; }).join('');
+  icons();
+}
+
+function renderMaster() {
+  const list = filteredAssets(), pages = Math.max(1, Math.ceil(list.length / PAGE));
+  if (F.page > pages) F.page = pages;
+  const start = (F.page - 1) * PAGE, slice = list.slice(start, start + PAGE), cols = visibleCols();
+  const allSel = list.length > 0 && list.every(a => sel.has(a.kode));
+  $('masterHead').innerHTML = `<tr><th class="p-3 w-10 text-center"><input type="checkbox" id="selAll" ${allSel ? 'checked' : ''}></th>` + cols.map(c => `<th class="p-3 ${c.cls && c.cls.includes('text-center') ? 'text-center' : c.cls && c.cls.includes('text-right') ? 'text-right' : ''} ${c.sort ? 'sortable' : ''}" ${c.sort ? `data-act="sort" data-id="${c.k}"` : ''}>${c.l}${F.sortK === c.k ? (F.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '<th class="p-3 text-center">Actions</th></tr>';
+  $('masterBody').innerHTML = slice.length ? slice.map((a, i) => `<tr class="hover:bg-slate-50 ${sel.has(a.kode) ? 'bg-blue-50/60' : ''}"><td class="p-3 text-center"><input type="checkbox" class="item-chk" data-id="${esc(a.kode)}" ${sel.has(a.kode) ? 'checked' : ''}></td>${cols.map(c => `<td class="p-3 ${c.cls || ''}">${c.html(a, start + i)}</td>`).join('')}<td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-slate-100 text-slate-600" data-act="view" data-id="${esc(a.kode)}" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600" data-act="editAsset" data-id="${esc(a.kode)}" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600" data-act="delAsset" data-id="${esc(a.kode)}" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="${cols.length + 2}" class="p-12 text-center text-slate-400">No units found.</td></tr>`;
+  const from = list.length ? start + 1 : 0, to = Math.min(start + PAGE, list.length), totalVal = list.reduce((s, a) => s + a.harga, 0);
+  $('masterFooter').innerHTML = `<span>Showing <b>${from}–${to}</b> of <b>${list.length}</b> physical units • Total value ${fmtIDR(totalVal)}</span><div class="flex items-center gap-2"><button class="btn btn-ghost" data-act="page" data-id="${F.page - 1}" ${F.page <= 1 ? 'disabled' : ''}><i data-lucide="chevron-left"></i></button><span>Page ${F.page} / ${pages}</span><button class="btn btn-ghost" data-act="page" data-id="${F.page + 1}" ${F.page >= pages ? 'disabled' : ''}><i data-lucide="chevron-right"></i></button></div>`;
+  icons();
+}
+
+function filteredLogs() {
+  const q = LF.q.trim().toLowerCase();
+  return mutasiData.filter(m => (!q || [m.kode, m.nama, m.tujuan, m.asal, m.ket, m.id].some(x => String(x || '').toLowerCase().includes(q))) && (!LF.tipe || m.tipe === LF.tipe) && (!LF.st || m.status === LF.st)).sort((a, b) => String(b.tgl).localeCompare(String(a.tgl)) || b.id.localeCompare(a.id));
+}
+function renderLogs() {
+  const list = filteredLogs();
+  $('logBody').innerHTML = list.length ? list.map((m, i) => `<tr class="hover:bg-slate-50"><td class="p-3 text-center text-slate-400">${i + 1}</td><td class="p-3 font-mono text-slate-500">${esc(m.id)}</td><td class="p-3"><button class="text-left" data-act="view" data-id="${esc(m.kode)}"><span class="font-mono font-semibold text-blue-600">${esc(m.kode)}</span><br><span class="text-xs text-slate-500">${esc(m.nama)}</span></button></td><td class="p-3">${fmtDate(m.tgl)}</td><td class="p-3">${badge(m.tipe, TYPE_CLS)}</td><td class="p-3 text-slate-600">${esc(m.asal) || '-'}</td><td class="p-3 font-medium text-blue-700">${esc(m.tujuan) || '-'}</td><td class="p-3 text-right">${fmtIDR(m.biaya)}</td><td class="p-3">${badge(m.status, LOGST_CLS)}</td><td class="p-3 text-slate-500 max-w-xs truncate">${esc(m.ket) || '-'}</td><td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600" data-act="editLog" data-id="${esc(m.id)}"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600" data-act="delLog" data-id="${esc(m.id)}"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="11" class="p-12 text-center text-slate-400">No log entries</td></tr>`;
+  const cost = list.filter(m => m.status !== 'Cancelled').reduce((s, m) => s + m.biaya, 0);
+  $('logFooter').innerHTML = `<b>${list.length}</b> entries • Total cost (excl. cancelled): <b>${fmtIDR(cost)}</b>`;
+  icons();
+}
+
+function updateBulkBar() { const bar = $('bulkBar'); if (sel.size) { $('bulkCount').textContent = `${sel.size} selected`; bar.classList.remove('hidden'); bar.classList.add('flex'); } else { bar.classList.add('hidden'); bar.classList.remove('flex'); } }
+function switchTab(t) { ['dashboard', 'master', 'mutasi'].forEach(x => { $('sec-' + x).classList.toggle('hidden', x !== t); $('tab-' + x).classList.toggle('active', x === t); }); window.scrollTo({ top:0 }); }
+
+function genCode() {
+  if ($('editOrig').value) return;
+  const cab = cabangData.find(c => c.nama === $('inpCab').value) || { kode:'AST' };
+  const kat = kategoriData.find(k => k.nama === $('inpKat').value) || { kode:'GEN' };
+  $('inpKode').value = nextCode(`AST-${cab.kode}-${kat.kode}`, new Set(assetData.map(a => a.kode.toUpperCase())));
+}
+function setRmFields(a) {
+  const on = !!(a && a.rm); $('inpRm').checked = on; $('rmFields').classList.toggle('hidden', !on);
+  $('inpRmEvery').value = a && a.rmEvery ? a.rmEvery : 3; $('inpRmUnit').value = a ? a.rmUnit : 'months';
+  $('inpRmLast').value = a ? a.rmLast : ''; $('inpRmRemind').value = a ? a.rmRemind : 7;
+}
+function rmAutoCalc() { if (!$('inpRm').checked) return; const n = +$('inpRmEvery').value; if (n >= 1) $('inpServ').value = addInterval($('inpRmLast').value || todayStr(), n, $('inpRmUnit').value); }
+function updateUnitNotice() {
+  const isEdit = !!$('editOrig').value, qty = Math.max(1, Math.round(+$('inpQty').value || 1)), el = $('unitNotice');
+  if (!isEdit && qty > 1) { el.classList.remove('hidden'); el.innerHTML = `<b>1 code = 1 physical unit:</b> Creates <b>${qty} separate codes</b> starting from <span class="font-mono">${esc($('inpKode').value)}</span>.`; }
+  else { el.classList.add('hidden'); el.textContent = ''; }
+}
+function openAssetForm(kode) {
+  const a = kode ? assetData.find(x => x.kode === kode) : null;
+  $('formAsset').reset(); $('editOrig').value = a ? a.kode : ''; $('assetTitle').textContent = a ? 'Edit Asset Unit' : 'Add New Asset'; populateSelects();
+  if (a) { $('inpCab').value = a.cabang; $('inpKat').value = a.kategori; $('inpKode').value = a.kode; $('inpNama').value = a.nama; $('inpQty').value = 1; $('inpQty').readOnly = true; $('inpLok').value = a.lokasi; $('inpHarga').value = a.harga || ''; $('inpTgl').value = a.tgl; $('inpKond').value = a.kondisi; $('inpStat').value = a.status; $('inpPIC').value = a.pic; $('inpSN').value = a.sn; $('inpGar').value = a.garansi; $('inpServ').value = a.servis; $('inpSpec').value = a.specs; setRmFields(a); }
+  else { $('inpQty').value = 1; $('inpQty').readOnly = false; $('inpKond').value = 'Good'; $('inpStat').value = 'Active'; genCode(); setRmFields(null); }
+  updateUnitNotice(); openModal('modalAsset'); setTimeout(() => $('inpNama').focus(), 50);
+}
+function saveAsset(e) {
+  e.preventDefault();
+  const orig = $('editOrig').value, qty = orig ? 1 : Math.max(1, Math.round(+$('inpQty').value || 1));
+  if (!orig) genCode();
+  const kode = $('inpKode').value;
+  const obj = normAsset({ kode, nama:$('inpNama').value, kategori:$('inpKat').value, cabang:$('inpCab').value, lokasi:$('inpLok').value.trim(), qty:1, harga:+$('inpHarga').value || 0, tgl:$('inpTgl').value, kondisi:$('inpKond').value, status:$('inpStat').value, pic:$('inpPIC').value.trim(), sn:$('inpSN').value.trim(), specs:$('inpSpec').value.trim(), garansi:$('inpGar').value, servis:$('inpServ').value, rm:$('inpRm').checked, rmEvery:+$('inpRmEvery').value, rmUnit:$('inpRmUnit').value, rmLast:$('inpRmLast').value, rmRemind:+$('inpRmRemind').value });
+  if (obj.rm && !obj.servis) obj.servis = addInterval(obj.rmLast || todayStr(), obj.rmEvery, obj.rmUnit);
+  if (orig) { const i = assetData.findIndex(a => a.kode === orig); if (i > -1) assetData[i] = obj; mutasiData.forEach(m => { if (m.kode === obj.kode) m.nama = obj.nama; }); saveAll(); closeModal('modalAsset'); refreshAll(); toast('Asset updated.', 'success'); }
+  else if (qty > 1) { const taken = new Set(assetData.map(a => a.kode.toUpperCase())); const units = expandUnits(obj, qty, taken); assetData.push(...units); saveAll(); closeModal('modalAsset'); refreshAll(); toast(`${units.length} units created.`, 'success'); }
+  else { assetData.push(obj); saveAll(); closeModal('modalAsset'); refreshAll(); toast(`Asset ${obj.kode} added.`, 'success'); }
+}
+async function deleteAsset(kode) {
+  if (!(await confirmDialog(`Delete asset ${kode}?`, { title:'Delete asset', ok:'Delete' }))) return;
+  assetData = assetData.filter(a => a.kode !== kode); mutasiData = mutasiData.filter(m => m.kode !== kode); sel.delete(kode); saveAll(); refreshAll(); toast('Asset deleted.', 'success');
+}
+async function bulkDelete() {
+  if (!sel.size || !(await confirmDialog(`Delete ${sel.size} selected units?`, { title:'Delete assets', ok:'Delete all' }))) return;
+  assetData = assetData.filter(a => !sel.has(a.kode)); mutasiData = mutasiData.filter(m => !sel.has(m.kode)); sel.clear(); saveAll(); refreshAll(); toast('Selected units deleted.', 'success');
+}
+function bulkSetStatus(st) { if (!st || !sel.size) return; assetData.forEach(a => { if (sel.has(a.kode)) a.status = st; }); saveAll(); $('bulkStatus').value = ''; refreshAll(); toast(`Status updated to ${st}.`, 'success'); }
+function viewAsset(kode) {
+  const a = assetData.find(x => x.kode === kode); if (!a) return;
+  const logs = mutasiData.filter(m => m.kode === kode).sort((x, y) => String(y.tgl).localeCompare(String(x.tgl)));
+  const row = (l, v) => `<div class="flex justify-between gap-4 py-1.5 border-b border-slate-100"><span class="text-slate-500">${l}</span><span class="font-medium text-right">${v}</span></div>`;
+  $('detailBody').innerHTML = `<div><p class="font-mono font-bold text-blue-600">${esc(a.kode)}</p><h4 class="text-lg font-bold text-slate-900">${esc(a.nama)}</h4><div class="flex gap-2 mt-2">${badge(a.status, STATUS_CLS)}${badge(a.kondisi, COND_CLS)}</div></div><div>${row('Category', esc(a.kategori))}${row('Branch', esc(a.cabang))}${row('Location', esc(a.lokasi) || '-')}${row('Asset value', fmtIDR(a.harga))}${row('PIC', esc(a.pic) || '-')}${row('S/N', esc(a.sn) || '-')}${row('Next maintenance', dueHtml(a.servis, 'service', a.rm ? a.rmRemind : 30))}</div><div><p class="text-xs font-semibold text-slate-500 uppercase mb-2">History (${logs.length})</p>${logs.length ? logs.map(m => `<div class="py-1 border-b border-slate-100 text-xs">${fmtDate(m.tgl)} • <b>${esc(m.tipe)}</b> (${esc(m.status)}) — ${esc(m.tujuan) || '-'}</div>`).join('') : '<p class="text-slate-400 text-xs">No history yet.</p>'}</div>`;
+  $('detailFooter').innerHTML = `${a.rm ? `<button class="btn btn-ghost" data-act="doneRM" data-id="${esc(a.kode)}">Maintenance done</button>` : ''}<button class="btn btn-ghost" data-act="addLogFor" data-id="${esc(a.kode)}">Add log</button><button class="btn btn-primary" data-act="editAsset" data-id="${esc(a.kode)}">Edit</button>`;
+  openModal('modalDetail');
+}
+
+function nextLogId() { let max = 0; mutasiData.forEach(m => { const r = /^LOG-(\d+)$/.exec(m.id); if (r) max = Math.max(max, +r[1]); }); return `LOG-${String(max + 1).padStart(3, '0')}`; }
+function openLogForm(id, kode) {
+  const m = id ? mutasiData.find(x => x.id === id) : null; $('formLog').reset(); populateSelects(); $('editLogId').value = m ? m.id : ''; $('logTitle').textContent = m ? 'Edit Log Entry' : 'Add Mutation / Service Log';
+  if (m) { $('logKode').value = m.kode; $('logNama').value = m.nama; $('logTgl').value = m.tgl; $('logTipe').value = m.tipe; $('logAsal').value = m.asal; $('logTujuan').value = m.tujuan; $('logBiaya').value = m.biaya || ''; $('logStat').value = m.status; $('logKet').value = m.ket; $('logApply').checked = false; }
+  else { $('logTgl').value = todayStr(); $('logApply').checked = true; if (kode) { $('logKode').value = kode; fillLogAsset(kode); } }
+  closeModal('modalDetail'); openModal('modalLog');
+}
+function fillLogAsset(v) { const a = assetData.find(x => x.kode.toLowerCase() === String(v).trim().toLowerCase()); $('logNama').value = a ? a.nama : ''; if (a && !$('editLogId').value) $('logAsal').value = a.cabang; }
+function applyLogEffect(log, a) {
+  const branch = cabangData.find(c => c.nama.toLowerCase() === String(log.tujuan).trim().toLowerCase());
+  if (log.tipe === 'Service / Repair') { if (log.status === 'In Progress') a.status = 'Under Repair'; else if (log.status === 'Completed' && a.status === 'Under Repair') a.status = 'Active'; }
+  else if (log.tipe === 'Branch Transfer') { if (log.status === 'In Progress') a.status = 'In Transit'; else if (log.status === 'Completed') { if (branch) a.cabang = branch.nama; if (a.status === 'In Transit') a.status = 'Active'; } else if (log.status === 'Cancelled' && a.status === 'In Transit') a.status = 'Active'; }
+  else if (log.tipe === 'Disposed / Written Off' && log.status === 'Completed') a.status = 'Disposed';
+}
+function recalcRM(a, keepManual) {
+  const dates = mutasiData.filter(m => m.kode === a.kode && m.tipe === 'Routine Maintenance' && m.status === 'Completed' && m.tgl).map(m => m.tgl);
+  if (keepManual && a.rmLast) dates.push(a.rmLast);
+  if (!dates.length) return;
+  a.rmLast = dates.sort().pop(); a.servis = addInterval(a.rmLast, a.rmEvery, a.rmUnit);
+}
+function saveLog(e) {
+  e.preventDefault();
+  const editId = $('editLogId').value, a = assetData.find(x => x.kode.toLowerCase() === $('logKode').value.trim().toLowerCase());
+  if (!a) return toast('Asset code not found.', 'error');
+  const log = normLog({ id: editId || nextLogId(), kode:a.kode, nama:a.nama, tgl:$('logTgl').value, tipe:$('logTipe').value, asal:$('logAsal').value.trim(), tujuan:$('logTujuan').value.trim(), biaya:+$('logBiaya').value || 0, status:$('logStat').value, ket:$('logKet').value.trim() });
+  if (editId) { const i = mutasiData.findIndex(m => m.id === editId); if (i > -1) mutasiData[i] = log; } else mutasiData.push(log);
+  if ($('logApply').checked) applyLogEffect(log, a);
+  if (log.tipe === 'Routine Maintenance' && log.status === 'Completed' && a.rm) recalcRM(a, true);
+  saveAll(); closeModal('modalLog'); refreshAll(); toast('Log saved.', 'success');
+}
+async function deleteLog(id) {
+  if (!(await confirmDialog(`Delete log ${id}?`, { title:'Delete log', ok:'Delete' }))) return;
+  const old = mutasiData.find(m => m.id === id); mutasiData = mutasiData.filter(m => m.id !== id);
+  if (old && old.tipe === 'Routine Maintenance' && old.status === 'Completed') { const a = assetData.find(x => x.kode === old.kode); if (a && a.rm) recalcRM(a, false); }
+  saveAll(); refreshAll(); toast('Log deleted.', 'success');
+}
+
+function openSettings(mode) { settingsMode = mode; $('settingsTitle').textContent = mode === 'cabang' ? 'Manage Branches' : 'Manage Categories'; $('setKode').value = ''; $('setNama').value = ''; renderSettings(); openModal('modalSettings'); }
+function renderSettings() {
+  const list = settingsMode === 'cabang' ? cabangData : kategoriData, key = settingsMode === 'cabang' ? 'cabang' : 'kategori';
+  $('settingsBody').innerHTML = list.map((it, i) => `<tr><td class="p-2.5 font-mono font-bold text-blue-600">${esc(it.kode)}</td><td class="p-2.5">${esc(it.nama)}</td><td class="p-2.5 text-center text-slate-500">${assetData.filter(a => a[key] === it.nama).length}</td><td class="p-2.5 text-center"><button class="text-rose-600 p-1" data-act="delSetting" data-id="${i}"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
+  icons();
+}
+function addSetting(e) {
+  e.preventDefault();
+  const kode = $('setKode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''), nama = $('setNama').value.trim();
+  if (!kode || !nama) return toast('Fill code and name.', 'error');
+  const list = settingsMode === 'cabang' ? cabangData : kategoriData;
+  if (list.some(x => x.kode === kode || x.nama.toLowerCase() === nama.toLowerCase())) return toast('Duplicate code or name.', 'error');
+  list.push({ kode, nama }); saveAll(); $('setKode').value = ''; $('setNama').value = ''; renderSettings(); refreshAll();
+}
+async function delSetting(i) {
+  const list = settingsMode === 'cabang' ? cabangData : kategoriData, key = settingsMode === 'cabang' ? 'cabang' : 'kategori', it = list[i];
+  if (assetData.filter(a => a[key] === it.nama).length) return toast('Item is still in use.', 'error');
+  if (!(await confirmDialog(`Delete "${it.nama}"?`, { title:'Delete item', ok:'Delete' }))) return;
+  list.splice(i, 1); saveAll(); renderSettings(); refreshAll();
+}
+
+const ASSET_HDRS = ['No.','Asset Code','Asset Name','Category','Branch','Location','Qty','Unit Price (IDR)','Total Price (IDR)','Acquisition Date','Condition','Status','PIC','S/N','Specifications','Warranty Until','Routine Maintenance','Interval','Interval Unit','Last Maintenance','Remind Days Before','Next Maintenance Due'];
+const LOG_HDRS = ['No.','Log ID','Asset Code','Asset Name','Date','Action Type','Origin','Destination / Vendor','Cost (IDR)','Status','Notes'];
+const assetRows = list => list.map((a, i) => ({ 'No.':i + 1, 'Asset Code':a.kode, 'Asset Name':a.nama, 'Category':a.kategori, 'Branch':a.cabang, 'Location':a.lokasi, 'Qty':1, 'Unit Price (IDR)':a.harga, 'Total Price (IDR)':a.harga, 'Acquisition Date':a.tgl, 'Condition':a.kondisi, 'Status':a.status, 'PIC':a.pic, 'S/N':a.sn, 'Specifications':a.specs, 'Warranty Until':a.garansi, 'Routine Maintenance':a.rm ? 'Yes' : 'No', 'Interval':a.rm ? a.rmEvery : '', 'Interval Unit':a.rm ? (UNIT_SING[a.rmUnit][0].toUpperCase() + UNIT_SING[a.rmUnit].slice(1) + 's') : '', 'Last Maintenance':a.rmLast, 'Remind Days Before':a.rm ? a.rmRemind : '', 'Next Maintenance Due':a.servis }));
+const logRows = list => list.map((m, i) => ({ 'No.':i + 1, 'Log ID':m.id, 'Asset Code':m.kode, 'Asset Name':m.nama, 'Date':m.tgl, 'Action Type':m.tipe, 'Origin':m.asal, 'Destination / Vendor':m.tujuan, 'Cost (IDR)':m.biaya, 'Status':m.status, 'Notes':m.ket }));
+function downloadBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+function exportExcel(scope, useFilter) {
+  if (typeof XLSX === 'undefined') return toast('Excel library unavailable.', 'error');
+  const wb = XLSX.utils.book_new(), assets = useFilter ? filteredAssets() : assetData;
+  if (scope === 'all' || scope === 'master') XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(assetRows(assets), { header:ASSET_HDRS }), 'Assets');
+  if (scope === 'all' || scope === 'mutasi') XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(logRows(mutasiData), { header:LOG_HDRS }), 'Asset Logs');
+  if (scope === 'dashboard' || scope === 'all') XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Metric','Value'],['Total Units',computeStats().qty],['Total Value',computeStats().value]]), 'Summary');
+  XLSX.writeFile(wb, `Asset_${scope}_${stamp()}.xlsx`);
+}
+function exportPDF(scope, useFilter) {
+  if (!(window.jspdf && window.jspdf.jsPDF)) return toast('PDF library unavailable.', 'error');
+  const doc = new window.jspdf.jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  const list = useFilter ? filteredAssets() : assetData;
+  doc.autoTable({ head:[['Code','Name','Category','Branch','Value','Status']], body:list.map(a => [a.kode, a.nama, a.kategori, a.cabang, fmtIDR(a.harga), a.status]) });
+  doc.save(`Asset_${scope}_${stamp()}.pdf`);
+}
+function doExport(scope) { const useFilter = $('expFilter').checked; closeModal('modalExport'); exportKind === 'excel' ? exportExcel(scope, useFilter) : exportPDF(scope, useFilter); }
+
+function downloadTemplate() {
+  if (typeof XLSX === 'undefined') return toast('Excel library unavailable.', 'error');
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{ 'Asset Code':'', 'Asset Name':'Sample AC', 'Category':'Air Conditioner', 'Branch':'Depok', 'Location':'Room 1', 'Qty':2, 'Unit Price (IDR)':4000000, 'Status':'Active' }], { header:['Asset Code','Asset Name','Category','Branch','Location','Qty','Unit Price (IDR)','Status'] }), 'Assets');
+  XLSX.writeFile(wb, 'Asset_Import_Template.xlsx');
+}
+function backupData() { downloadBlob(new Blob([JSON.stringify({ app:'asset-management-system', version:3, exportedAt:new Date().toISOString(), cabang:cabangData, kategori:kategoriData, assets:assetData, logs:mutasiData }, null, 2)], { type:'application/json' }), `AMS_Backup_${stamp()}.json`); }
+function restoreData(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = () => { try { const d = JSON.parse(r.result); if (!Array.isArray(d.assets)) throw new Error('Invalid file'); cabangData = d.cabang || structuredClone(DEFAULT_CAB); kategoriData = d.kategori || structuredClone(DEFAULT_KAT); assetData = d.assets.map(normAsset); mutasiData = (d.logs || []).map(normLog); enforceOneUnitPerCode(); saveAll(); refreshAll(); toast('Backup restored.', 'success'); } catch (e) { toast(e.message, 'error'); } };
+  r.readAsText(file); $('restoreFile').value = '';
+}
+async function loadSample() { if (!(await confirmDialog('Load sample data?', { title:'Sample data', ok:'Load' }))) return; cabangData = structuredClone(DEFAULT_CAB); kategoriData = structuredClone(DEFAULT_KAT); assetData = sampleAssets(); mutasiData = sampleLogs(); saveAll(); refreshAll(); }
+async function clearAll() { if (!(await confirmDialog('Clear all assets and logs?', { title:'Clear all', ok:'Clear' }))) return; assetData = []; mutasiData = []; sel.clear(); saveAll(); refreshAll(); }
+
+function openImport() { imp = null; $('importFile').value = ''; $('importFileName').textContent = 'No file selected'; $('importResult').classList.add('hidden'); $('importCommit').disabled = true; openModal('modalImport'); }
+function handleImportFile(file) {
+  if (!file || typeof XLSX === 'undefined') return;
+  $('importFileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const wb = XLSX.read(new Uint8Array(ev.target.result), { type:'array' });
+    const assets = [];
+    wb.SheetNames.forEach(name => {
+      XLSX.utils.sheet_to_json(wb.Sheets[name], { defval:'', raw:true }).forEach((row, i) => {
+        const g = mapRow(row, ALIAS_ASSET);
+        if (!String(g.nama || '').trim() || /^\[example/i.test(String(g.nama))) return;
+        assets.push({ rowNo:i + 2, d:{ kode:String(g.kode || '').trim(), nama:String(g.nama).trim(), kategori:String(g.kategori || '').trim() || 'Others', cabang:String(g.cabang || '').trim() || (cabangData[0]?.nama || 'Depok'), lokasi:String(g.lokasi || '').trim(), qty:1, rawQty:Math.max(1, Math.min(500, Math.round(num(g.qty) || 1))), harga:Math.max(0, num(g.harga)), kondisi:normCondition(g.kondisi) || 'Good', status:normStatus(g.status) || 'Active', pic:String(g.pic || '').trim(), sn:String(g.sn || '').trim(), specs:String(g.specs || '').trim() } });
+      });
+    });
+    imp = { assets, plan:null }; $('importResult').classList.remove('hidden'); rebuildImport();
+  };
+  reader.readAsArrayBuffer(file);
+}
+function rebuildImport() {
+  const taken = new Set(assetData.map(a => a.kode.toUpperCase())), planned = [];
+  imp.assets.forEach(p => {
+    const d = { ...p.d };
+    if (!d.kode) d.kode = nextCode('AST-IMP-GEN', taken);
+    expandUnits(d, d.rawQty || 1, taken).forEach(u => planned.push({ rowNo:p.rowNo, d:u, action:'new' }));
+  });
+  imp.plan = planned;
+  $('importChips').innerHTML = `<span class="badge bg-emerald-100 text-emerald-700" style="font-size:.78rem;padding:.25rem .7rem">${planned.length} unit rows ready</span>`;
+  $('importPreview').innerHTML = planned.slice(0, 100).map(r => `<tr><td class="p-2">Asset</td><td class="p-2">${r.rowNo}</td><td class="p-2"><span class="badge bg-emerald-100 text-emerald-700">new</span></td><td class="p-2 font-mono">${esc(r.d.kode)}</td><td class="p-2">${esc(r.d.nama)}</td><td class="p-2">${esc(r.d.cabang)}</td><td class="p-2">${esc(r.d.kategori)}</td><td class="p-2 text-right">1</td><td class="p-2 text-right">${fmtNum(r.d.harga)}</td><td class="p-2">1 unit</td></tr>`).join('');
+  $('importCommit').disabled = planned.length === 0;
+  $('importCommit').querySelector('span').textContent = `Import ${planned.length} units`;
+}
+function commitImport() {
+  if (!imp?.plan?.length) return;
+  imp.plan.forEach(r => assetData.push(normAsset(r.d)));
+  enforceOneUnitPerCode(); saveAll(); closeModal('modalImport'); refreshAll(); toast(`${imp.plan.length} units imported.`, 'success'); imp = null;
+}
+
+function closeMenus() { document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden')); }
+function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden'); closeMenus(); if (was) m.classList.remove('hidden'); }
+const ACTIONS = {
+  menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
+  syncNow: () => sb ? syncToSupabase(false) : toast('Set SUPABASE_ANON_KEY in the HTML first.', 'warn'),
+  openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
+  doExport, template: downloadTemplate, backup: backupData, restore: () => $('restoreFile').click(), loadSample, clearAll, commitImport,
+  addAsset: () => openAssetForm(), editAsset: id => { closeModal('modalDetail'); openAssetForm(id); }, delAsset: deleteAsset, view: viewAsset,
+  addLog: () => openLogForm(), addLogFor: id => openLogForm(null, id), editLog: id => openLogForm(id), delLog: deleteLog, delSetting: id => delSetting(+id),
+  bulkDelete, bulkClear: () => { sel.clear(); renderMaster(); updateBulkBar(); }, confirmYes: () => resolveConfirm(true), confirmNo: () => resolveConfirm(false),
+  sort: id => { if (F.sortK === id) F.sortDir *= -1; else { F.sortK = id; F.sortDir = 1; } renderMaster(); },
+  page: id => { F.page = Math.max(1, +id); renderMaster(); window.scrollTo({ top:0 }); },
+  clearFilters: () => { F.q = F.cab = F.kat = F.st = F.rm = ''; F.page = 1; $('fSearch').value = ''; populateSelects(); renderMaster(); },
+  filterBranch: id => { F.cab = id; F.page = 1; populateSelects(); renderMaster(); switchTab('master'); },
+  filterDue: () => { F.rm = 'due'; F.page = 1; populateSelects(); renderMaster(); switchTab('master'); },
+  doneRM: id => { openLogForm(null, id); $('logTipe').value = 'Routine Maintenance'; $('logStat').value = 'Completed'; }
+};
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadAll(); refreshAll(); switchTab('dashboard');
+  document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (!el) { if (!e.target.closest('.menu')) closeMenus(); return; } const fn = ACTIONS[el.dataset.act]; if (el.dataset.act !== 'menu') closeMenus(); if (fn) fn(el.dataset.id, el); });
+  document.addEventListener('change', e => { const t = e.target; if (t.classList.contains('item-chk')) { t.checked ? sel.add(t.dataset.id) : sel.delete(t.dataset.id); renderMaster(); updateBulkBar(); } else if (t.id === 'selAll') { filteredAssets().forEach(a => t.checked ? sel.add(a.kode) : sel.delete(a.kode)); renderMaster(); updateBulkBar(); } else if (t.dataset && t.dataset.col) { colVis[t.dataset.col] = t.checked; saveLocal(); renderMaster(); } else if (t.id === 'bulkStatus') bulkSetStatus(t.value); });
+  $('fSearch').addEventListener('input', debounce(e => { F.q = e.target.value; F.page = 1; renderMaster(); }, 150));
+  ['fCab','fKat','fSt','fRm'].forEach((id, idx) => $(id).addEventListener('change', e => { [F.cab, F.kat, F.st, F.rm][idx] = e.target.value; if (idx === 0) F.cab = e.target.value; if (idx === 1) F.kat = e.target.value; if (idx === 2) F.st = e.target.value; if (idx === 3) F.rm = e.target.value; F.page = 1; renderMaster(); }));
+  $('inpRm').addEventListener('change', e => { $('rmFields').classList.toggle('hidden', !e.target.checked); rmAutoCalc(); });
+  $('inpQty').addEventListener('input', updateUnitNotice);
+  ['inpRmEvery','inpRmUnit','inpRmLast'].forEach(id => { $(id).addEventListener('change', rmAutoCalc); $(id).addEventListener('input', rmAutoCalc); });
+  $('lSearch').addEventListener('input', debounce(e => { LF.q = e.target.value; renderLogs(); }, 150));
+  $('lType').addEventListener('change', e => { LF.tipe = e.target.value; renderLogs(); });
+  $('lSt').addEventListener('change', e => { LF.st = e.target.value; renderLogs(); });
+  $('inpCab').addEventListener('change', () => { genCode(); updateUnitNotice(); });
+  $('inpKat').addEventListener('change', () => { genCode(); updateUnitNotice(); });
+  $('formAsset').addEventListener('submit', saveAsset); $('formLog').addEventListener('submit', saveLog); $('formSettings').addEventListener('submit', addSetting);
+  $('logKode').addEventListener('input', e => fillLogAsset(e.target.value));
+  $('restoreFile').addEventListener('change', e => restoreData(e.target.files[0]));
+  const dz = $('dropZone'), inp = $('importFile');
+  dz.addEventListener('click', () => inp.click()); inp.addEventListener('change', e => handleImportFile(e.target.files[0]));
+  ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('over'); }));
+  dz.addEventListener('drop', e => handleImportFile(e.dataTransfer.files[0]));
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const open = [...document.querySelectorAll('.modal:not(.hidden)')].pop(); if (!open) return; open.id === 'modalConfirm' ? resolveConfirm(false) : closeModal(open.id); });
+});
+</script>
+</body>
+</html>

@@ -20,7 +20,8 @@
   .btn-primary{background:#2563eb;color:#fff}.btn-primary:hover:not(:disabled){background:#1d4ed8}
   .btn-ghost{background:#fff;border:1px solid #cbd5e1;color:#334155}.btn-ghost:hover{background:#f1f5f9}
   .btn-dark{background:#1e293b;border:1px solid #334155;color:#e2e8f0}.btn-dark:hover{background:#334155}
-  .btn-danger{background:#e11d48;color:#fff}.btn-danger:hover{background:#be123c}
+  .btn-danger{background:#e11d48;color:#fff}.btn-danger:hover:not(:disabled){background:#be123c}
+  .btn-success{background:#059669;color:#fff}.btn-success:hover:not(:disabled){background:#047857}
   .input{width:100%;border:1px solid #cbd5e1;border-radius:.6rem;padding:.55rem .75rem;font-size:.875rem;background:#fff;color:#0f172a}
   .input:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
   .input[readonly]{background:#f1f5f9;color:#475569}
@@ -47,25 +48,55 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
+<!-- AUTH GATE -->
+<div id="authGate" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[80] flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
+    <div class="bg-slate-900 text-white px-6 py-5 flex items-center gap-3">
+      <div class="p-2.5 bg-blue-600 rounded-xl"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+      <div>
+        <h2 class="font-bold text-base">Asset Management System</h2>
+        <p class="text-xs text-slate-400">Sign in with your Supabase account</p>
+      </div>
+    </div>
+    <form id="formLogin" class="p-6 space-y-4 text-sm">
+      <div>
+        <label class="lbl">Email</label>
+        <input id="loginEmail" type="email" required autocomplete="username" class="input" placeholder="name@company.com">
+      </div>
+      <div>
+        <label class="lbl">Password</label>
+        <input id="loginPass" type="password" required autocomplete="current-password" class="input" placeholder="••••••••">
+      </div>
+      <p id="loginErr" class="text-xs text-rose-600 hidden"></p>
+      <button type="submit" id="btnLogin" class="btn btn-primary w-full justify-center py-2.5">
+        <i data-lucide="log-in"></i><span>Sign In</span>
+      </button>
+    </form>
+  </div>
+</div>
+
 <header class="bg-slate-900 text-white">
   <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <div class="p-2 bg-blue-600 rounded-lg shrink-0"><i data-lucide="box" class="w-5 h-5"></i></div>
       <div class="min-w-0">
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <h1 class="text-base sm:text-lg font-bold leading-tight">Asset Management System</h1>
           <span id="dbBadge" class="badge bg-slate-800 text-slate-300 border border-slate-700">Local Mode</span>
+          <span id="roleBadge" class="badge bg-amber-950 text-amber-300 border border-amber-700 hidden">GUEST</span>
         </div>
         <p id="headerSub" class="text-xs text-slate-400 truncate">Operational asset tracking for General Affairs</p>
       </div>
     </div>
     <div class="flex items-center gap-2">
+      <span id="userEmailLabel" class="hidden xl:inline text-xs text-slate-300 max-w-[180px] truncate"></span>
       <button class="btn btn-dark" data-act="settings" data-id="cabang"><i data-lucide="building"></i><span class="hidden md:inline">Branches</span></button>
       <button class="btn btn-dark" data-act="settings" data-id="kategori"><i data-lucide="tags"></i><span class="hidden md:inline">Categories</span></button>
       <div class="relative">
         <button class="btn btn-primary" data-act="menu" data-id="dataMenu"><i data-lucide="database"></i><span>Data</span><i data-lucide="chevron-down"></i></button>
         <div id="dataMenu" class="menu hidden">
           <button data-act="syncNow"><i data-lucide="refresh-cw"></i>Sync with Supabase</button>
+          <button id="menuDeleted" data-act="openDeleted" class="hidden"><i data-lucide="archive-restore"></i>Deleted / Restore</button>
           <hr>
           <button data-act="openImport"><i data-lucide="upload"></i>Import from Excel / CSV</button>
           <button data-act="openExport" data-id="excel"><i data-lucide="file-spreadsheet"></i>Export to Excel</button>
@@ -79,6 +110,7 @@
           <button data-act="clearAll" style="color:#e11d48"><i data-lucide="trash-2" style="color:#e11d48"></i>Clear all data</button>
         </div>
       </div>
+      <button class="btn btn-dark" data-act="logout" title="Sign out"><i data-lucide="log-out"></i><span class="hidden sm:inline">Logout</span></button>
     </div>
   </div>
 </header>
@@ -144,7 +176,7 @@
           <div id="colMenu" class="menu hidden" style="right:auto;left:0;min-width:13rem"></div>
         </div>
       </div>
-      <button class="btn btn-primary justify-center" data-act="addAsset"><i data-lucide="plus"></i>Add New Asset</button>
+      <button id="btnAddAsset" class="btn btn-primary justify-center" data-act="addAsset"><i data-lucide="plus"></i>Add New Asset</button>
     </div>
     <div class="card overflow-x-auto">
       <table class="w-full text-left text-sm border-collapse min-w-max">
@@ -165,7 +197,7 @@
         <select id="lType" class="input" style="width:auto"></select>
         <select id="lSt" class="input" style="width:auto"></select>
       </div>
-      <button class="btn btn-primary justify-center" data-act="addLog"><i data-lucide="plus"></i>Add Log Entry</button>
+      <button id="btnAddLog" class="btn btn-primary justify-center" data-act="addLog"><i data-lucide="plus"></i>Add Log Entry</button>
     </div>
     <div class="card overflow-x-auto">
       <table class="w-full text-left text-sm border-collapse min-w-max">
@@ -189,7 +221,7 @@
   <span class="text-sm font-medium" id="bulkCount">0 selected</span>
   <div class="h-4 w-px bg-slate-700"></div>
   <select id="bulkStatus" class="bg-slate-800 border border-slate-600 text-sm rounded-lg px-2 py-1.5"></select>
-  <button class="btn btn-danger" style="padding:.35rem .8rem" data-act="bulkDelete"><i data-lucide="trash-2"></i>Delete</button>
+  <button id="btnBulkDelete" class="btn btn-danger" style="padding:.35rem .8rem" data-act="bulkDelete"><i data-lucide="trash-2"></i>Delete</button>
   <button class="text-slate-400 hover:text-white" data-act="bulkClear" title="Clear selection"><i data-lucide="x" class="w-4 h-4"></i></button>
 </div>
 
@@ -202,6 +234,39 @@
     <div class="flex justify-end gap-2 mt-6">
       <button class="btn btn-ghost" data-act="confirmNo">Cancel</button>
       <button id="confirmOk" class="btn btn-danger" data-act="confirmYes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalDeleted" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shrink-0">
+      <div>
+        <h3 class="font-bold">Deleted Records & Restore (Super Admin)</h3>
+        <p class="text-xs text-slate-400">Archived snapshots of deleted items</p>
+      </div>
+      <button data-act="closeModal" data-id="modalDeleted" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="p-5 overflow-y-auto grow">
+      <div class="border border-slate-200 rounded-lg overflow-x-auto">
+        <table class="w-full text-left text-xs min-w-max">
+          <thead class="bg-slate-100 text-slate-600 uppercase">
+            <tr>
+              <th class="p-2.5">Table</th>
+              <th class="p-2.5">Key</th>
+              <th class="p-2.5">Summary</th>
+              <th class="p-2.5">Deleted By</th>
+              <th class="p-2.5">Deleted At</th>
+              <th class="p-2.5">State</th>
+              <th class="p-2.5 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="deletedBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+      <button class="btn btn-ghost" data-act="closeModal" data-id="modalDeleted">Close</button>
     </div>
   </div>
 </div>
@@ -380,13 +445,13 @@
 
 <script>
 const SUPABASE_URL = 'https://drwdhaxmlgfwvgrayoqu.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_ZzbQxs-3AUL_l-8TfhTUpw_RLsXPkIS';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyd2RoYXhtbGdmd3ZncmF5b3F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMTMyMDYsImV4cCI6MjExMDg4OTIwNn0.XIDVZyjVpPIbn3ZP6niwGWeSwPdN9PApEFS5atWAdCg';
 
-const sb = (window.supabase && SUPABASE_URL.startsWith('https://') && !SUPABASE_ANON_KEY.includes('PASTE_YOUR'))
+const sb = (window.supabase && SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 20)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
-const esc = s => String(s ?? '').replace(/[&<>\x22']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\x22':'&quot;',"'":'&#39;'}[c]));
+const esc = s => String(s ?? '').replace(/[\x26\x3c\x3e\x22\x27]/g, c => ({'\x26':'\x26amp;','\x3c':'\x26lt;','\x3e':'\x26gt;',[String.fromCharCode(34)]:'\x26quot;',[String.fromCharCode(39)]:'\x26#39;'}[c]));
 const hdrKey = s => String(s ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
 const pad2 = n => String(n).padStart(2, '0');
 
@@ -410,30 +475,6 @@ function num(v) {
 function validYMD(y, m, d) {
   const dt = new Date(Date.UTC(y, m - 1, d));
   return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;
-}
-
-function parseDate(v) {
-  if (v === null || v === undefined || v === '') return '';
-  if (v instanceof Date) return isNaN(v) ? '' : `${v.getFullYear()}-${pad2(v.getMonth() + 1)}-${pad2(v.getDate())}`;
-  if (typeof v === 'number') {
-    if (v > 20000 && v < 80000) {
-      const d = new Date(Math.round((v - 25569) * 86400000));
-      return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())}`;
-    }
-    return '';
-  }
-  const s = String(v).trim();
-  if (/^\d{5}$/.test(s)) return parseDate(Number(s));
-  let m;
-  if ((m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s))) {
-    const y = +m[1], mo = +m[2], d = +m[3];
-    return validYMD(y, mo, d) ? `${y}-${pad2(mo)}-${pad2(d)}` : '';
-  }
-  if ((m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/.exec(s))) {
-    const d = +m[1], mo = +m[2], y = +m[3];
-    return validYMD(y, mo, d) ? `${y}-${pad2(mo)}-${pad2(d)}` : '';
-  }
-  return '';
 }
 
 const STATUS_MAP = { active:'Active', aktif:'Active', underrepair:'Under Repair', repair:'Under Repair', perbaikan:'Under Repair', service:'Under Repair', intransit:'In Transit', transit:'In Transit', transfer:'In Transit', mutasi:'In Transit', disposed:'Disposed', dispose:'Disposed', writtenoff:'Disposed', dihapus:'Disposed' };
@@ -462,7 +503,6 @@ function normUnit(v) {
   if (k.startsWith('year') || k.includes('tahun')) return 'years';
   return null;
 }
-function truthy(v) { return ['yes', 'ya', 'y', 'true', '1', 'x', 'aktif', 'active'].includes(hdrKey(v)); }
 function addInterval(s, n, unit) {
   if (!s || !(n > 0)) return '';
   const [y, m, d] = s.split('-').map(Number);
@@ -488,13 +528,6 @@ function nextCode(prefix, taken) {
   return code;
 }
 
-function makeRefCode(name, takenCodes) {
-  const base = String(name).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'GEN';
-  let c = base, i = 2;
-  while (takenCodes.has(c)) { c = base + i; i++; }
-  return c;
-}
-
 const ALIAS_ASSET = {
   kode: ['assetcode','kodeaset','kode','code'], nama: ['assetname','namaaset','nama','name'],
   kategori: ['category','kategori'], cabang: ['branch','cabang'], lokasi: ['location','lokasi','locationroom','room'],
@@ -506,12 +539,6 @@ const ALIAS_ASSET = {
   rm: ['routinemaintenance','maintenancerutin','rutin'], rmEvery: ['interval','maintenanceinterval','intervalrutin'],
   rmUnit: ['intervalunit','satuaninterval'], rmLast: ['lastmaintenance','maintenanceterakhir'],
   rmRemind: ['reminddaysbefore','remind','pengingat']
-};
-const ALIAS_LOG = {
-  id: ['logid','id'], kode: ['assetcode','kodeaset','kode','code'], nama: ['assetname','namaaset','nama'],
-  tgl: ['date','logdate','tanggal'], tipe: ['actiontype','tipe','type'], asal: ['origin','asal'],
-  tujuan: ['destinationvendor','destination','tujuan','vendor'], biaya: ['costidr','cost','biaya'],
-  status: ['status'], ket: ['notes','keterangan','note']
 };
 function mapRow(row, aliases) {
   const km = {};
@@ -535,6 +562,7 @@ const DEFAULT_CAB = [{kode:'DPK',nama:'Depok'},{kode:'BTN',nama:'Bintaro'},{kode
 const DEFAULT_KAT = [{kode:'AC',nama:'Air Conditioner'},{kode:'EL',nama:'Electrical'},{kode:'IT',nama:'IT & Office Equipment'},{kode:'TRT',nama:'Treatment Tools'},{kode:'MED',nama:'Medical Equipment'},{kode:'FUR',nama:'Furniture'},{kode:'SAF',nama:'Safety & Security'},{kode:'HOU',nama:'Housekeeping'},{kode:'TOOL',nama:'Tools'},{kode:'OTH',nama:'Others'}];
 
 let cabangData = [], kategoriData = [], assetData = [], mutasiData = [], colVis = {};
+let currentUser = null, currentRole = 'viewer';
 const sel = new Set();
 const F = { q:'', cab:'', kat:'', st:'', rm:'', page:1, sortK:'kode', sortDir:1 };
 const LF = { q:'', tipe:'', st:'' };
@@ -542,6 +570,8 @@ let settingsMode = 'cabang', exportKind = 'excel', confirmResolve = null, imp = 
 
 const $ = id => document.getElementById(id);
 const icons = () => { if (window.lucide) lucide.createIcons(); };
+const canWrite = () => ['super_admin', 'staff'].includes(currentRole);
+const isSuperAdmin = () => currentRole === 'super_admin';
 
 function setDbBadge(mode, label) {
   const el = $('dbBadge');
@@ -553,6 +583,26 @@ function setDbBadge(mode, label) {
   };
   el.className = `badge border ${map[mode] || map.local}`;
   el.textContent = label;
+}
+
+function renderRoleUI() {
+  const rb = $('roleBadge'), ue = $('userEmailLabel'), md = $('menuDeleted');
+  if (currentUser) {
+    rb.classList.remove('hidden');
+    rb.textContent = currentRole.toUpperCase().replace('_', ' ');
+    rb.className = 'badge border ' + (isSuperAdmin()
+      ? 'bg-emerald-950 text-emerald-300 border-emerald-700'
+      : 'bg-sky-950 text-sky-300 border-sky-700');
+    ue.textContent = currentUser.email || '';
+    md.classList.toggle('hidden', !isSuperAdmin());
+  } else {
+    rb.classList.add('hidden');
+    ue.textContent = '';
+    md.classList.add('hidden');
+  }
+  $('btnAddAsset').disabled = !canWrite();
+  $('btnAddLog').disabled = !canWrite();
+  $('btnBulkDelete').disabled = !isSuperAdmin();
 }
 
 function todayStr() { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
@@ -618,8 +668,24 @@ const fromDbLog = r => normLog({
   asal: r.origin, tujuan: r.destination, biaya: r.cost, status: r.status, ket: r.notes
 });
 
+async function archiveDeleted(tableName, recordKey, payloadObj) {
+  if (!sb || !currentUser) return true;
+  const { error } = await sb.from('deleted_records').insert({
+    table_name: tableName,
+    record_key: String(recordKey),
+    payload: payloadObj,
+    deleted_by: currentUser.id,
+    deleted_email: currentUser.email || ''
+  });
+  if (error) {
+    toast('Failed to archive record before delete: ' + error.message, 'error');
+    return false;
+  }
+  return true;
+}
+
 async function syncToSupabase(quiet = false) {
-  if (!sb) return false;
+  if (!sb || !currentUser) return false;
   try {
     const [bRes, kRes, aRes, lRes] = await Promise.all([
       sb.from('branches').select('code,name'),
@@ -633,14 +699,16 @@ async function syncToSupabase(quiet = false) {
     if (assetData.length) { const { error } = await sb.from('assets').upsert(assetData.map(toDbAsset), { onConflict: 'code' }); if (error) throw error; }
     if (mutasiData.length) { const { error } = await sb.from('asset_logs').upsert(mutasiData.map(toDbLog), { onConflict: 'id' }); if (error) throw error; }
 
-    const extraCab = (bRes.data || []).map(x => x.code).filter(x => !new Set(cabangData.map(z => z.code)).has(x));
-    if (extraCab.length) await sb.from('branches').delete().in('code', extraCab);
-    const extraKat = (kRes.data || []).map(x => x.code).filter(x => !new Set(kategoriData.map(z => z.code)).has(x));
-    if (extraKat.length) await sb.from('categories').delete().in('code', extraKat);
-    const extraAst = (aRes.data || []).map(x => x.code).filter(x => !new Set(assetData.map(z => z.kode)).has(x));
-    if (extraAst.length) await sb.from('assets').delete().in('code', extraAst);
-    const extraLog = (lRes.data || []).map(x => x.id).filter(x => !new Set(mutasiData.map(z => z.id)).has(x));
-    if (extraLog.length) await sb.from('asset_logs').delete().in('id', extraLog);
+    if (isSuperAdmin()) {
+      const extraCab = (bRes.data || []).map(x => x.code).filter(x => !new Set(cabangData.map(z => z.code)).has(x));
+      if (extraCab.length) await sb.from('branches').delete().in('code', extraCab);
+      const extraKat = (kRes.data || []).map(x => x.code).filter(x => !new Set(kategoriData.map(z => z.code)).has(x));
+      if (extraKat.length) await sb.from('categories').delete().in('code', extraKat);
+      const extraAst = (aRes.data || []).map(x => x.code).filter(x => !new Set(assetData.map(z => z.kode)).has(x));
+      if (extraAst.length) await sb.from('assets').delete().in('code', extraAst);
+      const extraLog = (lRes.data || []).map(x => x.id).filter(x => !new Set(mutasiData.map(z => z.id)).has(x));
+      if (extraLog.length) await sb.from('asset_logs').delete().in('id', extraLog);
+    }
 
     setDbBadge('cloud', 'Supabase Connected');
     if (!quiet) toast('Synced with Supabase.', 'success');
@@ -653,7 +721,7 @@ async function syncToSupabase(quiet = false) {
 }
 
 async function pullFromSupabase() {
-  if (!sb) return false;
+  if (!sb || !currentUser) return false;
   try {
     const [bRes, kRes, aRes, lRes] = await Promise.all([
       sb.from('branches').select('*').order('name'),
@@ -684,7 +752,7 @@ async function pullFromSupabase() {
 
 function saveAll(syncCloud = true) {
   saveLocal();
-  if (syncCloud && sb) syncToSupabase(true);
+  if (syncCloud && sb && currentUser) syncToSupabase(true);
 }
 
 function normAsset(a) {
@@ -750,7 +818,7 @@ function sampleLogs() {
   return [{ id:'LOG-001', kode:'AST-DPK-IT-001', nama:'MacBook Pro M2 14-inch', tgl:addDays(todayStr(), -6), tipe:'Service / Repair', asal:'Depok', tujuan:'iBox Official Service', biaya:1200000, status:'In Progress', ket:'Logic board replacement' }].map(normLog);
 }
 
-function loadAll() {
+function loadLocalData() {
   const has = localStorage.getItem(KEYS.ast) !== null;
   cabangData = (Array.isArray(readLS(KEYS.cab)) && readLS(KEYS.cab).length) ? readLS(KEYS.cab) : structuredClone(DEFAULT_CAB);
   kategoriData = (Array.isArray(readLS(KEYS.kat)) && readLS(KEYS.kat).length) ? readLS(KEYS.kat).map(k => k.nama === 'Alat Treatment' ? { ...k, nama:'Treatment Tools' } : k) : structuredClone(DEFAULT_KAT);
@@ -761,8 +829,53 @@ function loadAll() {
   colVis = c && !Array.isArray(c) && typeof c === 'object' ? c : {};
   enforceOneUnitPerCode();
   saveLocal();
-  if (sb) { setDbBadge('local', 'Syncing...'); pullFromSupabase(); }
-  else setDbBadge('local', 'Local Mode');
+}
+
+async function fetchRoleForUser(userId) {
+  if (!sb || !userId) return 'viewer';
+  const { data, error } = await sb.from('user_roles').select('role').eq('user_id', userId).maybeSingle();
+  if (error || !data?.role) return 'viewer';
+  return data.role;
+}
+
+async function applySession(session) {
+  currentUser = session?.user || null;
+  if (!currentUser) {
+    currentRole = 'viewer';
+    renderRoleUI();
+    setDbBadge('local', 'Signed Out');
+    $('authGate').classList.remove('hidden');
+    return;
+  }
+  $('authGate').classList.add('hidden');
+  currentRole = await fetchRoleForUser(currentUser.id);
+  renderRoleUI();
+  setDbBadge('local', 'Syncing...');
+  await pullFromSupabase();
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  $('loginErr').classList.add('hidden');
+  if (!sb) { $('loginErr').textContent = 'Supabase client not initialized.'; $('loginErr').classList.remove('hidden'); return; }
+  const btn = $('btnLogin'); btn.disabled = true;
+  const email = $('loginEmail').value.trim();
+  const password = $('loginPass').value;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false;
+  if (error) {
+    $('loginErr').textContent = error.message;
+    $('loginErr').classList.remove('hidden');
+    return;
+  }
+  await applySession(data.session);
+  toast(`Signed in as ${email} (${currentRole})`, 'success');
+}
+
+async function logout() {
+  if (sb) await sb.auth.signOut();
+  await applySession(null);
+  toast('Signed out.', 'info');
 }
 
 function computeStats() {
@@ -836,7 +949,7 @@ function filteredAssets() {
 }
 
 function refreshAll() {
-  populateSelects(); renderDashboard(); renderSchedule(); renderMaster(); renderLogs(); updateBulkBar();
+  populateSelects(); renderDashboard(); renderSchedule(); renderMaster(); renderLogs(); updateBulkBar(); renderRoleUI();
   $('cntAssets').textContent = assetData.length; $('cntLogs').textContent = mutasiData.length;
   $('headerSub').textContent = cabangData.map(c => c.nama).join(' • ') || 'Operational asset tracking';
   icons();
@@ -889,7 +1002,7 @@ function renderSchedule() {
   if (!routine.length) { $('scheduleList').innerHTML = `<div class="text-center py-8 text-sm text-slate-400">No routine maintenance set up yet.</div>`; return icons(); }
   if (!rows.length) { $('scheduleList').innerHTML = `<div class="text-center py-8 text-sm text-slate-400">Nothing due in the next 60 days (${routine.length} routine units tracked).</div>`; return icons(); }
   const tag = i => i.state === 'overdue' ? [`Overdue ${-i.d}d`, 'bg-rose-100 text-rose-700'] : i.state === 'soon' ? [i.d === 0 ? 'Due today' : `Due in ${i.d}d`, 'bg-amber-100 text-amber-700'] : [`In ${i.d}d`, 'bg-slate-100 text-slate-600'];
-  $('scheduleList').innerHTML = rows.slice(0, 8).map(({ a, i }) => { const [t, c] = tag(i); return `<div class="flex flex-wrap items-center justify-between gap-2 py-2.5"><div class="flex items-center gap-3 min-w-0"><span class="badge ${c} w-24 text-center shrink-0">${t}</span><button class="text-left min-w-0" data-act="view" data-id="${esc(a.kode)}"><p class="text-sm font-medium text-slate-900 truncate"><span class="font-mono text-blue-600 mr-1.5">${esc(a.kode)}</span>${esc(a.nama)}</p><p class="text-xs text-slate-500 truncate">${esc(a.cabang)}${a.lokasi ? ' • ' + esc(a.lokasi) : ''} • ${esc(rmText(a))}</p></button></div><div class="flex items-center gap-3"><span class="text-xs text-slate-500">${fmtDate(a.servis)}</span><button class="btn btn-ghost" style="padding:.3rem .7rem" data-act="doneRM" data-id="${esc(a.kode)}"><i data-lucide="check-check"></i>Log done</button></div></div>`; }).join('');
+  $('scheduleList').innerHTML = rows.slice(0, 8).map(({ a, i }) => { const [t, c] = tag(i); return `<div class="flex flex-wrap items-center justify-between gap-2 py-2.5"><div class="flex items-center gap-3 min-w-0"><span class="badge ${c} w-24 text-center shrink-0">${t}</span><button class="text-left min-w-0" data-act="view" data-id="${esc(a.kode)}"><p class="text-sm font-medium text-slate-900 truncate"><span class="font-mono text-blue-600 mr-1.5">${esc(a.kode)}</span>${esc(a.nama)}</p><p class="text-xs text-slate-500 truncate">${esc(a.cabang)}${a.lokasi ? ' • ' + esc(a.lokasi) : ''} • ${esc(rmText(a))}</p></button></div><div class="flex items-center gap-3"><span class="text-xs text-slate-500">${fmtDate(a.servis)}</span><button class="btn btn-ghost" style="padding:.3rem .7rem" data-act="doneRM" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}><i data-lucide="check-check"></i>Log done</button></div></div>`; }).join('');
   icons();
 }
 
@@ -899,7 +1012,7 @@ function renderMaster() {
   const start = (F.page - 1) * PAGE, slice = list.slice(start, start + PAGE), cols = visibleCols();
   const allSel = list.length > 0 && list.every(a => sel.has(a.kode));
   $('masterHead').innerHTML = `<tr><th class="p-3 w-10 text-center"><input type="checkbox" id="selAll" ${allSel ? 'checked' : ''}></th>` + cols.map(c => `<th class="p-3 ${c.cls && c.cls.includes('text-center') ? 'text-center' : c.cls && c.cls.includes('text-right') ? 'text-right' : ''} ${c.sort ? 'sortable' : ''}" ${c.sort ? `data-act="sort" data-id="${c.k}"` : ''}>${c.l}${F.sortK === c.k ? (F.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '<th class="p-3 text-center">Actions</th></tr>';
-  $('masterBody').innerHTML = slice.length ? slice.map((a, i) => `<tr class="hover:bg-slate-50 ${sel.has(a.kode) ? 'bg-blue-50/60' : ''}"><td class="p-3 text-center"><input type="checkbox" class="item-chk" data-id="${esc(a.kode)}" ${sel.has(a.kode) ? 'checked' : ''}></td>${cols.map(c => `<td class="p-3 ${c.cls || ''}">${c.html(a, start + i)}</td>`).join('')}<td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-slate-100 text-slate-600" data-act="view" data-id="${esc(a.kode)}" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600" data-act="editAsset" data-id="${esc(a.kode)}" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600" data-act="delAsset" data-id="${esc(a.kode)}" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="${cols.length + 2}" class="p-12 text-center text-slate-400">No units found.</td></tr>`;
+  $('masterBody').innerHTML = slice.length ? slice.map((a, i) => `<tr class="hover:bg-slate-50 ${sel.has(a.kode) ? 'bg-blue-50/60' : ''}"><td class="p-3 text-center"><input type="checkbox" class="item-chk" data-id="${esc(a.kode)}" ${sel.has(a.kode) ? 'checked' : ''}></td>${cols.map(c => `<td class="p-3 ${c.cls || ''}">${c.html(a, start + i)}</td>`).join('')}<td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-slate-100 text-slate-600" data-act="view" data-id="${esc(a.kode)}" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editAsset" data-id="${esc(a.kode)}" title="Edit" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 disabled:opacity-30" data-act="delAsset" data-id="${esc(a.kode)}" title="Delete" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="${cols.length + 2}" class="p-12 text-center text-slate-400">No units found.</td></tr>`;
   const from = list.length ? start + 1 : 0, to = Math.min(start + PAGE, list.length), totalVal = list.reduce((s, a) => s + a.harga, 0);
   $('masterFooter').innerHTML = `<span>Showing <b>${from}–${to}</b> of <b>${list.length}</b> physical units • Total value ${fmtIDR(totalVal)}</span><div class="flex items-center gap-2"><button class="btn btn-ghost" data-act="page" data-id="${F.page - 1}" ${F.page <= 1 ? 'disabled' : ''}><i data-lucide="chevron-left"></i></button><span>Page ${F.page} / ${pages}</span><button class="btn btn-ghost" data-act="page" data-id="${F.page + 1}" ${F.page >= pages ? 'disabled' : ''}><i data-lucide="chevron-right"></i></button></div>`;
   icons();
@@ -911,7 +1024,7 @@ function filteredLogs() {
 }
 function renderLogs() {
   const list = filteredLogs();
-  $('logBody').innerHTML = list.length ? list.map((m, i) => `<tr class="hover:bg-slate-50"><td class="p-3 text-center text-slate-400">${i + 1}</td><td class="p-3 font-mono text-slate-500">${esc(m.id)}</td><td class="p-3"><button class="text-left" data-act="view" data-id="${esc(m.kode)}"><span class="font-mono font-semibold text-blue-600">${esc(m.kode)}</span><br><span class="text-xs text-slate-500">${esc(m.nama)}</span></button></td><td class="p-3">${fmtDate(m.tgl)}</td><td class="p-3">${badge(m.tipe, TYPE_CLS)}</td><td class="p-3 text-slate-600">${esc(m.asal) || '-'}</td><td class="p-3 font-medium text-blue-700">${esc(m.tujuan) || '-'}</td><td class="p-3 text-right">${fmtIDR(m.biaya)}</td><td class="p-3">${badge(m.status, LOGST_CLS)}</td><td class="p-3 text-slate-500 max-w-xs truncate">${esc(m.ket) || '-'}</td><td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600" data-act="editLog" data-id="${esc(m.id)}"><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600" data-act="delLog" data-id="${esc(m.id)}"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="11" class="p-12 text-center text-slate-400">No log entries</td></tr>`;
+  $('logBody').innerHTML = list.length ? list.map((m, i) => `<tr class="hover:bg-slate-50"><td class="p-3 text-center text-slate-400">${i + 1}</td><td class="p-3 font-mono text-slate-500">${esc(m.id)}</td><td class="p-3"><button class="text-left" data-act="view" data-id="${esc(m.kode)}"><span class="font-mono font-semibold text-blue-600">${esc(m.kode)}</span><br><span class="text-xs text-slate-500">${esc(m.nama)}</span></button></td><td class="p-3">${fmtDate(m.tgl)}</td><td class="p-3">${badge(m.tipe, TYPE_CLS)}</td><td class="p-3 text-slate-600">${esc(m.asal) || '-'}</td><td class="p-3 font-medium text-blue-700">${esc(m.tujuan) || '-'}</td><td class="p-3 text-right">${fmtIDR(m.biaya)}</td><td class="p-3">${badge(m.status, LOGST_CLS)}</td><td class="p-3 text-slate-500 max-w-xs truncate">${esc(m.ket) || '-'}</td><td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editLog" data-id="${esc(m.id)}" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 disabled:opacity-30" data-act="delLog" data-id="${esc(m.id)}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="11" class="p-12 text-center text-slate-400">No log entries</td></tr>`;
   const cost = list.filter(m => m.status !== 'Cancelled').reduce((s, m) => s + m.biaya, 0);
   $('logFooter').innerHTML = `<b>${list.length}</b> entries • Total cost (excl. cancelled): <b>${fmtIDR(cost)}</b>`;
   icons();
@@ -938,6 +1051,7 @@ function updateUnitNotice() {
   else { el.classList.add('hidden'); el.textContent = ''; }
 }
 function openAssetForm(kode) {
+  if (!canWrite()) return toast('Read-only role: cannot modify assets.', 'warn');
   const a = kode ? assetData.find(x => x.kode === kode) : null;
   $('formAsset').reset(); $('editOrig').value = a ? a.kode : ''; $('assetTitle').textContent = a ? 'Edit Asset Unit' : 'Add New Asset'; populateSelects();
   if (a) { $('inpCab').value = a.cabang; $('inpKat').value = a.kategori; $('inpKode').value = a.kode; $('inpNama').value = a.nama; $('inpQty').value = 1; $('inpQty').readOnly = true; $('inpLok').value = a.lokasi; $('inpHarga').value = a.harga || ''; $('inpTgl').value = a.tgl; $('inpKond').value = a.kondisi; $('inpStat').value = a.status; $('inpPIC').value = a.pic; $('inpSN').value = a.sn; $('inpGar').value = a.garansi; $('inpServ').value = a.servis; $('inpSpec').value = a.specs; setRmFields(a); }
@@ -946,6 +1060,7 @@ function openAssetForm(kode) {
 }
 function saveAsset(e) {
   e.preventDefault();
+  if (!canWrite()) return toast('Read-only role.', 'warn');
   const orig = $('editOrig').value, qty = orig ? 1 : Math.max(1, Math.round(+$('inpQty').value || 1));
   if (!orig) genCode();
   const kode = $('inpKode').value;
@@ -956,25 +1071,45 @@ function saveAsset(e) {
   else { assetData.push(obj); saveAll(); closeModal('modalAsset'); refreshAll(); toast(`Asset ${obj.kode} added.`, 'success'); }
 }
 async function deleteAsset(kode) {
-  if (!(await confirmDialog(`Delete asset ${kode}?`, { title:'Delete asset', ok:'Delete' }))) return;
-  assetData = assetData.filter(a => a.kode !== kode); mutasiData = mutasiData.filter(m => m.kode !== kode); sel.delete(kode); saveAll(); refreshAll(); toast('Asset deleted.', 'success');
+  if (!isSuperAdmin()) return toast('Only Super Admin can delete assets.', 'warn');
+  const target = assetData.find(a => a.kode === kode);
+  if (!target) return;
+  if (!(await confirmDialog(`Archive & delete asset ${kode}?\nSnapshot will be saved to Deleted / Restore.`, { title:'Delete asset', ok:'Delete' }))) return;
+  const ok = await archiveDeleted('assets', kode, target);
+  if (!ok) return;
+  assetData = assetData.filter(a => a.kode !== kode);
+  mutasiData = mutasiData.filter(m => m.kode !== kode);
+  sel.delete(kode);
+  saveAll(); refreshAll(); toast(`Asset ${kode} archived & deleted.`, 'success');
 }
 async function bulkDelete() {
-  if (!sel.size || !(await confirmDialog(`Delete ${sel.size} selected units?`, { title:'Delete assets', ok:'Delete all' }))) return;
-  assetData = assetData.filter(a => !sel.has(a.kode)); mutasiData = mutasiData.filter(m => !sel.has(m.kode)); sel.clear(); saveAll(); refreshAll(); toast('Selected units deleted.', 'success');
+  if (!isSuperAdmin()) return toast('Only Super Admin can delete assets.', 'warn');
+  if (!sel.size || !(await confirmDialog(`Archive & delete ${sel.size} selected units?`, { title:'Delete assets', ok:'Delete all' }))) return;
+  for (const kode of sel) {
+    const target = assetData.find(a => a.kode === kode);
+    if (target) {
+      const ok = await archiveDeleted('assets', kode, target);
+      if (!ok) return;
+    }
+  }
+  assetData = assetData.filter(a => !sel.has(a.kode));
+  mutasiData = mutasiData.filter(m => !sel.has(m.kode));
+  sel.clear();
+  saveAll(); refreshAll(); toast('Selected units archived & deleted.', 'success');
 }
-function bulkSetStatus(st) { if (!st || !sel.size) return; assetData.forEach(a => { if (sel.has(a.kode)) a.status = st; }); saveAll(); $('bulkStatus').value = ''; refreshAll(); toast(`Status updated to ${st}.`, 'success'); }
+function bulkSetStatus(st) { if (!st || !sel.size || !canWrite()) return; assetData.forEach(a => { if (sel.has(a.kode)) a.status = st; }); saveAll(); $('bulkStatus').value = ''; refreshAll(); toast(`Status updated to ${st}.`, 'success'); }
 function viewAsset(kode) {
   const a = assetData.find(x => x.kode === kode); if (!a) return;
   const logs = mutasiData.filter(m => m.kode === kode).sort((x, y) => String(y.tgl).localeCompare(String(x.tgl)));
   const row = (l, v) => `<div class="flex justify-between gap-4 py-1.5 border-b border-slate-100"><span class="text-slate-500">${l}</span><span class="font-medium text-right">${v}</span></div>`;
   $('detailBody').innerHTML = `<div><p class="font-mono font-bold text-blue-600">${esc(a.kode)}</p><h4 class="text-lg font-bold text-slate-900">${esc(a.nama)}</h4><div class="flex gap-2 mt-2">${badge(a.status, STATUS_CLS)}${badge(a.kondisi, COND_CLS)}</div></div><div>${row('Category', esc(a.kategori))}${row('Branch', esc(a.cabang))}${row('Location', esc(a.lokasi) || '-')}${row('Asset value', fmtIDR(a.harga))}${row('PIC', esc(a.pic) || '-')}${row('S/N', esc(a.sn) || '-')}${row('Next maintenance', dueHtml(a.servis, 'service', a.rm ? a.rmRemind : 30))}</div><div><p class="text-xs font-semibold text-slate-500 uppercase mb-2">History (${logs.length})</p>${logs.length ? logs.map(m => `<div class="py-1 border-b border-slate-100 text-xs">${fmtDate(m.tgl)} • <b>${esc(m.tipe)}</b> (${esc(m.status)}) — ${esc(m.tujuan) || '-'}</div>`).join('') : '<p class="text-slate-400 text-xs">No history yet.</p>'}</div>`;
-  $('detailFooter').innerHTML = `${a.rm ? `<button class="btn btn-ghost" data-act="doneRM" data-id="${esc(a.kode)}">Maintenance done</button>` : ''}<button class="btn btn-ghost" data-act="addLogFor" data-id="${esc(a.kode)}">Add log</button><button class="btn btn-primary" data-act="editAsset" data-id="${esc(a.kode)}">Edit</button>`;
+  $('detailFooter').innerHTML = `${a.rm ? `<button class="btn btn-ghost" data-act="doneRM" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Maintenance done</button>` : ''}<button class="btn btn-ghost" data-act="addLogFor" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Add log</button><button class="btn btn-primary" data-act="editAsset" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Edit</button>`;
   openModal('modalDetail');
 }
 
 function nextLogId() { let max = 0; mutasiData.forEach(m => { const r = /^LOG-(\d+)$/.exec(m.id); if (r) max = Math.max(max, +r[1]); }); return `LOG-${String(max + 1).padStart(3, '0')}`; }
 function openLogForm(id, kode) {
+  if (!canWrite()) return toast('Read-only role.', 'warn');
   const m = id ? mutasiData.find(x => x.id === id) : null; $('formLog').reset(); populateSelects(); $('editLogId').value = m ? m.id : ''; $('logTitle').textContent = m ? 'Edit Log Entry' : 'Add Mutation / Service Log';
   if (m) { $('logKode').value = m.kode; $('logNama').value = m.nama; $('logTgl').value = m.tgl; $('logTipe').value = m.tipe; $('logAsal').value = m.asal; $('logTujuan').value = m.tujuan; $('logBiaya').value = m.biaya || ''; $('logStat').value = m.status; $('logKet').value = m.ket; $('logApply').checked = false; }
   else { $('logTgl').value = todayStr(); $('logApply').checked = true; if (kode) { $('logKode').value = kode; fillLogAsset(kode); } }
@@ -995,6 +1130,7 @@ function recalcRM(a, keepManual) {
 }
 function saveLog(e) {
   e.preventDefault();
+  if (!canWrite()) return toast('Read-only role.', 'warn');
   const editId = $('editLogId').value, a = assetData.find(x => x.kode.toLowerCase() === $('logKode').value.trim().toLowerCase());
   if (!a) return toast('Asset code not found.', 'error');
   const log = normLog({ id: editId || nextLogId(), kode:a.kode, nama:a.nama, tgl:$('logTgl').value, tipe:$('logTipe').value, asal:$('logAsal').value.trim(), tujuan:$('logTujuan').value.trim(), biaya:+$('logBiaya').value || 0, status:$('logStat').value, ket:$('logKet').value.trim() });
@@ -1004,20 +1140,85 @@ function saveLog(e) {
   saveAll(); closeModal('modalLog'); refreshAll(); toast('Log saved.', 'success');
 }
 async function deleteLog(id) {
-  if (!(await confirmDialog(`Delete log ${id}?`, { title:'Delete log', ok:'Delete' }))) return;
-  const old = mutasiData.find(m => m.id === id); mutasiData = mutasiData.filter(m => m.id !== id);
-  if (old && old.tipe === 'Routine Maintenance' && old.status === 'Completed') { const a = assetData.find(x => x.kode === old.kode); if (a && a.rm) recalcRM(a, false); }
-  saveAll(); refreshAll(); toast('Log deleted.', 'success');
+  if (!isSuperAdmin()) return toast('Only Super Admin can delete logs.', 'warn');
+  const old = mutasiData.find(m => m.id === id);
+  if (!old) return;
+  if (!(await confirmDialog(`Archive & delete log ${id}?`, { title:'Delete log', ok:'Delete' }))) return;
+  const ok = await archiveDeleted('asset_logs', id, old);
+  if (!ok) return;
+  mutasiData = mutasiData.filter(m => m.id !== id);
+  if (old.tipe === 'Routine Maintenance' && old.status === 'Completed') { const a = assetData.find(x => x.kode === old.kode); if (a && a.rm) recalcRM(a, false); }
+  saveAll(); refreshAll(); toast('Log archived & deleted.', 'success');
+}
+
+async function openDeletedModal() {
+  if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
+  openModal('modalDeleted');
+  $('deletedBody').innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Loading archived records...</td></tr>`;
+  const { data, error } = await sb.from('deleted_records').select('*').order('deleted_at', { ascending:false }).limit(100);
+  if (error) {
+    $('deletedBody').innerHTML = `<tr><td colspan="7" class="p-6 text-center text-rose-600">${esc(error.message)}</td></tr>`;
+    return;
+  }
+  if (!data?.length) {
+    $('deletedBody').innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">No archived records.</td></tr>`;
+    return;
+  }
+  $('deletedBody').innerHTML = data.map(r => {
+    const p = r.payload || {};
+    const summary = p.nama || p.name || p.ket || p.notes || '-';
+    const state = r.restored_at ? `<span class="badge bg-slate-200 text-slate-600">Restored</span>` : `<span class="badge bg-amber-100 text-amber-700">Archived</span>`;
+    return `<tr class="hover:bg-slate-50">
+      <td class="p-2.5 font-mono">${esc(r.table_name)}</td>
+      <td class="p-2.5 font-mono font-semibold text-blue-600">${esc(r.record_key)}</td>
+      <td class="p-2.5">${esc(summary)}</td>
+      <td class="p-2.5 text-slate-500">${esc(r.deleted_email || '-')}</td>
+      <td class="p-2.5 text-slate-500">${esc(String(r.deleted_at || '').slice(0, 16).replace('T', ' '))}</td>
+      <td class="p-2.5">${state}</td>
+      <td class="p-2.5 text-center">
+        <button class="btn btn-success" style="padding:.25rem .6rem" data-act="restoreArchived" data-id="${esc(r.id)}" ${r.restored_at ? 'disabled' : ''}>Restore</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function restoreArchived(recId) {
+  if (!isSuperAdmin() || !sb) return;
+  const { data: rows, error } = await sb.from('deleted_records').select('*').eq('id', recId).limit(1);
+  if (error || !rows?.length) return toast('Record not found.', 'error');
+  const rec = rows[0];
+  const p = rec.payload || {};
+  if (rec.table_name === 'assets') {
+    const restored = normAsset(p);
+    const idx = assetData.findIndex(a => a.kode === restored.kode);
+    if (idx > -1) assetData[idx] = restored; else assetData.push(restored);
+  } else if (rec.table_name === 'asset_logs') {
+    const restored = normLog(p);
+    const idx = mutasiData.findIndex(m => m.id === restored.id);
+    if (idx > -1) mutasiData[idx] = restored; else mutasiData.push(restored);
+  } else if (rec.table_name === 'branches') {
+    const item = { kode: p.kode || p.code, nama: p.nama || p.name };
+    if (item.kode && item.nama && !cabangData.some(c => c.kode === item.kode)) cabangData.push(item);
+  } else if (rec.table_name === 'categories') {
+    const item = { kode: p.kode || p.code, nama: p.nama || p.name };
+    if (item.kode && item.nama && !kategoriData.some(k => k.kode === item.kode)) kategoriData.push(item);
+  }
+  await sb.from('deleted_records').update({ restored_at: new Date().toISOString() }).eq('id', recId);
+  saveAll();
+  refreshAll();
+  await openDeletedModal();
+  toast(`Restored ${rec.record_key}.`, 'success');
 }
 
 function openSettings(mode) { settingsMode = mode; $('settingsTitle').textContent = mode === 'cabang' ? 'Manage Branches' : 'Manage Categories'; $('setKode').value = ''; $('setNama').value = ''; renderSettings(); openModal('modalSettings'); }
 function renderSettings() {
   const list = settingsMode === 'cabang' ? cabangData : kategoriData, key = settingsMode === 'cabang' ? 'cabang' : 'kategori';
-  $('settingsBody').innerHTML = list.map((it, i) => `<tr><td class="p-2.5 font-mono font-bold text-blue-600">${esc(it.kode)}</td><td class="p-2.5">${esc(it.nama)}</td><td class="p-2.5 text-center text-slate-500">${assetData.filter(a => a[key] === it.nama).length}</td><td class="p-2.5 text-center"><button class="text-rose-600 p-1" data-act="delSetting" data-id="${i}"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
+  $('settingsBody').innerHTML = list.map((it, i) => `<tr><td class="p-2.5 font-mono font-bold text-blue-600">${esc(it.kode)}</td><td class="p-2.5">${esc(it.nama)}</td><td class="p-2.5 text-center text-slate-500">${assetData.filter(a => a[key] === it.nama).length}</td><td class="p-2.5 text-center"><button class="text-rose-600 p-1 disabled:opacity-30" data-act="delSetting" data-id="${i}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
   icons();
 }
 function addSetting(e) {
   e.preventDefault();
+  if (!canWrite()) return toast('Read-only role.', 'warn');
   const kode = $('setKode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''), nama = $('setNama').value.trim();
   if (!kode || !nama) return toast('Fill code and name.', 'error');
   const list = settingsMode === 'cabang' ? cabangData : kategoriData;
@@ -1025,9 +1226,11 @@ function addSetting(e) {
   list.push({ kode, nama }); saveAll(); $('setKode').value = ''; $('setNama').value = ''; renderSettings(); refreshAll();
 }
 async function delSetting(i) {
+  if (!isSuperAdmin()) return toast('Only Super Admin can delete branches/categories.', 'warn');
   const list = settingsMode === 'cabang' ? cabangData : kategoriData, key = settingsMode === 'cabang' ? 'cabang' : 'kategori', it = list[i];
   if (assetData.filter(a => a[key] === it.nama).length) return toast('Item is still in use.', 'error');
-  if (!(await confirmDialog(`Delete "${it.nama}"?`, { title:'Delete item', ok:'Delete' }))) return;
+  if (!(await confirmDialog(`Archive & delete "${it.nama}"?`, { title:'Delete item', ok:'Delete' }))) return;
+  await archiveDeleted(settingsMode === 'cabang' ? 'branches' : 'categories', it.kode, it);
   list.splice(i, 1); saveAll(); renderSettings(); refreshAll();
 }
 
@@ -1059,17 +1262,17 @@ function downloadTemplate() {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet([{ 'Asset Code':'', 'Asset Name':'Sample AC', 'Category':'Air Conditioner', 'Branch':'Depok', 'Location':'Room 1', 'Qty':2, 'Unit Price (IDR)':4000000, 'Status':'Active' }], { header:['Asset Code','Asset Name','Category','Branch','Location','Qty','Unit Price (IDR)','Status'] }), 'Assets');
   XLSX.writeFile(wb, 'Asset_Import_Template.xlsx');
 }
-function backupData() { downloadBlob(new Blob([JSON.stringify({ app:'asset-management-system', version:3, exportedAt:new Date().toISOString(), cabang:cabangData, kategori:kategoriData, assets:assetData, logs:mutasiData }, null, 2)], { type:'application/json' }), `AMS_Backup_${stamp()}.json`); }
+function backupData() { downloadBlob(new Blob([JSON.stringify({ app:'asset-management-system', version:4, exportedAt:new Date().toISOString(), cabang:cabangData, kategori:kategoriData, assets:assetData, logs:mutasiData }, null, 2)], { type:'application/json' }), `AMS_Backup_${stamp()}.json`); }
 function restoreData(file) {
-  if (!file) return;
+  if (!file || !canWrite()) return;
   const r = new FileReader();
   r.onload = () => { try { const d = JSON.parse(r.result); if (!Array.isArray(d.assets)) throw new Error('Invalid file'); cabangData = d.cabang || structuredClone(DEFAULT_CAB); kategoriData = d.kategori || structuredClone(DEFAULT_KAT); assetData = d.assets.map(normAsset); mutasiData = (d.logs || []).map(normLog); enforceOneUnitPerCode(); saveAll(); refreshAll(); toast('Backup restored.', 'success'); } catch (e) { toast(e.message, 'error'); } };
   r.readAsText(file); $('restoreFile').value = '';
 }
-async function loadSample() { if (!(await confirmDialog('Load sample data?', { title:'Sample data', ok:'Load' }))) return; cabangData = structuredClone(DEFAULT_CAB); kategoriData = structuredClone(DEFAULT_KAT); assetData = sampleAssets(); mutasiData = sampleLogs(); saveAll(); refreshAll(); }
-async function clearAll() { if (!(await confirmDialog('Clear all assets and logs?', { title:'Clear all', ok:'Clear' }))) return; assetData = []; mutasiData = []; sel.clear(); saveAll(); refreshAll(); }
+async function loadSample() { if (!canWrite()) return; if (!(await confirmDialog('Load sample data?', { title:'Sample data', ok:'Load' }))) return; cabangData = structuredClone(DEFAULT_CAB); kategoriData = structuredClone(DEFAULT_KAT); assetData = sampleAssets(); mutasiData = sampleLogs(); saveAll(); refreshAll(); }
+async function clearAll() { if (!isSuperAdmin()) return toast('Super Admin only.', 'warn'); if (!(await confirmDialog('Clear all assets and logs?', { title:'Clear all', ok:'Clear' }))) return; assetData = []; mutasiData = []; sel.clear(); saveAll(); refreshAll(); }
 
-function openImport() { imp = null; $('importFile').value = ''; $('importFileName').textContent = 'No file selected'; $('importResult').classList.add('hidden'); $('importCommit').disabled = true; openModal('modalImport'); }
+function openImport() { if (!canWrite()) return toast('Read-only role.', 'warn'); imp = null; $('importFile').value = ''; $('importFileName').textContent = 'No file selected'; $('importResult').classList.add('hidden'); $('importCommit').disabled = true; openModal('modalImport'); }
 function handleImportFile(file) {
   if (!file || typeof XLSX === 'undefined') return;
   $('importFileName').textContent = file.name;
@@ -1102,7 +1305,7 @@ function rebuildImport() {
   $('importCommit').querySelector('span').textContent = `Import ${planned.length} units`;
 }
 function commitImport() {
-  if (!imp?.plan?.length) return;
+  if (!imp?.plan?.length || !canWrite()) return;
   imp.plan.forEach(r => assetData.push(normAsset(r.d)));
   enforceOneUnitPerCode(); saveAll(); closeModal('modalImport'); refreshAll(); toast(`${imp.plan.length} units imported.`, 'success'); imp = null;
 }
@@ -1111,7 +1314,8 @@ function closeMenus() { document.querySelectorAll('.menu').forEach(m => m.classL
 function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden'); closeMenus(); if (was) m.classList.remove('hidden'); }
 const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
-  syncNow: () => sb ? syncToSupabase(false) : toast('Set SUPABASE_ANON_KEY in the HTML first.', 'warn'),
+  syncNow: () => (sb && currentUser) ? syncToSupabase(false) : toast('Sign in and connect to Supabase first.', 'warn'),
+  openDeleted: openDeletedModal, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
   doExport, template: downloadTemplate, backup: backupData, restore: () => $('restoreFile').click(), loadSample, clearAll, commitImport,
   addAsset: () => openAssetForm(), editAsset: id => { closeModal('modalDetail'); openAssetForm(id); }, delAsset: deleteAsset, view: viewAsset,
@@ -1126,8 +1330,11 @@ const ACTIONS = {
 };
 const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadAll(); refreshAll(); switchTab('dashboard');
+document.addEventListener('DOMContentLoaded', async () => {
+  loadLocalData();
+  refreshAll();
+  switchTab('dashboard');
+  $('formLogin').addEventListener('submit', handleLogin);
   document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (!el) { if (!e.target.closest('.menu')) closeMenus(); return; } const fn = ACTIONS[el.dataset.act]; if (el.dataset.act !== 'menu') closeMenus(); if (fn) fn(el.dataset.id, el); });
   document.addEventListener('change', e => { const t = e.target; if (t.classList.contains('item-chk')) { t.checked ? sel.add(t.dataset.id) : sel.delete(t.dataset.id); renderMaster(); updateBulkBar(); } else if (t.id === 'selAll') { filteredAssets().forEach(a => t.checked ? sel.add(a.kode) : sel.delete(a.kode)); renderMaster(); updateBulkBar(); } else if (t.dataset && t.dataset.col) { colVis[t.dataset.col] = t.checked; saveLocal(); renderMaster(); } else if (t.id === 'bulkStatus') bulkSetStatus(t.value); });
   $('fSearch').addEventListener('input', debounce(e => { F.q = e.target.value; F.page = 1; renderMaster(); }, 150));
@@ -1149,6 +1356,22 @@ document.addEventListener('DOMContentLoaded', () => {
   ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('over'); }));
   dz.addEventListener('drop', e => handleImportFile(e.dataTransfer.files[0]));
   document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const open = [...document.querySelectorAll('.modal:not(.hidden)')].pop(); if (!open) return; open.id === 'modalConfirm' ? resolveConfirm(false) : closeModal(open.id); });
+
+  if (sb) {
+    const { data } = await sb.auth.getSession();
+    await applySession(data.session);
+    sb.auth.onAuthStateChange(async (_event, session) => {
+      if (!session?.user) {
+        currentUser = null;
+        currentRole = 'viewer';
+        renderRoleUI();
+        setDbBadge('local', 'Signed Out');
+        $('authGate').classList.remove('hidden');
+      }
+    });
+  } else {
+    $('authGate').classList.add('hidden');
+  }
 });
 </script>
 </body>

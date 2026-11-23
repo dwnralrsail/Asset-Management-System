@@ -16,6 +16,7 @@
 #planBanner{margin:14px 28px 0;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;border:1px solid #c9dcff;background:#eaf2ff;color:#1b4db3}
 #planBanner.warn{background:#fff4e0;border-color:#f6d58f;color:#8a5a00}
 #planBanner.hidden{display:none}
+.hidden{display:none!important}
 button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;text-align:inherit}button:disabled{cursor:not-allowed}
 
   :root{--ink:#16233f;--ink2:#46557a;--muted:#7d8bab;--brand:#1b5fd3;--brand-d:#134aa8;--brand-s:#e9f0fd;--side:#0d2858;--side2:#12347a;--bg:#f0f3f9;--line:#dce3f0;--good:#17895c;--warn:#b97d00;--bad:#d03a3a}
@@ -204,6 +205,9 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <button class="nav-item" data-act="openExport" data-id="excel"><i data-lucide="file-spreadsheet"></i>Export to Excel</button>
     <button class="nav-item" data-act="openExport" data-id="pdf"><i data-lucide="file-text"></i>Export to PDF</button>
     <button class="nav-item" data-act="template"><i data-lucide="file-down"></i>Download import template</button>
+    <div class="nav-title admin-only">Administration</div>
+    <button class="nav-item admin-only" id="tab-users" data-act="tab" data-id="users"><i data-lucide="users"></i>Users</button>
+    <button class="nav-item hidden" id="tab-owner" data-act="tab" data-id="owner"><i data-lucide="building-2"></i>Owner Panel</button>
     <div class="nav-title">System</div>
     <button class="nav-item" data-act="syncNow"><i data-lucide="refresh-cw"></i>Sync with Supabase</button>
     <button class="nav-item admin-only" data-act="openAudit"><i data-lucide="history"></i>Audit Trail</button>
@@ -309,6 +313,35 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       </table>
     </div>
     <div id="logFooter" class="text-sm text-slate-500"></div>
+  </section>
+  <section id="sec-users" class="hidden space-y-4">
+    <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <select id="usersCompany" class="input hidden" style="min-width:220px"></select>
+        <p class="text-sm text-slate-500" id="usersHint">People who can sign in to this company.</p>
+      </div>
+      <button class="btn btn-primary" data-act="addUser"><i data-lucide="user-plus"></i>Add user</button>
+    </div>
+    <div class="card overflow-x-auto">
+      <table class="data-table w-full text-left text-sm min-w-max">
+        <thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-3">Email</th><th class="p-3">Role</th><th class="p-3">Added</th><th class="p-3 text-center">Actions</th></tr></thead>
+        <tbody id="usersBody" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+    <p class="text-xs text-slate-400">Super Admin can do everything, Staff can add and edit, Viewer can only look. Only Super Admin can delete.</p>
+  </section>
+
+  <section id="sec-owner" class="hidden space-y-4">
+    <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
+      <p class="text-sm text-slate-500">All companies using this system. Only you (the owner) can see this page.</p>
+      <button class="btn btn-primary" data-act="newCompany"><i data-lucide="building-2"></i>New company</button>
+    </div>
+    <div class="card overflow-x-auto">
+      <table class="data-table w-full text-left text-sm min-w-max">
+        <thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-3">Company</th><th class="p-3">Plan</th><th class="p-3">Valid until</th><th class="p-3">Assets</th><th class="p-3">Users</th><th class="p-3 text-center">Actions</th></tr></thead>
+        <tbody id="ownerBody" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
   </section>
 </main>
 <footer class="page-foot">© 2026 Diwanur Al Rasail</footer>
@@ -485,6 +518,24 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     </div>
     <div id="detailBody" class="p-6 overflow-y-auto text-sm space-y-5"></div>
     <div id="detailFooter" class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2"></div>
+  </div>
+</div>
+
+<div id="modalCompany" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold" id="modalCompanyTitle">New company</h3>
+      <button data-act="closeModal" data-id="modalCompany" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 overflow-y-auto grow space-y-3"><div><label class="lbl">Company name *</label><input id="coName" class="input" placeholder="PT Maju Jaya"></div><div id="coAdminBox" class="space-y-3"><div><label class="lbl">Admin email *</label><input id="coEmail" type="email" class="input" placeholder="admin@company.com"></div><div><label class="lbl">Temporary password * (min. 8 characters)</label><div class="flex gap-2"><input id="coPass" class="input" style="font-family:monospace"><button type="button" class="btn btn-ghost" data-act="genPw" data-id="coPass">Generate</button></div></div></div><div><label class="lbl">Plan</label><select id="coPlan" class="input"><option value="trial">Trial</option><option value="active">Active (paid)</option><option value="suspended">Suspended</option></select></div><div id="coTrialBox"><div><label class="lbl">Trial days (from today)</label><input id="coTrialDays" type="number" min="1" class="input" value="14"></div></div><div id="coTrialEditBox" class="hidden"><div><label class="lbl">Trial ends on</label><input id="coTrialEnd" type="date" class="input"></div></div><div id="coActiveBox" class="hidden"><div><label class="lbl">Active until (empty = no end date)</label><div class="flex gap-2"><input id="coActiveUntil" type="date" class="input"><button type="button" class="btn btn-ghost" data-act="extendDate" data-id="30">+30 d</button><button type="button" class="btn btn-ghost" data-act="extendDate" data-id="365">+1 y</button></div></div></div><div class="grid grid-cols-2 gap-3"><div><label class="lbl">Max assets (empty = unlimited)</label><input id="coMaxAssets" type="number" min="1" class="input" value="30"></div><div><label class="lbl">Max users (empty = unlimited)</label><input id="coMaxUsers" type="number" min="1" class="input"></div></div><div id="coResult" class="hidden"></div></div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalCompany">Close</button><button class="btn btn-primary" id="coSave" data-act="saveCompany">Save</button></div>
+  </div>
+</div>
+
+<div id="modalUser" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold" id="modalUserTitle">Add user</h3>
+      <button data-act="closeModal" data-id="modalUser" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 overflow-y-auto grow space-y-3"><div><label class="lbl">Email *</label><input id="usEmail" type="email" class="input" placeholder="name@company.com"></div><div><label class="lbl">Temporary password * (min. 8 characters)</label><div class="flex gap-2"><input id="usPass" class="input" style="font-family:monospace"><button type="button" class="btn btn-ghost" data-act="genPw" data-id="usPass">Generate</button></div></div><div id="usRoleBox"><div><label class="lbl">Role</label><select id="usRole" class="input"><option value="staff">Staff</option><option value="viewer">Viewer</option></select></div></div><div id="usResult" class="hidden"></div></div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalUser">Close</button><button class="btn btn-primary" id="usSave" data-act="saveUser">Save</button></div>
   </div>
 </div>
 
@@ -771,6 +822,7 @@ function renderRoleUI() {
   $('btnAddLog').disabled = !canWrite();
   $('btnBulkDelete').disabled = !isSuperAdmin();
   document.body.classList.toggle('is-admin', isSuperAdmin());
+  if ($('tab-owner')) $('tab-owner').classList.toggle('hidden', !isOwnerUser);
 }
 
 function todayStr() { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
@@ -1348,7 +1400,7 @@ function renderLogs() {
 }
 
 function updateBulkBar() { const bar = $('bulkBar'); if (sel.size) { $('bulkCount').textContent = `${sel.size} selected`; bar.classList.remove('hidden'); bar.classList.add('flex'); } else { bar.classList.add('hidden'); bar.classList.remove('flex'); } }
-function switchTab(t) { ['dashboard', 'master', 'mutasi'].forEach(x => { $('sec-' + x).classList.toggle('hidden', x !== t); $('tab-' + x).classList.toggle('active', x === t); }); window.scrollTo({ top:0 }); if ($('pageTitle')) $('pageTitle').textContent = { dashboard:'Dashboard', master:'Assets', mutasi:'Mutation & Service Logs' }[t]; document.body.classList.remove('nav-open'); }
+function switchTab(t) { ['dashboard', 'master', 'mutasi', 'users', 'owner'].forEach(x => { $('sec-' + x).classList.toggle('hidden', x !== t); $('tab-' + x).classList.toggle('active', x === t); }); window.scrollTo({ top:0 }); if ($('pageTitle')) $('pageTitle').textContent = { dashboard:'Dashboard', master:'Assets', mutasi:'Mutation & Service Logs', users:'Users', owner:'Owner Panel' }[t]; document.body.classList.remove('nav-open'); if (t === 'owner') loadOwner(); if (t === 'users') loadUsers(); }
 
 function genCode() {
   if ($('editOrig').value) return;
@@ -1917,7 +1969,7 @@ function commitImport() {
 function closeMenus() { document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden')); }
 function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden'); closeMenus(); if (was) m.classList.remove('hidden'); }
 const I18N={"Dashboard":"Dashboard","Asset data":"Data aset","Assets":"Aset","Branches":"Cabang","Categories":"Kategori","Transactions":"Transaksi","Mutation & Service Logs":"Mutasi & Riwayat Servis","Import and export":"Impor dan ekspor","Import from Excel / CSV":"Impor dari Excel / CSV","Export to Excel":"Ekspor ke Excel","Export to PDF":"Ekspor ke PDF","Download import template":"Unduh template impor","System":"Sistem","Sync with Supabase":"Sinkronkan dengan Supabase","Deleted / Restore":"Terhapus / Pulihkan","Backup all data (.json)":"Cadangkan semua data (.json)","Restore from backup":"Pulihkan dari cadangan","Load sample data":"Muat data contoh","Clear all data":"Hapus semua data","Asset Management System":"Sistem Manajemen Aset","Asset Management":"Manajemen Aset","Logout":"Keluar","Sign out":"Keluar","Menu":"Menu","Local Mode":"Mode Lokal","Signed Out":"Belum masuk","Supabase Connected":"Terhubung ke Supabase","Supabase Offline":"Supabase tidak terjangkau","Syncing...":"Menyinkronkan…","Syncing…":"Menyinkronkan…","Saving…":"Menyimpan…","Not saved — will retry":"Belum tersimpan, akan dicoba lagi","GUEST":"Tamu","Operational asset tracking":"Pencatatan aset operasional","Sign in":"Masuk","Sign In":"Masuk","Password":"Kata sandi","Use the account given to you by your administrator.":"Gunakan akun yang diberikan oleh administrator Anda.","Every office asset, recorded and maintained.":"Setiap aset kantor, tercatat dan terawat.","One record for each unit, with its full history.":"Satu catatan untuk setiap unit, lengkap dengan riwayatnya.","Routine maintenance reminders before they become overdue.":"Pengingat perawatan rutin sebelum jadwalnya terlewat.","Branch transfers and service logs in one place.":"Mutasi antar cabang dan riwayat servis dalam satu tempat.","Signed in as {} ({})":"Masuk sebagai {} ({})","Signed out.":"Anda sudah keluar.","Sign in first.":"Silakan masuk terlebih dahulu.","Supabase client not initialized.":"Koneksi Supabase belum siap.","Total Units":"Total Unit","Total Asset Value":"Total Nilai Aset","Excludes disposed assets":"Tidak termasuk aset yang sudah afkir","Active":"Aktif","Ready":"Siap","Maintenance Due":"Perawatan Jatuh Tempo","{} overdue":"{} terlambat","Repair / Transit":"Perbaikan / Transit","Under repair or in transit":"Sedang diperbaiki atau dalam perjalanan","Open Logs":"Log Terbuka","Service / transfer in progress":"Servis / mutasi sedang berjalan","Maintenance {}":"Perawatan {}","Total cost of logs this year":"Total biaya log tahun ini","Routine Assets":"Aset Rutin","With a maintenance schedule":"Punya jadwal perawatan","Maintenance Schedule":"Jadwal Perawatan","View all due":"Lihat semua yang jatuh tempo","Needs Attention":"Perlu Perhatian","Status Breakdown":"Rincian Status","Units by Branch":"Unit per Cabang","Units by Category":"Unit per Kategori","Maintenance cost per month":"Biaya perawatan per bulan","Recent Activity":"Aktivitas Terbaru","units":"unit","{} units":"{} unit","No data yet.":"Belum ada data.","All clear.":"Semua aman.","No logs yet.":"Belum ada log.","No maintenance cost recorded this year.":"Belum ada biaya perawatan tercatat tahun ini.","No routine maintenance set up yet.":"Belum ada perawatan rutin yang diatur.","Nothing due in the next 60 days ({} routine units tracked).":"Tidak ada yang jatuh tempo dalam 60 hari ke depan ({} unit rutin dipantau).","Log done":"Catat selesai","Overdue {}d":"Telat {} hari","Due in {}d":"{} hari lagi","Due today":"Hari ini","In {}d":"{} hari lagi","Service overdue":"Servis terlambat","Service due":"Servis segera","Warranty ending":"Garansi berakhir","Major damage":"Rusak berat","Open log":"Log terbuka","{} [{}] — overdue {}d":"{} [{}] — terlambat {} hari","{} [{}] — due in {}d":"{} [{}] — jatuh tempo {} hari lagi","{} [{}] — ends in {}d":"{} [{}] — berakhir {} hari lagi","{} [{}] marked Active":"{} [{}] masih berstatus Aktif","{}: {} [{}]":"{}: {} [{}]","Every {} {}":"Setiap {} {}","month":"bulan","months":"bulan","year":"tahun","years":"tahun","week":"minggu","weeks":"minggu","day":"hari","days":"hari","{} (overdue)":"{} (terlambat)","{} (expired)":"{} (kedaluwarsa)","{} ({}d)":"{} ({} hari)","(overdue)":"(terlambat)","(expired)":"(kedaluwarsa)","Under Repair":"Dalam Perbaikan","In Transit":"Dalam Perjalanan","Disposed":"Afkir","Excellent":"Sangat Baik","Good":"Baik","Minor Damage":"Rusak Ringan","Major Damage":"Rusak Berat","In Progress":"Berjalan","Completed":"Selesai","Cancelled":"Dibatalkan","Service / Repair":"Servis / Perbaikan","Branch Transfer":"Mutasi Cabang","Routine Maintenance":"Perawatan Rutin","Disposed / Written Off":"Afkir / Dihapusbukukan","Search name, code, S/N, PIC...":"Cari nama, kode, S/N, PIC...","All Branches":"Semua Cabang","All Categories":"Semua Kategori","All Statuses":"Semua Status","All Maintenance":"Semua Perawatan","Routine only":"Hanya rutin","Due / overdue":"Jatuh tempo / terlambat","Clear filters":"Hapus filter","Columns":"Kolom","Display columns":"Tampilkan kolom","Add New Asset":"Tambah Aset Baru","No.":"No.","Asset Code":"Kode Aset","Asset Name":"Nama Aset","Category":"Kategori","Branch":"Cabang","Location / Room":"Lokasi / Ruangan","Location":"Lokasi","Qty":"Jml","Unit Price":"Harga Satuan","Asset Value":"Nilai Aset","Asset value":"Nilai aset","Condition":"Kondisi","Status":"Status","Routine":"Rutin","Next Maintenance":"Perawatan Berikutnya","Next maintenance":"Perawatan berikutnya","Warranty":"Garansi","Actions":"Aksi","Serial Number":"Nomor Seri","Code":"Kode","Name":"Nama","Value":"Nilai","Showing":"Menampilkan","of":"dari","units • Total value {}":"unit • Total nilai {}","unit • Total value {}":"unit • Total nilai {}","Page {} / {}":"Halaman {} / {}","No units found.":"Tidak ada unit yang ditemukan.","Set status…":"Ubah status…","{} selected":"{} dipilih","Delete":"Hapus","Edit":"Ubah","View":"Lihat","Clear selection":"Batalkan pilihan","Close":"Tutup","Cancel":"Batal","Confirm":"Konfirmasi","Delete all":"Hapus semua","Add log":"Tambah log","Maintenance done":"Perawatan selesai","Asset Details":"Detail Aset","History ({})":"Riwayat ({})","No history yet.":"Belum ada riwayat.","Log ID":"ID Log","Asset":"Aset","Date":"Tanggal","Action Type":"Jenis Tindakan","Origin":"Asal","Destination / Vendor":"Tujuan / Vendor","Cost":"Biaya","Notes":"Catatan","Search code, name, vendor...":"Cari kode, nama, vendor...","All Types":"Semua Jenis","Add Log Entry":"Tambah Log","No log entries":"Belum ada entri log","entries • Total cost (excl. cancelled):":"entri • Total biaya (tidak termasuk yang dibatalkan):","Mutation, service and routine maintenance history":"Riwayat mutasi, servis, dan perawatan rutin","Edit Asset Unit":"Ubah Unit Aset","Branch *":"Cabang *","Category *":"Kategori *","Asset Code (auto, 1 code = 1 unit)":"Kode Aset (otomatis, 1 kode = 1 unit)","Asset Name *":"Nama Aset *","Units to Create *":"Jumlah Unit yang Dibuat *","Unit Price (IDR)":"Harga Satuan (IDR)","Acquisition Date":"Tanggal Perolehan","PIC (Person in Charge)":"PIC (Penanggung Jawab)","Serial Number (S/N)":"Nomor Seri (S/N)","Warranty Until":"Garansi Sampai","Next Maintenance Due":"Jatuh Tempo Perawatan Berikutnya","Specifications / Notes":"Spesifikasi / Catatan","Save Asset":"Simpan Aset","This asset needs routine maintenance":"Aset ini memerlukan perawatan rutin","Repeat every":"Ulangi setiap","Last maintenance":"Perawatan terakhir","Remind (days before)":"Ingatkan (hari sebelumnya)","Months":"Bulan","Days":"Hari","Weeks":"Minggu","Years":"Tahun","e.g. ThinkPad X1 Carbon":"mis. ThinkPad X1 Carbon","e.g. John Doe":"mis. Budi Santoso","Server Room / Floor 2":"Ruang Server / Lantai 2","Hardware specs or notes...":"Spesifikasi atau catatan...","1 code = 1 unit:":"1 kode = 1 unit:","Creates":"Membuat","{} separate codes":"{} kode terpisah","starting from":"mulai dari","1 is automatically split into 1 code = 1 unit.":"1 otomatis dipecah menjadi 1 kode = 1 unit.","Add Mutation / Service Log":"Tambah Log Mutasi / Servis","Edit Log Entry":"Ubah Log","Asset Code *":"Kode Aset *","Log Date *":"Tanggal Log *","Action Type *":"Jenis Tindakan *","Origin / Current Branch":"Asal / Cabang Saat Ini","Destination / Service Vendor":"Tujuan / Vendor Servis","Cost (IDR)":"Biaya (IDR)","Log Status":"Status Log","Update the asset automatically":"Perbarui aset secara otomatis","(status / branch) based on this log.":"(status / cabang) berdasarkan log ini.","Save Log":"Simpan Log","Type to search...":"Ketik untuk mencari...","Manage":"Kelola","Manage Branches":"Kelola Cabang","Manage Categories":"Kelola Kategori","Branch name":"Nama cabang","Category name":"Nama kategori","Add":"Tambah","In use":"Dipakai","CODE":"KODE","Fill code and name.":"Isi kode dan nama.","Duplicate code or name.":"Kode atau nama sudah ada.","Item is still in use.":"Item ini masih dipakai.","Delete item":"Hapus item","Export":"Ekspor","Everything":"Semuanya","Summary + Assets + Logs":"Ringkasan + Aset + Log","Dashboard Summary":"Ringkasan Dashboard","KPIs, per branch, per category":"KPI, per cabang, per kategori","Asset Data":"Data Aset","Full asset listing":"Daftar aset lengkap","Maintenance and transfer history":"Riwayat perawatan dan mutasi","Only export assets matching the current filter / search":"Ekspor hanya aset sesuai filter / pencarian saat ini","Excel file downloaded.":"File Excel sudah diunduh.","PDF downloaded.":"PDF sudah diunduh.","Drop your file here, or click to browse":"Letakkan file di sini, atau klik untuk memilih","No file selected":"Belum ada file dipilih","Download template":"Unduh template","If an asset code already exists":"Jika kode aset sudah ada","Skip the row":"Lewati baris","Update the existing asset (overwrites it with the file's values)":"Perbarui aset yang ada (ditimpa dengan isi file)","Import as a new asset (new code)":"Impor sebagai aset baru (kode baru)","Unknown branches / categories":"Cabang / kategori yang tidak dikenal","Create them automatically":"Buat otomatis","If unchecked, rows with an unknown branch or category are rejected.":"Jika tidak dicentang, baris dengan cabang atau kategori tidak dikenal akan ditolak.","Type":"Jenis","Row":"Baris","Result":"Hasil","Import":"Impor","Nothing to import":"Tidak ada yang diimpor","Qty ignored on update (1 code = 1 unit)":"Jml diabaikan saat update (1 kode = 1 unit)","Code already exists":"Kode sudah ada","Code auto-generated":"Kode dibuat otomatis","Duplicate code inside the file":"Kode ganda di dalam file","Duplicate code → new code assigned":"Kode ganda → diberi kode baru","Same log already exists":"Log yang sama sudah ada","Asset name is empty":"Nama aset kosong","Asset code is empty":"Kode aset kosong","Date missing or not recognised":"Tanggal kosong atau tidak dikenali","Acquisition date not recognised (left blank)":"Tanggal perolehan tidak dikenali (dikosongkan)","Qty invalid → 1":"Jml tidak valid → 1","No branch available":"Tidak ada cabang","No category available":"Tidak ada kategori","Unknown branch \"{}\"":"Cabang \"{}\" tidak dikenal","Unknown category \"{}\"":"Kategori \"{}\" tidak dikenal","Branch empty → {}":"Cabang kosong → {}","Category empty → {}":"Kategori kosong → {}","Asset code {} not found":"Kode aset {} tidak ditemukan","Unknown condition \"{}\" → Good":"Kondisi \"{}\" tidak dikenal → Baik","Unknown status \"{}\" → Active":"Status \"{}\" tidak dikenal → Aktif","Unknown status \"{}\" → Completed":"Status \"{}\" tidak dikenal → Selesai","Unknown action type \"{}\" → Service / Repair":"Jenis tindakan \"{}\" tidak dikenal → Servis / Perbaikan","Unknown interval unit \"{}\" → Months":"Satuan interval \"{}\" tidak dikenal → Bulan","Routine maintenance needs an interval → routine turned off":"Perawatan rutin butuh interval → rutin dimatikan","Last maintenance date not recognised":"Tanggal perawatan terakhir tidak dikenali","Next maintenance date not recognised":"Tanggal perawatan berikutnya tidak dikenali","Qty {} → {} separate units ({} … {})":"Jml {} → {} unit terpisah ({} … {})","Import {} record{}":"Impor {} data","Import {} units":"Impor {} unit","Showing the first 100 of {} rows (errors first). All valid rows will be imported.":"Menampilkan 100 baris pertama dari {} baris (error lebih dulu). Semua baris yang valid akan diimpor.","Import complete: {} new, {} updated assets, {} logs.":"Impor selesai: {} baru, {} aset diperbarui, {} log.","Could not read the file.":"File tidak bisa dibaca.","Could not read this file:":"File ini tidak bisa dibaca:","No asset or log rows were found. Check the column headers (download the template for reference).":"Tidak ada baris aset atau log. Periksa judul kolom (unduh template sebagai acuan).","Excel library could not be loaded. Check your internet connection.":"Library Excel gagal dimuat. Periksa koneksi internet Anda.","Excel reader could not be loaded. Check your internet connection.":"Pembaca Excel gagal dimuat. Periksa koneksi internet Anda.","Excel library could not be loaded (check your internet). Exporting CSV instead.":"Library Excel gagal dimuat (periksa internet). Mengekspor CSV sebagai gantinya.","PDF library is still loading or blocked. Please try again.":"Library PDF masih dimuat atau diblokir. Silakan coba lagi.","Metric":"Metrik","Summary":"Ringkasan","Asset Summary":"Ringkasan Aset","Generated":"Dibuat","Deleted Records & Restore (Super Admin)":"Data Terhapus & Pemulihan (Super Admin)","Archived snapshots of deleted items":"Arsip data yang sudah dihapus","Table":"Tabel","Key":"Kunci","Deleted By":"Dihapus Oleh","Deleted At":"Dihapus Pada","Archived":"Diarsipkan","Restored":"Dipulihkan","Restore":"Pulihkan","Loading archived records...":"Memuat arsip...","No archived records.":"Tidak ada arsip.","Record not found.":"Data tidak ditemukan.","Restored {}.":"{} dipulihkan.","Failed to archive record before delete:":"Gagal mengarsipkan data sebelum dihapus:","Please confirm":"Mohon konfirmasi","Delete asset":"Hapus aset","Delete assets":"Hapus aset","Delete log":"Hapus log","Replace":"Ganti","Sample data":"Data contoh","Restore backup":"Pulihkan cadangan","Clear everything":"Hapus semuanya","Upload local data":"Unggah data lokal","Upload":"Unggah","Archive & delete \"{}\"?":"Arsipkan & hapus \"{}\"?","Archive & delete {} selected units?":"Arsipkan & hapus {} unit terpilih?","Archive & delete asset {}?":"Arsipkan & hapus aset {}?","Its log history is archived too. You can restore both from Deleted / Restore.":"Riwayat lognya ikut diarsipkan. Keduanya bisa dipulihkan dari Terhapus / Pulihkan.","Archive & delete log {}?":"Arsipkan & hapus log {}?","Delete ALL assets and logs for everyone?":"Hapus SEMUA aset dan log untuk semua orang?","A backup file is downloaded first. This cannot be undone from the app.":"File cadangan diunduh lebih dulu. Ini tidak bisa dibatalkan dari aplikasi.","Replace ALL current data (for everyone) with sample data?":"Ganti SEMUA data saat ini (untuk semua orang) dengan data contoh?","A backup of the current data is downloaded first.":"Cadangan data saat ini diunduh lebih dulu.","Restore this backup ({} assets)?":"Pulihkan cadangan ini ({} aset)?","This REPLACES all current data for everyone. A backup of the current data is downloaded first.":"Ini MENGGANTI semua data saat ini untuk semua orang. Cadangan data saat ini diunduh lebih dulu.","The cloud database is empty, but this browser holds {} assets.":"Database cloud masih kosong, tetapi browser ini menyimpan {} aset.","Upload them to the cloud now?":"Unggah ke cloud sekarang?","(Cancel = clear the local copy and start empty.)":"(Batal = hapus salinan lokal dan mulai dari kosong.)","Asset {} archived & deleted.":"Aset {} diarsipkan & dihapus.","Asset {} added.":"Aset {} ditambahkan.","Asset updated.":"Aset diperbarui.","Log saved.":"Log disimpan.","Log archived & deleted.":"Log diarsipkan & dihapus.","Selected units archived & deleted.":"Unit terpilih diarsipkan & dihapus.","Status updated to {}.":"Status diubah menjadi {}.","Backup restored.":"Cadangan dipulihkan.","Invalid backup file":"File cadangan tidak valid","Asset code not found.":"Kode aset tidak ditemukan.","Up to date with Supabase.":"Sudah sinkron dengan Supabase.","Could not reach Supabase.":"Tidak bisa terhubung ke Supabase.","Supabase connection issue:":"Masalah koneksi Supabase:","Could not save to browser storage.":"Tidak bisa menyimpan ke penyimpanan browser.","Could not save to Supabase:":"Tidak bisa menyimpan ke Supabase:","Read-only role.":"Peran hanya-lihat.","Read-only role: cannot modify assets.":"Peran hanya-lihat: tidak bisa mengubah aset.","Super Admin only.":"Hanya untuk Super Admin.","Only Super Admin can delete assets.":"Hanya Super Admin yang bisa menghapus aset.","Only Super Admin can delete branches/categories.":"Hanya Super Admin yang bisa menghapus cabang/kategori.","Only Super Admin can delete logs.":"Hanya Super Admin yang bisa menghapus log.","Only Super Admin can load sample data.":"Hanya Super Admin yang bisa memuat data contoh.","Only Super Admin can restore a backup.":"Hanya Super Admin yang bisa memulihkan cadangan.","Some changes were not allowed for your role and were reverted.":"Sebagian perubahan tidak diizinkan untuk peran Anda dan dibatalkan.","Unnamed asset":"Aset tanpa nama","Total asset value":"Total nilai aset","(Unassigned)":"(Belum ditentukan)","Action":"Tindakan","Asset Logs":"Log Aset","By Branch":"Per Cabang","By Category":"Per Kategori","Email":"Email","Log":"Log","Logs":"Log","Open logs":"Log terbuka","Under repair / in transit":"Dalam perbaikan / transit","Routine-maintenance assets":"Aset perawatan rutin","Valuation":"Valuasi","Units":"Unit","Yes":"Ya","Interval":"Interval"};
-Object.assign(I18N,{"Forgot password?":"Lupa kata sandi?","Enter your email above first, then click Forgot password.":"Isi email di atas dulu, lalu klik Lupa kata sandi.","If this email is registered, a password reset link has been sent. Check your inbox.":"Jika email ini terdaftar, tautan untuk mengatur ulang kata sandi sudah dikirim. Periksa kotak masuk Anda.","Set a new password":"Buat kata sandi baru","Choose a new password for your account.":"Pilih kata sandi baru untuk akun Anda.","New password":"Kata sandi baru","Repeat new password":"Ulangi kata sandi baru","Save new password":"Simpan kata sandi baru","Passwords do not match.":"Kata sandi tidak sama.","Password updated.":"Kata sandi diperbarui.","Trial: {} days left • up to {} assets. Contact the owner to activate your plan.":"Trial: sisa {} hari • maksimal {} aset. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} day left • up to {} assets. Contact the owner to activate your plan.":"Trial: sisa {} hari • maksimal {} aset. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} days left. Contact the owner to activate your plan.":"Trial: sisa {} hari. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} day left. Contact the owner to activate your plan.":"Trial: sisa {} hari. Hubungi pemilik untuk mengaktifkan paket Anda.","Your trial has ended. The account is read-only until the plan is activated.":"Masa trial sudah berakhir. Akun hanya bisa dilihat sampai paket diaktifkan.","This account is suspended and read-only. Please contact the owner.":"Akun ini ditangguhkan dan hanya bisa dilihat. Silakan hubungi pemilik.","Your plan has expired. The account is read-only until it is renewed.":"Paket Anda sudah berakhir. Akun hanya bisa dilihat sampai diperpanjang.","This change is not allowed (plan expired or insufficient role). It was not saved.":"Perubahan ini tidak diizinkan (paket berakhir atau peran tidak cukup). Tidak tersimpan.","your plan allows a maximum of {} assets. Upgrade to add more.":"paket Anda hanya mengizinkan maksimal {} aset. Tingkatkan paket untuk menambah.","Audit Trail":"Jejak Audit","Audit Trail (Super Admin)":"Jejak Audit (Super Admin)","Who changed what, and when. Recorded automatically by the server.":"Siapa mengubah apa dan kapan. Dicatat otomatis oleh server.","Search code, user, field...":"Cari kode, pengguna, kolom...","All actions":"Semua tindakan","Created":"Dibuat","Changed":"Diubah","Deleted":"Dihapus","All data":"Semua data","When":"Waktu","User":"Pengguna","Data":"Data","Details":"Detail","Branch":"Cabang","Loading...":"Memuat...","No audit records.":"Belum ada catatan audit.","Showing {} of the latest {} records.":"Menampilkan {} dari {} catatan terbaru.","Audit trail is not set up yet. Run audit_trail.sql in Supabase first.":"Jejak audit belum diaktifkan. Jalankan audit_trail.sql di Supabase terlebih dahulu.","{} unit":"{} unit"});
+Object.assign(I18N,{"Email: {}":"Email: {}","Password: {}":"Kata sandi: {}","Administration": "Administrasi", "Users": "Pengguna", "Owner Panel": "Panel Pemilik", "People who can sign in to this company.": "Orang yang bisa masuk ke perusahaan ini.", "Add user": "Tambah pengguna", "Added": "Ditambahkan", "Actions": "Aksi", "Super Admin can do everything, Staff can add and edit, Viewer can only look. Only Super Admin can delete.": "Super Admin bisa semuanya, Staff bisa menambah dan mengubah, Viewer hanya bisa melihat. Hanya Super Admin yang bisa menghapus.", "All companies using this system. Only you (the owner) can see this page.": "Semua perusahaan yang memakai sistem ini. Hanya Anda (pemilik) yang bisa melihat halaman ini.", "New company": "Perusahaan baru", "Company": "Perusahaan", "Plan": "Paket", "Valid until": "Berlaku sampai", "Edit company": "Ubah perusahaan", "Company name *": "Nama perusahaan *", "Admin email *": "Email admin *", "Temporary password * (min. 8 characters)": "Kata sandi sementara * (min. 8 karakter)", "Generate": "Buat otomatis", "Trial": "Trial", "Active (paid)": "Aktif (berbayar)", "Suspended": "Ditangguhkan", "Trial days (from today)": "Lama trial (hari, mulai hari ini)", "Trial ends on": "Trial berakhir pada", "Active until (empty = no end date)": "Aktif sampai (kosong = tanpa batas)", "Max assets (empty = unlimited)": "Maks. aset (kosong = tanpa batas)", "Max users (empty = unlimited)": "Maks. pengguna (kosong = tanpa batas)", "Email *": "Email *", "Role": "Peran", "Reset password": "Atur ulang kata sandi", "Remove": "Hapus", "Remove user": "Hapus pengguna", "Save": "Simpan", "Copy": "Salin", "Super Admin": "Super Admin", "Staff": "Staff", "Viewer": "Viewer", "Owner": "Pemilik", "(you)": "(Anda)", "Trial ended": "Trial berakhir", "Expired": "Kedaluwarsa", "No end date": "Tanpa batas waktu", "No companies yet.": "Belum ada perusahaan.", "No users.": "Belum ada pengguna.", "No company.": "Tidak ada perusahaan.", "Company created.": "Perusahaan dibuat.", "Company updated.": "Perusahaan diperbarui.", "User created.": "Pengguna dibuat.", "Password changed.": "Kata sandi diubah.", "User removed.": "Pengguna dihapus.", "Role updated.": "Peran diperbarui.", "Copied.": "Tersalin.", "Company name is required.": "Nama perusahaan wajib diisi.", "Remove {}? They will no longer be able to sign in.": "Hapus {}? Mereka tidak akan bisa masuk lagi.", "Could not copy. Select the text and copy it manually.": "Tidak bisa menyalin. Blok teksnya dan salin manual.", "The server function \"owner-admin\" is not installed yet.": "Fungsi server \"owner-admin\" belum dipasang.", "Done.": "Selesai.", "Share these sign-in details with the user (the password is shown only now):": "Bagikan data masuk ini ke pengguna (kata sandi hanya ditampilkan sekarang):", "Email:": "Email:", "Password:": "Kata sandi:", "Add user ": "Tambah pengguna", "Edit": "Ubah", "Close": "Tutup","Forgot password?":"Lupa kata sandi?","Enter your email above first, then click Forgot password.":"Isi email di atas dulu, lalu klik Lupa kata sandi.","If this email is registered, a password reset link has been sent. Check your inbox.":"Jika email ini terdaftar, tautan untuk mengatur ulang kata sandi sudah dikirim. Periksa kotak masuk Anda.","Set a new password":"Buat kata sandi baru","Choose a new password for your account.":"Pilih kata sandi baru untuk akun Anda.","New password":"Kata sandi baru","Repeat new password":"Ulangi kata sandi baru","Save new password":"Simpan kata sandi baru","Passwords do not match.":"Kata sandi tidak sama.","Password updated.":"Kata sandi diperbarui.","Trial: {} days left • up to {} assets. Contact the owner to activate your plan.":"Trial: sisa {} hari • maksimal {} aset. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} day left • up to {} assets. Contact the owner to activate your plan.":"Trial: sisa {} hari • maksimal {} aset. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} days left. Contact the owner to activate your plan.":"Trial: sisa {} hari. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} day left. Contact the owner to activate your plan.":"Trial: sisa {} hari. Hubungi pemilik untuk mengaktifkan paket Anda.","Your trial has ended. The account is read-only until the plan is activated.":"Masa trial sudah berakhir. Akun hanya bisa dilihat sampai paket diaktifkan.","This account is suspended and read-only. Please contact the owner.":"Akun ini ditangguhkan dan hanya bisa dilihat. Silakan hubungi pemilik.","Your plan has expired. The account is read-only until it is renewed.":"Paket Anda sudah berakhir. Akun hanya bisa dilihat sampai diperpanjang.","This change is not allowed (plan expired or insufficient role). It was not saved.":"Perubahan ini tidak diizinkan (paket berakhir atau peran tidak cukup). Tidak tersimpan.","your plan allows a maximum of {} assets. Upgrade to add more.":"paket Anda hanya mengizinkan maksimal {} aset. Tingkatkan paket untuk menambah.","Audit Trail":"Jejak Audit","Audit Trail (Super Admin)":"Jejak Audit (Super Admin)","Who changed what, and when. Recorded automatically by the server.":"Siapa mengubah apa dan kapan. Dicatat otomatis oleh server.","Search code, user, field...":"Cari kode, pengguna, kolom...","All actions":"Semua tindakan","Created":"Dibuat","Changed":"Diubah","Deleted":"Dihapus","All data":"Semua data","When":"Waktu","User":"Pengguna","Data":"Data","Details":"Detail","Branch":"Cabang","Loading...":"Memuat...","No audit records.":"Belum ada catatan audit.","Showing {} of the latest {} records.":"Menampilkan {} dari {} catatan terbaru.","Audit trail is not set up yet. Run audit_trail.sql in Supabase first.":"Jejak audit belum diaktifkan. Jalankan audit_trail.sql di Supabase terlebih dahulu.","{} unit":"{} unit"});
 
 let LANG='id';
 try{LANG=localStorage.getItem('ams_lang')||'id';}catch(e){}
@@ -1991,9 +2043,168 @@ function setLang(l){
   trTree(document.body);
   syncLangButtons();
 }
+// ---------------- Owner panel & user management ----------------
+let ownerCompanies = [], usersCompanyId = null, usersList = [], coEditId = null, userMode = 'add', userTargetId = null;
+async function callAdmin(payload) {
+  if (!sb) throw new Error('Supabase client not initialized.');
+  const { data, error } = await sb.functions.invoke('owner-admin', { body: payload });
+  if (error) {
+    let m = error.message || 'Request failed';
+    try { if (error.context && error.context.status === 404) m = 'The server function "owner-admin" is not installed yet.'; else { const j = await error.context.json(); if (j && j.error) m = j.error; } } catch (e) {}
+    throw new Error(m);
+  }
+  if (data && data.error) throw new Error(data.error);
+  return data;
+}
+function genPw() { const c = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let r = ''; const a = new Uint32Array(10); crypto.getRandomValues(a); a.forEach(n => r += c[n % c.length]); return r; }
+function planInfo(c) {
+  const today = todayStr();
+  if (c.plan === 'suspended') return { label:'Suspended', cls:'bg-rose-100 text-rose-700', until:'-' };
+  if (c.plan === 'trial') { const d = (c.trial_ends_at || '').slice(0, 10); const dead = !c.trial_ends_at || new Date(c.trial_ends_at) < new Date(); return { label:dead ? 'Trial ended' : 'Trial', cls:dead ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700', until:d ? fmtDate(d) : '-' }; }
+  const dead = c.active_until && c.active_until < today;
+  return { label:dead ? 'Expired' : 'Active', cls:dead ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700', until:c.active_until ? fmtDate(c.active_until) : 'No end date' };
+}
+async function loadOwner() {
+  if (!isOwnerUser) return;
+  $('ownerBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Loading...</td></tr>`;
+  try { ownerCompanies = (await callAdmin({ action:'overview' })).companies || []; renderOwner(); }
+  catch (e) { $('ownerBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-600">${esc(e.message)}</td></tr>`; }
+}
+function renderOwner() {
+  $('ownerBody').innerHTML = ownerCompanies.length ? ownerCompanies.map(c => {
+    const pi = planInfo(c);
+    return `<tr class="hover:bg-slate-50"><td class="p-3 font-semibold">${esc(c.name)}</td>
+      <td class="p-3"><span class="badge ${pi.cls}">${pi.label}</span></td><td class="p-3 text-slate-500">${esc(pi.until)}</td>
+      <td class="p-3">${fmtNum(c.assets)}${c.max_assets ? ' / ' + fmtNum(c.max_assets) : ''}</td><td class="p-3">${fmtNum(c.users)}${c.max_users ? ' / ' + fmtNum(c.max_users) : ''}</td>
+      <td class="p-3 text-center whitespace-nowrap"><button class="btn btn-ghost" style="padding:.25rem .6rem" data-act="editCompany" data-id="${esc(c.id)}">Edit</button>
+      <button class="btn btn-ghost" style="padding:.25rem .6rem" data-act="companyUsers" data-id="${esc(c.id)}">Users</button></td></tr>`;
+  }).join('') : `<tr><td colspan="6" class="p-6 text-center text-slate-400">No companies yet.</td></tr>`;
+}
+function coPlanUI() {
+  const p = $('coPlan').value, isNew = !coEditId;
+  $('coTrialBox').classList.toggle('hidden', !(p === 'trial' && isNew));
+  $('coTrialEditBox').classList.toggle('hidden', !(p === 'trial' && !isNew));
+  $('coActiveBox').classList.toggle('hidden', p !== 'active');
+}
+function newCompany() {
+  coEditId = null; $('modalCompanyTitle').textContent = 'New company';
+  ['coName', 'coEmail', 'coMaxUsers', 'coActiveUntil', 'coTrialEnd'].forEach(i => $(i).value = '');
+  $('coPass').value = genPw(); $('coPlan').value = 'trial'; $('coTrialDays').value = 14; $('coMaxAssets').value = 30;
+  $('coAdminBox').classList.remove('hidden'); $('coResult').classList.add('hidden'); $('coSave').classList.remove('hidden');
+  coPlanUI(); openModal('modalCompany');
+}
+function editCompany(id) {
+  const c = ownerCompanies.find(x => x.id === id); if (!c) return;
+  coEditId = id; $('modalCompanyTitle').textContent = 'Edit company';
+  $('coName').value = c.name; $('coPlan').value = c.plan; $('coTrialEnd').value = (c.trial_ends_at || '').slice(0, 10); $('coActiveUntil').value = c.active_until || '';
+  $('coMaxAssets').value = c.max_assets ?? ''; $('coMaxUsers').value = c.max_users ?? '';
+  $('coAdminBox').classList.add('hidden'); $('coResult').classList.add('hidden'); $('coSave').classList.remove('hidden');
+  coPlanUI(); openModal('modalCompany');
+}
+function extendDate(days) {
+  const cur = $('coActiveUntil').value, base = cur && cur > todayStr() ? cur : todayStr();
+  $('coActiveUntil').value = addDays(base, +days);
+}
+function credsBox(email, pass) {
+  return `<div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm"><b>Done.</b> Share these sign-in details with the user (the password is shown only now):
+    <div class="mt-2 font-mono text-xs break-all">Email: ${esc(email)}<br>Password: ${esc(pass)}</div>
+    <button type="button" class="btn btn-ghost mt-2" data-act="copyCreds" data-id="${esc(email)}|${esc(pass)}">Copy</button></div>`;
+}
+function copyCreds(id) {
+  const [e, p] = id.split('|'); const txt = `Email: ${e}\nPassword: ${p}\nSign in at: ${location.origin}${location.pathname}`;
+  try { navigator.clipboard.writeText(txt); toast('Copied.', 'success'); } catch (x) { toast('Could not copy. Select the text and copy it manually.', 'warn'); }
+}
+async function saveCompany() {
+  const name = $('coName').value.trim(), plan = $('coPlan').value;
+  const num = id => { const v = $(id).value.trim(); return v === '' ? null : Math.max(1, parseInt(v, 10) || 1); };
+  if (!name) return toast('Company name is required.', 'warn');
+  const btn = $('coSave'); btn.disabled = true;
+  try {
+    if (!coEditId) {
+      const email = $('coEmail').value.trim(), password = $('coPass').value;
+      const d = await callAdmin({ action:'create_company', name, plan: plan === 'suspended' ? 'trial' : plan, admin_email:email, admin_password:password,
+        trial_days:$('coTrialDays').value, active_until:$('coActiveUntil').value || null, max_assets:$('coMaxAssets').value, max_users:$('coMaxUsers').value });
+      $('coResult').innerHTML = credsBox(email.toLowerCase(), password); $('coResult').classList.remove('hidden'); $('coSave').classList.add('hidden');
+      toast('Company created.', 'success');
+    } else {
+      const te = $('coTrialEnd').value;
+      const upd = { name, plan, trial_ends_at: plan === 'trial' && te ? new Date(te + 'T23:59:59').toISOString() : (plan === 'trial' ? null : undefined),
+        active_until: plan === 'active' ? ($('coActiveUntil').value || null) : undefined, max_assets:num('coMaxAssets'), max_users:num('coMaxUsers') };
+      Object.keys(upd).forEach(k => upd[k] === undefined && delete upd[k]);
+      const { error } = await sb.from('companies').update(upd).eq('id', coEditId);
+      if (error) throw error;
+      closeModal('modalCompany'); toast('Company updated.', 'success');
+    }
+    await loadOwner();
+  } catch (e) { toast(e.message || String(e), 'error'); }
+  btn.disabled = false;
+}
+async function companyUsers(id) { usersCompanyId = id; switchTab('users'); }
+
+function canManageUser(u) { return !u.is_owner && u.user_id !== currentUser.id && (isOwnerUser || u.role !== 'super_admin'); }
+async function loadUsers() {
+  if (!isSuperAdmin()) return;
+  const sel = $('usersCompany');
+  if (isOwnerUser) {
+    if (!ownerCompanies.length) { try { ownerCompanies = (await callAdmin({ action:'overview' })).companies || []; } catch (e) {} }
+    usersCompanyId = usersCompanyId || (currentCompany && currentCompany.id) || (ownerCompanies[0] && ownerCompanies[0].id);
+    sel.innerHTML = ownerCompanies.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+    sel.value = usersCompanyId; sel.classList.remove('hidden'); $('usersHint').classList.add('hidden');
+  } else { usersCompanyId = currentCompany && currentCompany.id; sel.classList.add('hidden'); $('usersHint').classList.remove('hidden'); }
+  $('usersBody').innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Loading...</td></tr>`;
+  if (!usersCompanyId) { $('usersBody').innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">No company.</td></tr>`; return; }
+  const { data, error } = await sb.from('user_roles').select('user_id,email,role,is_owner,created_at').eq('company_id', usersCompanyId).order('created_at', { ascending:true });
+  if (error) { $('usersBody').innerHTML = `<tr><td colspan="4" class="p-6 text-center text-rose-600">${esc(error.message)}</td></tr>`; return; }
+  usersList = data || []; renderUsers();
+}
+function renderUsers() {
+  const rl = { super_admin:'Super Admin', staff:'Staff', viewer:'Viewer' };
+  $('usersBody').innerHTML = usersList.map(u => {
+    const can = canManageUser(u);
+    const roleCell = can ? `<select class="input user-role" style="max-width:160px" data-id="${esc(u.user_id)}">${['super_admin', 'staff', 'viewer'].filter(r => isOwnerUser || r !== 'super_admin').map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${rl[r]}</option>`).join('')}</select>`
+      : `<span class="badge bg-slate-100 text-slate-700">${rl[u.role] || esc(u.role)}</span>${u.is_owner ? ' <span class="badge bg-violet-100 text-violet-700">Owner</span>' : ''}`;
+    return `<tr class="hover:bg-slate-50"><td class="p-3">${esc(u.email)}${u.user_id === currentUser.id ? ' <span class="text-xs text-slate-400">(you)</span>' : ''}</td><td class="p-3">${roleCell}</td>
+      <td class="p-3 text-slate-500">${esc(fmtDate(String(u.created_at || '').slice(0, 10)))}</td>
+      <td class="p-3 text-center whitespace-nowrap">${(can || (isOwnerUser && !u.is_owner)) ? `<button class="btn btn-ghost" style="padding:.25rem .6rem" data-act="resetPw" data-id="${esc(u.user_id)}">Reset password</button>` : ''}
+      ${can ? `<button class="btn btn-danger" style="padding:.25rem .6rem" data-act="removeUser" data-id="${esc(u.user_id)}">Remove</button>` : ''}</td></tr>`;
+  }).join('') || `<tr><td colspan="4" class="p-6 text-center text-slate-400">No users.</td></tr>`;
+}
+function addUser() {
+  userMode = 'add'; userTargetId = null; $('modalUserTitle').textContent = 'Add user';
+  $('usEmail').value = ''; $('usEmail').readOnly = false; $('usPass').value = genPw(); $('usRoleBox').classList.remove('hidden');
+  $('usRole').innerHTML = `<option value="staff">Staff</option><option value="viewer">Viewer</option>` + (isOwnerUser ? `<option value="super_admin">Super Admin</option>` : '');
+  $('usResult').classList.add('hidden'); $('usSave').classList.remove('hidden'); openModal('modalUser');
+}
+function resetPw(id) {
+  const u = usersList.find(x => x.user_id === id); if (!u) return;
+  userMode = 'reset'; userTargetId = id; $('modalUserTitle').textContent = 'Reset password';
+  $('usEmail').value = u.email; $('usEmail').readOnly = true; $('usPass').value = genPw(); $('usRoleBox').classList.add('hidden');
+  $('usResult').classList.add('hidden'); $('usSave').classList.remove('hidden'); openModal('modalUser');
+}
+async function saveUser() {
+  const email = $('usEmail').value.trim(), password = $('usPass').value, btn = $('usSave'); btn.disabled = true;
+  try {
+    if (userMode === 'add') await callAdmin({ action:'create_user', email, password, role:$('usRole').value, company_id:usersCompanyId });
+    else await callAdmin({ action:'reset_password', user_id:userTargetId, password });
+    $('usResult').innerHTML = credsBox(email.toLowerCase(), password); $('usResult').classList.remove('hidden'); $('usSave').classList.add('hidden');
+    toast(userMode === 'add' ? 'User created.' : 'Password changed.', 'success'); await loadUsers();
+  } catch (e) { toast(e.message || String(e), 'error'); }
+  btn.disabled = false;
+}
+async function removeUser(id) {
+  const u = usersList.find(x => x.user_id === id); if (!u) return;
+  if (!await confirmDialog(`Remove ${u.email}? They will no longer be able to sign in.`, { title:'Remove user', ok:'Remove' })) return;
+  try { await callAdmin({ action:'remove_user', user_id:id }); toast('User removed.', 'success'); } catch (e) { toast(e.message || String(e), 'error'); }
+  await loadUsers();
+}
+async function changeUserRole(id, role) {
+  try { await callAdmin({ action:'set_role', user_id:id, role }); toast('Role updated.', 'success'); } catch (e) { toast(e.message || String(e), 'error'); }
+  await loadUsers();
+}
+
 const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
-  syncNow: () => manualSync(), forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
+  syncNow: () => manualSync(), newCompany, editCompany, saveCompany, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
   openDeleted: openDeletedModal, openAudit, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
   doExport, template: downloadTemplate, backup: backupData, restore: () => $('restoreFile').click(), loadSample, clearAll, commitImport,
@@ -2016,6 +2227,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initI18n();
   $('formLogin').addEventListener('submit', handleLogin);
   $('formRecover').addEventListener('submit', handleRecover);
+  $('coPlan').addEventListener('change', coPlanUI);
+  $('usersCompany').addEventListener('change', e => { usersCompanyId = e.target.value; loadUsers(); });
+  document.addEventListener('change', e => { if (e.target.classList && e.target.classList.contains('user-role')) changeUserRole(e.target.dataset.id, e.target.value); });
   document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (!el) { if (!e.target.closest('.menu')) closeMenus(); return; } const fn = ACTIONS[el.dataset.act]; if (el.dataset.act !== 'menu') closeMenus(); if (el.dataset.act !== 'toggleNav') document.body.classList.remove('nav-open'); if (fn) fn(el.dataset.id, el); });
   document.addEventListener('change', e => { const t = e.target; if (t.classList.contains('item-chk')) { t.checked ? sel.add(t.dataset.id) : sel.delete(t.dataset.id); renderMaster(); updateBulkBar(); } else if (t.id === 'selAll') { filteredAssets().forEach(a => t.checked ? sel.add(a.kode) : sel.delete(a.kode)); renderMaster(); updateBulkBar(); } else if (t.dataset && t.dataset.col) { colVis[t.dataset.col] = t.checked; saveLocal(); renderMaster(); } else if (t.id === 'bulkStatus') bulkSetStatus(t.value); });
   $('fSearch').addEventListener('input', debounce(e => { F.q = e.target.value; F.page = 1; renderMaster(); }, 150));

@@ -132,6 +132,8 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   .dz.over{border-color:var(--brand);background:#eff5ff}
   body:not(.is-admin) .admin-only{display:none !important}
   body:not(.is-owner) .owner-only{display:none !important}
+  .perm-off{display:none !important}
+  body.no-price .price-el{display:none !important}
   :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   /* ---- responsive ---- */
   @media (max-width:1279px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.span2{grid-column:span 2}}
@@ -211,11 +213,12 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <button class="nav-item" id="tab-mutasi" data-act="tab" data-id="mutasi"><i data-lucide="arrow-left-right"></i>Mutation &amp; Service Logs<span id="cntLogs" class="nav-count">0</span></button>
     <button class="nav-item" id="tab-opname" data-act="tab" data-id="opname"><i data-lucide="clipboard-check"></i>Stock Opname</button>
     <div class="nav-title">Import and export</div>
-    <button class="nav-item" data-act="openImport"><i data-lucide="upload"></i>Import from Excel / CSV</button>
-    <button class="nav-item" data-act="openExport" data-id="excel"><i data-lucide="file-spreadsheet"></i>Export to Excel</button>
-    <button class="nav-item" data-act="openExport" data-id="pdf"><i data-lucide="file-text"></i>Export to PDF</button>
-    <button class="nav-item" data-act="template"><i data-lucide="file-down"></i>Download import template</button>
+    <button class="nav-item" data-perm="import" data-act="openImport"><i data-lucide="upload"></i>Import from Excel / CSV</button>
+    <button class="nav-item" data-perm="export" data-act="openExport" data-id="excel"><i data-lucide="file-spreadsheet"></i>Export to Excel</button>
+    <button class="nav-item" data-perm="export" data-act="openExport" data-id="pdf"><i data-lucide="file-text"></i>Export to PDF</button>
+    <button class="nav-item" data-perm="import" data-act="template"><i data-lucide="file-down"></i>Download import template</button>
     <div class="nav-title admin-only">Administration</div>
+    <button class="nav-item admin-only" data-act="perms"><i data-lucide="shield-check"></i>Role permissions</button>
     <button class="nav-item admin-only" data-act="codeFmt"><i data-lucide="hash"></i>Asset code format</button>
     <button class="nav-item admin-only" id="tab-users" data-act="tab" data-id="users"><i data-lucide="users"></i>Users</button>
     <button class="nav-item hidden" id="tab-owner" data-act="tab" data-id="owner"><i data-lucide="building-2"></i>Owner Panel</button>
@@ -267,7 +270,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       <div class="panel"><div class="panel-h"><h3><i data-lucide="tags"></i>Units by Category</h3></div><div id="catBars" class="panel-b" style="padding:8px"></div></div>
     </div>
     <div class="g g3">
-      <div class="panel span2"><div class="panel-h"><h3><i data-lucide="receipt"></i>Maintenance cost per month</h3><span id="costYear" style="font-size:12px;color:var(--muted)"></span></div><div id="costChart" class="panel-b cost-chart"></div></div>
+      <div class="panel span2 price-el"><div class="panel-h"><h3><i data-lucide="receipt"></i>Maintenance cost per month</h3><span id="costYear" style="font-size:12px;color:var(--muted)"></span></div><div id="costChart" class="panel-b cost-chart"></div></div>
       <div class="panel"><div class="panel-h"><h3><i data-lucide="history"></i>Recent Activity</h3></div><div id="recentLogs" class="panel-b" style="padding:8px"></div></div>
     </div>
   </section>
@@ -289,7 +292,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
           <div id="colMenu" class="menu hidden" style="right:auto;left:0;min-width:13rem"></div>
         </div>
       </div>
-      <div class="flex flex-wrap gap-2"><button class="btn btn-ghost justify-center" data-act="labelsFiltered"><i data-lucide="qr-code"></i>QR labels</button>
+      <div class="flex flex-wrap gap-2"><button class="btn btn-ghost justify-center" data-perm="labels" data-act="labelsFiltered"><i data-lucide="qr-code"></i>QR labels</button>
       <button id="btnAddAsset" class="btn btn-primary justify-center" data-act="addAsset"><i data-lucide="plus"></i>Add New Asset</button></div>
     </div>
     <div class="card overflow-x-auto tbl-scroll" id="masterScroll">
@@ -319,7 +322,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
           <tr>
             <th class="p-3 text-center">No.</th><th class="p-3">Log ID</th><th class="p-3">Asset</th><th class="p-3">Date</th>
             <th class="p-3">Action Type</th><th class="p-3">Origin</th><th class="p-3">Destination / Vendor</th>
-            <th class="p-3 text-right">Cost</th><th class="p-3">Status</th><th class="p-3">Notes</th><th class="p-3 text-center">Actions</th>
+            <th class="p-3 text-right price-el">Cost</th><th class="p-3">Status</th><th class="p-3">Notes</th><th class="p-3 text-center">Actions</th>
           </tr>
         </thead>
         <tbody id="logBody" class="divide-y divide-slate-100"></tbody>
@@ -411,7 +414,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   <span class="text-sm font-medium" id="bulkCount">0 selected</span>
   <div class="h-4 w-px bg-slate-700"></div>
   <select id="bulkStatus" class="bg-slate-800 border border-slate-600 text-sm rounded-lg px-2 py-1.5"></select>
-  <button class="btn btn-primary" style="padding:.35rem .8rem" data-act="labelsSelected"><i data-lucide="qr-code"></i>QR labels</button>
+  <button class="btn btn-primary" data-perm="labels" style="padding:.35rem .8rem" data-act="labelsSelected"><i data-lucide="qr-code"></i>QR labels</button>
   <button id="btnBulkDelete" class="btn btn-danger admin-only" style="padding:.35rem .8rem" data-act="bulkDelete"><i data-lucide="trash-2"></i>Delete</button>
   <button class="text-slate-400 hover:text-white" data-act="bulkClear" title="Clear selection"><i data-lucide="x" class="w-4 h-4"></i></button>
 </div>
@@ -508,7 +511,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
         <div class="sm:col-span-2"><label class="lbl">Asset Name *</label><input id="inpNama" required maxlength="120" class="input" placeholder="e.g. ThinkPad X1 Carbon"></div>
         <div><label class="lbl">Units to Create *</label><input id="inpQty" type="number" min="1" max="500" step="1" value="1" required class="input"></div>
         <div><label class="lbl">Location / Room</label><input id="inpLok" class="input" placeholder="Server Room / Floor 2"></div>
-        <div><label class="lbl">Unit Price (IDR)</label><input id="inpHarga" type="number" min="0" step="any" placeholder="0" class="input"></div>
+        <div class="price-el"><label class="lbl">Unit Price (IDR)</label><input id="inpHarga" type="number" min="0" step="any" placeholder="0" class="input"></div>
         <div><label class="lbl">Acquisition Date</label><input id="inpTgl" type="date" class="input"></div>
         <div><label class="lbl">Condition</label><select id="inpKond" class="input"></select></div>
         <div><label class="lbl">Status</label><select id="inpStat" class="input"></select></div>
@@ -554,7 +557,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
         <div><label class="lbl">Action Type *</label><select id="logTipe" class="input"></select></div>
         <div><label class="lbl">Origin / Current Branch</label><input id="logAsal" class="input"></div>
         <div><label class="lbl">Destination / Service Vendor</label><input id="logTujuan" class="input" list="branchNames"><datalist id="branchNames"></datalist></div>
-        <div><label class="lbl">Cost (IDR)</label><input id="logBiaya" type="number" min="0" step="any" placeholder="0" class="input"></div>
+        <div class="price-el"><label class="lbl">Cost (IDR)</label><input id="logBiaya" type="number" min="0" step="any" placeholder="0" class="input"></div>
         <div><label class="lbl">Log Status</label><select id="logStat" class="input"></select></div>
         <div class="sm:col-span-2"><label class="lbl">Notes</label><textarea id="logKet" rows="2" class="input"></textarea></div>
         <label class="sm:col-span-2 flex items-start gap-2 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-3 cursor-pointer">
@@ -682,6 +685,19 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       <p class="text-xs text-amber-700 bg-amber-50 rounded-lg p-2">Service history and stock opname results move to the new codes. QR labels already printed with old codes will stop working. A backup file is downloaded automatically.</p>
     </div>
     <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalRenumber">Cancel</button><button class="btn btn-primary" id="rnApply" data-act="renumberApply">Change codes</button></div>
+  </div>
+</div>
+
+<div id="modalPerms" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold">Role permissions</h3>
+      <button data-act="closeModal" data-id="modalPerms" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 overflow-y-auto grow space-y-3 text-sm">
+      <p class="text-xs text-slate-500">Choose what each role can use. Super Admin can always use everything. Viewer can never change data.</p>
+      <div class="border border-slate-200 rounded-lg overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-slate-100 text-xs text-slate-600"><tr><th class="p-2">Feature</th><th class="p-2 text-center w-20">Staff</th><th class="p-2 text-center w-20">Viewer</th></tr></thead><tbody id="permBody"></tbody></table></div>
+      <p class="text-xs text-slate-500"><b>Locked by server</b>: the database refuses the action even if someone tries to bypass the screen.<br><b>Hidden only</b>: the feature is hidden from the screen, but the role can still read this data.</p>
+    </div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalPerms">Cancel</button><button class="btn btn-primary" data-act="savePerms">Save</button></div>
   </div>
 </div>
 
@@ -854,6 +870,21 @@ function nextCode(prefix, taken, width = 3) {
   do { code = P + String(n).padStart(width, '0'); n++; } while (taken.has(code));
   return code;
 }
+function openPerms() {
+  $('permBody').innerHTML = PERM_FEATURES.map(f => `<tr class="border-t border-slate-100"><td class="p-2"><div class="font-medium">${esc(f.l)}</div><div class="text-xs ${f.server ? 'text-emerald-700' : 'text-slate-400'}">${f.server ? 'Locked by server' : 'Hidden only'}</div></td>`
+    + ['staff', 'viewer'].map(r => f.roles.includes(r) ? `<td class="p-2 text-center"><input type="checkbox" data-pr="${r}" data-pf="${f.k}" ${((perms[r] || {})[f.k] === false) ? '' : 'checked'}></td>` : `<td class="p-2 text-center text-slate-300">—</td>`).join('') + '</tr>').join('');
+  openModal('modalPerms');
+}
+async function savePerms() {
+  const next = { staff:{}, viewer:{} };
+  document.querySelectorAll('#permBody input[data-pr]').forEach(i => { next[i.dataset.pr][i.dataset.pf] = i.checked; });
+  if (sb && currentCompany) {
+    const { error } = await sb.from('company_settings').upsert({ company_id: currentCompany.id, permissions: next, updated_at: new Date().toISOString() }, { onConflict: 'company_id' });
+    if (error) { toast(/permissions|does not exist|schema cache/i.test(error.message || '') ? 'Permissions are not set up yet. Run role_permissions.sql in Supabase first.' : 'Could not save: ' + error.message, 'error'); return; }
+  }
+  perms = next; closeModal('modalPerms'); renderRoleUI(); refreshAll(); toast('Permissions saved.', 'success');
+}
+
 // ---- Asset code format (per company) ----
 const CODE_FMT_DEFAULT = { prefix:'AST', branch:true, category:true, year:false, digits:3, sep:'-' };
 let codeFmt = { ...CODE_FMT_DEFAULT };
@@ -876,11 +907,16 @@ function codePrefix(cabKode, katKode, f = codeFmt) {
 }
 function newAssetCode(cab, kat, taken) { return nextCode(codePrefix(cab && cab.kode, kat && kat.kode), taken, codeFmt.digits); }
 async function loadCodeFormat() {
-  codeFmt = { ...CODE_FMT_DEFAULT };
+  codeFmt = { ...CODE_FMT_DEFAULT }; perms = { staff:{}, viewer:{} };
   if (!sb || !currentUser) return;
   try {
-    const { data, error } = await sb.from('company_settings').select('code_format').maybeSingle();
-    if (!error && data && data.code_format && Object.keys(data.code_format).length) codeFmt = normFmt(data.code_format);
+    let r = await sb.from('company_settings').select('code_format,permissions').maybeSingle();
+    if (r.error) r = await sb.from('company_settings').select('code_format').maybeSingle();
+    const d = r.data;
+    if (!r.error && d) {
+      if (d.code_format && Object.keys(d.code_format).length) codeFmt = normFmt(d.code_format);
+      if (d.permissions && typeof d.permissions === 'object') perms = { staff: d.permissions.staff || {}, viewer: d.permissions.viewer || {} };
+    }
   } catch (e) {}
 }
 function readFmtForm() {
@@ -1047,6 +1083,22 @@ function companyWritable() {
 }
 const canWrite = () => ['super_admin', 'staff'].includes(currentRole) && companyWritable();
 const isSuperAdmin = () => currentRole === 'super_admin';
+// ---- Role permissions (set by Super Admin, per role). Writing data is also enforced by the database.
+const PERM_FEATURES = [
+  { k:'assets_write', l:'Add and edit assets', server:true, roles:['staff'] },
+  { k:'import', l:'Import from Excel / CSV', server:false, roles:['staff'] },
+  { k:'logs_write', l:'Record mutation and service logs', server:true, roles:['staff'] },
+  { k:'opname_write', l:'Stock opname (count and close)', server:true, roles:['staff'] },
+  { k:'labels', l:'Print QR labels', server:false, roles:['staff', 'viewer'] },
+  { k:'export', l:'Export to Excel / PDF', server:false, roles:['staff', 'viewer'] },
+  { k:'view_price', l:'See asset values, prices and costs', server:false, roles:['staff', 'viewer'] }
+];
+let perms = { staff:{}, viewer:{} };
+const permOK = f => { if (currentRole === 'super_admin') return true; const v = (perms[currentRole] || {})[f]; return typeof v === 'boolean' ? v : true; };
+const canAssets = () => canWrite() && permOK('assets_write');
+const canLogs = () => canWrite() && permOK('logs_write');
+const canOpname = () => canWrite() && permOK('opname_write');
+const canImport = () => canAssets() && permOK('import');
 
 function setDbBadge(mode, label) {
   const el = $('dbBadge');
@@ -1071,8 +1123,10 @@ function renderRoleUI() {
     ue.textContent = '';
     md.classList.add('hidden');
   }
-  $('btnAddAsset').disabled = !canWrite();
-  $('btnAddLog').disabled = !canWrite();
+  $('btnAddAsset').disabled = !canAssets();
+  $('btnAddLog').disabled = !canLogs();
+  document.querySelectorAll('[data-perm]').forEach(el => el.classList.toggle('perm-off', !permOK(el.dataset.perm)));
+  document.body.classList.toggle('no-price', !permOK('view_price'));
   $('btnBulkDelete').disabled = !isSuperAdmin();
   document.body.classList.toggle('is-admin', isSuperAdmin());
   document.body.classList.toggle('is-owner', !!isOwnerUser);
@@ -1294,6 +1348,7 @@ function saveAll(syncCloud = true) {
 async function syncTick() {
   if (!sb || !currentUser) return;
   if (dirty && !syncing) await flushSync(); else await pullFromSupabase();
+  if (!dirty) { const before = JSON.stringify(perms); await loadCodeFormat(); if (JSON.stringify(perms) !== before) { renderRoleUI(); refreshAll(); } }
 }
 function startPolling() { stopPolling(); pollTimer = setInterval(syncTick, 45000); }
 function stopPolling() { if (pollTimer) clearInterval(pollTimer); pollTimer = null; }
@@ -1427,8 +1482,8 @@ async function applySession(session) {
   if (currentUser.user_metadata && currentUser.user_metadata.must_change_password) forcePw();
   currentRole = await fetchRoleForUser(currentUser.id);
   try { localCompanyMarker = localStorage.getItem('ams_company'); } catch (e) { localCompanyMarker = null; }
-  renderRoleUI(); renderPlanBanner();
   await loadCodeFormat();
+  renderRoleUI(); renderPlanBanner();
   setDbBadge('local', 'Syncing...');
   await pullFromSupabase(true);
   try { if (currentCompany) localStorage.setItem('ams_company', currentCompany.id); } catch (e) {}
@@ -1547,7 +1602,7 @@ const COLS = [
   { k:'servis', l:'Next Maintenance', sort:1, html:a => dueHtml(a.servis, 'service', a.rm ? a.rmRemind : 30) },
   { k:'garansi', l:'Warranty', sort:1, html:a => dueHtml(a.garansi, 'warranty') }
 ];
-const visibleCols = () => COLS.filter(c => colVis[c.k] !== false);
+const visibleCols = () => COLS.filter(c => colVis[c.k] !== false && (c.k !== 'harga' || permOK('view_price')));
 const sortVal = (a, k) => typeof a[k] === 'number' ? a[k] : String(a[k] || '').toLowerCase();
 function filteredAssets() {
   const q = F.q.trim().toLowerCase();
@@ -1582,10 +1637,10 @@ function populateSelects() {
 function renderDashboard() {
   const s = computeStats();
   const kpi = (label, value, sub, tone, icon) => `<div class="kpi"><div class="kpi-ic t-${tone}"><i data-lucide="${icon}"></i></div><div style="min-width:0"><div class="kpi-l">${label}</div><div class="kpi-v">${value}</div><div class="kpi-s">${sub}</div></div></div>`;
-  $('kpiGrid').innerHTML = kpi('Total Units', fmtNum(s.qty), `${s.skus} ${s.skus === 1 ? 'unit' : 'units'}`, 'slate', 'package') + kpi('Total Asset Value', fmtIDR(s.value), 'Excludes disposed assets', 'blue', 'wallet') + kpi('Active', fmtNum(s.active), 'Ready', 'green', 'circle-check') + kpi('Maintenance Due', fmtNum(s.dueCount), `${s.overdueCount} overdue`, s.overdueCount ? 'red' : (s.dueCount ? 'amber' : 'green'), 'calendar-clock') + kpi('Repair / Transit', fmtNum(s.attention), 'Under repair or in transit', 'amber', 'wrench') + kpi('Open Logs', fmtNum(s.openLogs), 'Service / transfer in progress', 'violet', 'clipboard-list') + kpi(`Maintenance ${s.year}`, fmtIDR(s.spend), 'Total cost of logs this year', 'red', 'receipt') + kpi('Routine Assets', fmtNum(s.routineCount), 'With a maintenance schedule', 'violet', 'repeat');
+  $('kpiGrid').innerHTML = kpi('Total Units', fmtNum(s.qty), `${s.skus} ${s.skus === 1 ? 'unit' : 'units'}`, 'slate', 'package') + (permOK('view_price') ? kpi('Total Asset Value', fmtIDR(s.value), 'Excludes disposed assets', 'blue', 'wallet') : '') + kpi('Active', fmtNum(s.active), 'Ready', 'green', 'circle-check') + kpi('Maintenance Due', fmtNum(s.dueCount), `${s.overdueCount} overdue`, s.overdueCount ? 'red' : (s.dueCount ? 'amber' : 'green'), 'calendar-clock') + kpi('Repair / Transit', fmtNum(s.attention), 'Under repair or in transit', 'amber', 'wrench') + kpi('Open Logs', fmtNum(s.openLogs), 'Service / transfer in progress', 'violet', 'clipboard-list') + (permOK('view_price') ? kpi(`Maintenance ${s.year}`, fmtIDR(s.spend), 'Total cost of logs this year', 'red', 'receipt') : '') + kpi('Routine Assets', fmtNum(s.routineCount), 'With a maintenance schedule', 'violet', 'repeat');
   const hbars = (rows, clickable) => {
     const maxQ = Math.max(1, ...rows.map(r => r.qty));
-    return rows.length ? rows.map(r => `<${clickable ? 'button' : 'div'} class="hrow"${clickable ? ` data-act="filterBranch" data-id="${esc(r.name)}"` : ''}><div class="hrow-top"><b>${esc(r.name)}</b><span>${fmtNum(r.qty)} ${r.qty === 1 ? 'unit' : 'units'}</span></div><div class="htrack"><i style="width:${Math.max(2, Math.round(r.qty / maxQ * 100))}%"></i></div><div class="hrow-sub">${fmtIDR(r.value)}</div></${clickable ? 'button' : 'div'}>`).join('') : '<div class="empty"><i data-lucide="bar-chart-3"></i>No data yet.</div>';
+    return rows.length ? rows.map(r => `<${clickable ? 'button' : 'div'} class="hrow"${clickable ? ` data-act="filterBranch" data-id="${esc(r.name)}"` : ''}><div class="hrow-top"><b>${esc(r.name)}</b><span>${fmtNum(r.qty)} ${r.qty === 1 ? 'unit' : 'units'}</span></div><div class="htrack"><i style="width:${Math.max(2, Math.round(r.qty / maxQ * 100))}%"></i></div><div class="hrow-sub price-el">${fmtIDR(r.value)}</div></${clickable ? 'button' : 'div'}>`).join('') : '<div class="empty"><i data-lucide="bar-chart-3"></i>No data yet.</div>';
   };
   $('branchCards').innerHTML = hbars([...s.byBranch].sort((a, b) => b.qty - a.qty), true);
   $('catBars').innerHTML = hbars(s.byCat.filter(c => c.qty > 0).sort((a, b) => b.qty - a.qty).slice(0, 8), false);
@@ -1630,7 +1685,7 @@ function renderSchedule() {
   if (!routine.length) { $('scheduleList').innerHTML = `<div class="text-center py-8 text-sm text-slate-400">No routine maintenance set up yet.</div>`; return icons(); }
   if (!rows.length) { $('scheduleList').innerHTML = `<div class="text-center py-8 text-sm text-slate-400">Nothing due in the next 60 days (${routine.length} routine units tracked).</div>`; return icons(); }
   const tag = i => i.state === 'overdue' ? [`Overdue ${-i.d}d`, 'bg-rose-100 text-rose-700'] : i.state === 'soon' ? [i.d === 0 ? 'Due today' : `Due in ${i.d}d`, 'bg-amber-100 text-amber-700'] : [`In ${i.d}d`, 'bg-slate-100 text-slate-600'];
-  $('scheduleList').innerHTML = rows.slice(0, 8).map(({ a, i }) => { const [t, c] = tag(i); return `<div class="flex flex-wrap items-center justify-between gap-2 py-2.5" style="border-bottom:1px solid #edf1f8"><div class="flex items-center gap-3 min-w-0"><span class="badge ${c} w-24 text-center shrink-0">${t}</span><button class="text-left min-w-0" data-act="view" data-id="${esc(a.kode)}"><p class="text-sm font-medium text-slate-900 truncate"><span class="font-mono text-blue-600 mr-1.5">${esc(a.kode)}</span>${esc(a.nama)}</p><p class="text-xs text-slate-500 truncate">${esc(a.cabang)}${a.lokasi ? ' • ' + esc(a.lokasi) : ''} • ${esc(rmText(a))}</p></button></div><div class="flex items-center gap-3"><span class="text-xs text-slate-500">${fmtDate(a.servis)}</span><button class="btn btn-ghost" style="padding:.3rem .7rem" data-act="doneRM" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}><i data-lucide="check-check"></i>Log done</button></div></div>`; }).join('');
+  $('scheduleList').innerHTML = rows.slice(0, 8).map(({ a, i }) => { const [t, c] = tag(i); return `<div class="flex flex-wrap items-center justify-between gap-2 py-2.5" style="border-bottom:1px solid #edf1f8"><div class="flex items-center gap-3 min-w-0"><span class="badge ${c} w-24 text-center shrink-0">${t}</span><button class="text-left min-w-0" data-act="view" data-id="${esc(a.kode)}"><p class="text-sm font-medium text-slate-900 truncate"><span class="font-mono text-blue-600 mr-1.5">${esc(a.kode)}</span>${esc(a.nama)}</p><p class="text-xs text-slate-500 truncate">${esc(a.cabang)}${a.lokasi ? ' • ' + esc(a.lokasi) : ''} • ${esc(rmText(a))}</p></button></div><div class="flex items-center gap-3"><span class="text-xs text-slate-500">${fmtDate(a.servis)}</span><button class="btn btn-ghost" style="padding:.3rem .7rem" data-act="doneRM" data-id="${esc(a.kode)}" ${!(canAssets() && canLogs()) ? 'disabled' : ''}><i data-lucide="check-check"></i>Log done</button></div></div>`; }).join('');
   icons();
 }
 
@@ -1640,9 +1695,9 @@ function renderMaster() {
   const start = (F.page - 1) * PAGE, slice = list.slice(start, start + PAGE), cols = visibleCols();
   const allSel = list.length > 0 && list.every(a => sel.has(a.kode));
   $('masterHead').innerHTML = `<tr><th class="p-3 w-10 text-center"><input type="checkbox" id="selAll" ${allSel ? 'checked' : ''}></th>` + cols.map(c => `<th class="p-3 ${c.cls && c.cls.includes('text-center') ? 'text-center' : c.cls && c.cls.includes('text-right') ? 'text-right' : ''} ${c.sort ? 'sortable' : ''}" ${c.sort ? `data-act="sort" data-id="${c.k}"` : ''}><span>${c.l}</span>${F.sortK === c.k ? (F.sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('') + '<th class="p-3 text-center">Actions</th></tr>';
-  $('masterBody').innerHTML = slice.length ? slice.map((a, i) => `<tr class="hover:bg-slate-50 ${sel.has(a.kode) ? 'bg-blue-50/60' : ''}"><td class="p-3 text-center"><input type="checkbox" class="item-chk" data-id="${esc(a.kode)}" ${sel.has(a.kode) ? 'checked' : ''}></td>${cols.map(c => `<td class="p-3 ${c.cls || ''}">${c.html(a, start + i)}</td>`).join('')}<td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-slate-100 text-slate-600" data-act="view" data-id="${esc(a.kode)}" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editAsset" data-id="${esc(a.kode)}" title="Edit" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 admin-only" data-act="delAsset" data-id="${esc(a.kode)}" title="Delete" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="${cols.length + 2}" class="p-12 text-center text-slate-400">No units found.</td></tr>`;
+  $('masterBody').innerHTML = slice.length ? slice.map((a, i) => `<tr class="hover:bg-slate-50 ${sel.has(a.kode) ? 'bg-blue-50/60' : ''}"><td class="p-3 text-center"><input type="checkbox" class="item-chk" data-id="${esc(a.kode)}" ${sel.has(a.kode) ? 'checked' : ''}></td>${cols.map(c => `<td class="p-3 ${c.cls || ''}">${c.html(a, start + i)}</td>`).join('')}<td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-slate-100 text-slate-600" data-act="view" data-id="${esc(a.kode)}" title="View"><i data-lucide="eye" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editAsset" data-id="${esc(a.kode)}" title="Edit" ${!canAssets() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 admin-only" data-act="delAsset" data-id="${esc(a.kode)}" title="Delete" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="${cols.length + 2}" class="p-12 text-center text-slate-400">No units found.</td></tr>`;
   const from = list.length ? start + 1 : 0, to = Math.min(start + PAGE, list.length), totalVal = list.reduce((s, a) => s + a.harga, 0);
-  $('masterFooter').innerHTML = `<span>Showing <b>${from}–${to}</b> of <b>${list.length}</b> ${list.length === 1 ? 'unit' : 'units'} • Total value ${fmtIDR(totalVal)}</span><div class="flex items-center gap-2"><button class="btn btn-ghost" data-act="page" data-id="${F.page - 1}" ${F.page <= 1 ? 'disabled' : ''}><i data-lucide="chevron-left"></i></button><span>Page ${F.page} / ${pages}</span><button class="btn btn-ghost" data-act="page" data-id="${F.page + 1}" ${F.page >= pages ? 'disabled' : ''}><i data-lucide="chevron-right"></i></button></div>`;
+  $('masterFooter').innerHTML = `<span>Showing <b>${from}–${to}</b> of <b>${list.length}</b> ${list.length === 1 ? 'unit' : 'units'}${permOK('view_price') ? ' • Total value ' + fmtIDR(totalVal) : ''}</span><div class="flex items-center gap-2"><button class="btn btn-ghost" data-act="page" data-id="${F.page - 1}" ${F.page <= 1 ? 'disabled' : ''}><i data-lucide="chevron-left"></i></button><span>Page ${F.page} / ${pages}</span><button class="btn btn-ghost" data-act="page" data-id="${F.page + 1}" ${F.page >= pages ? 'disabled' : ''}><i data-lucide="chevron-right"></i></button></div>`;
   icons(); applyFreeze();
 }
 // Keep the header row and the first columns (checkbox, No., Code) visible while scrolling.
@@ -1665,9 +1720,9 @@ function filteredLogs() {
 }
 function renderLogs() {
   const list = filteredLogs();
-  $('logBody').innerHTML = list.length ? list.map((m, i) => `<tr class="hover:bg-slate-50"><td class="p-3 text-center text-slate-400">${i + 1}</td><td class="p-3 font-mono text-slate-500">${esc(m.id)}</td><td class="p-3"><button class="text-left" data-act="view" data-id="${esc(m.kode)}"><span class="font-mono font-semibold text-blue-600">${esc(m.kode)}</span><br><span class="text-xs text-slate-500">${esc(m.nama)}</span></button></td><td class="p-3">${fmtDate(m.tgl)}</td><td class="p-3">${badge(m.tipe, TYPE_CLS)}</td><td class="p-3 text-slate-600">${esc(m.asal) || '-'}</td><td class="p-3 font-medium text-blue-700">${esc(m.tujuan) || '-'}</td><td class="p-3 text-right">${fmtIDR(m.biaya)}</td><td class="p-3">${badge(m.status, LOGST_CLS)}</td><td class="p-3 text-slate-500 max-w-xs truncate">${esc(m.ket) || '-'}</td><td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editLog" data-id="${esc(m.id)}" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 admin-only" data-act="delLog" data-id="${esc(m.id)}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="11" class="p-12 text-center text-slate-400">No log entries</td></tr>`;
+  $('logBody').innerHTML = list.length ? list.map((m, i) => `<tr class="hover:bg-slate-50"><td class="p-3 text-center text-slate-400">${i + 1}</td><td class="p-3 font-mono text-slate-500">${esc(m.id)}</td><td class="p-3"><button class="text-left" data-act="view" data-id="${esc(m.kode)}"><span class="font-mono font-semibold text-blue-600">${esc(m.kode)}</span><br><span class="text-xs text-slate-500">${esc(m.nama)}</span></button></td><td class="p-3">${fmtDate(m.tgl)}</td><td class="p-3">${badge(m.tipe, TYPE_CLS)}</td><td class="p-3 text-slate-600">${esc(m.asal) || '-'}</td><td class="p-3 font-medium text-blue-700">${esc(m.tujuan) || '-'}</td><td class="p-3 text-right price-el">${fmtIDR(m.biaya)}</td><td class="p-3">${badge(m.status, LOGST_CLS)}</td><td class="p-3 text-slate-500 max-w-xs truncate">${esc(m.ket) || '-'}</td><td class="p-3"><div class="flex justify-center gap-1"><button class="p-1.5 rounded hover:bg-blue-50 text-blue-600 disabled:opacity-30" data-act="editLog" data-id="${esc(m.id)}" ${!canLogs() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button><button class="p-1.5 rounded hover:bg-rose-50 text-rose-600 admin-only" data-act="delLog" data-id="${esc(m.id)}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`).join('') : `<tr><td colspan="11" class="p-12 text-center text-slate-400">No log entries</td></tr>`;
   const cost = list.filter(m => m.status !== 'Cancelled').reduce((s, m) => s + m.biaya, 0);
-  $('logFooter').innerHTML = `<b>${list.length}</b> entries • Total cost (excl. cancelled): <b>${fmtIDR(cost)}</b>`;
+  $('logFooter').innerHTML = `<b>${list.length}</b> entries${permOK('view_price') ? ` • Total cost (excl. cancelled): <b>${fmtIDR(cost)}</b>` : ''}`;
   icons();
 }
 
@@ -1692,7 +1747,7 @@ function updateUnitNotice() {
   else { el.classList.add('hidden'); el.textContent = ''; }
 }
 function openAssetForm(kode) {
-  if (!canWrite()) return toast('Read-only role: cannot modify assets.', 'warn');
+  if (!canAssets()) return toast('Read-only role: cannot modify assets.', 'warn');
   const a = kode ? assetData.find(x => x.kode === kode) : null;
   $('formAsset').reset(); $('editOrig').value = a ? a.kode : ''; $('assetTitle').textContent = a ? 'Edit Asset Unit' : 'Add New Asset'; populateSelects();
   if (a) { $('inpCab').value = a.cabang; $('inpKat').value = a.kategori; $('inpKode').value = a.kode; $('inpNama').value = a.nama; $('inpQty').value = 1; $('inpQty').readOnly = true; $('inpLok').value = a.lokasi; $('inpHarga').value = a.harga || ''; $('inpTgl').value = a.tgl; $('inpKond').value = a.kondisi; $('inpStat').value = a.status; $('inpPIC').value = a.pic; $('inpSN').value = a.sn; $('inpGar').value = a.garansi; $('inpServ').value = a.servis; $('inpSpec').value = a.specs; setRmFields(a); }
@@ -1701,7 +1756,7 @@ function openAssetForm(kode) {
 }
 function saveAsset(e) {
   e.preventDefault();
-  if (!canWrite()) return toast('Read-only role.', 'warn');
+  if (!canAssets()) return toast('Read-only role.', 'warn');
   const orig = $('editOrig').value, qty = orig ? 1 : Math.max(1, Math.round(+$('inpQty').value || 1));
   if (!orig) genCode();
   const kode = $('inpKode').value;
@@ -1740,19 +1795,19 @@ async function bulkDelete() {
   sel.clear();
   saveAll(); refreshAll(); toast('Selected units archived & deleted.', 'success');
 }
-function bulkSetStatus(st) { if (!st || !sel.size || !canWrite()) return; assetData.forEach(a => { if (sel.has(a.kode)) a.status = st; }); saveAll(); $('bulkStatus').value = ''; refreshAll(); toast(`Status updated to ${st}.`, 'success'); }
+function bulkSetStatus(st) { if (!st || !sel.size || !canAssets()) return; assetData.forEach(a => { if (sel.has(a.kode)) a.status = st; }); saveAll(); $('bulkStatus').value = ''; refreshAll(); toast(`Status updated to ${st}.`, 'success'); }
 function viewAsset(kode) {
   const a = assetData.find(x => x.kode === kode); if (!a) return;
   const logs = mutasiData.filter(m => m.kode === kode).sort((x, y) => String(y.tgl).localeCompare(String(x.tgl)));
   const row = (l, v) => `<div class="flex justify-between gap-4 py-1.5 border-b border-slate-100"><span class="text-slate-500">${l}</span><span class="font-medium text-right">${v}</span></div>`;
-  $('detailBody').innerHTML = `<div><p class="font-mono font-bold text-blue-600">${esc(a.kode)}</p><h4 class="text-lg font-bold text-slate-900">${esc(a.nama)}</h4><div class="flex gap-2 mt-2">${badge(a.status, STATUS_CLS)}${badge(a.kondisi, COND_CLS)}</div></div><div>${row('Category', esc(a.kategori))}${row('Branch', esc(a.cabang))}${row('Location', esc(a.lokasi) || '-')}${row('Acquisition date', fmtDate(a.tgl))}${row('Asset value', fmtIDR(a.harga))}${row('PIC', esc(a.pic) || '-')}${row('S/N', esc(a.sn) || '-')}${row('Warranty until', a.garansi ? fmtDate(a.garansi) : '-')}${row('Next maintenance', dueHtml(a.servis, 'service', a.rm ? a.rmRemind : 30))}</div>${a.specs ? `<div><p class="text-xs font-semibold text-slate-500 uppercase mb-1">Specifications / Notes</p><p class="text-sm text-slate-700" style="white-space:pre-wrap">${esc(a.specs)}</p></div>` : ''}<div><p class="text-xs font-semibold text-slate-500 uppercase mb-2">History (${logs.length})</p>${logs.length ? logs.map(m => `<div class="py-1 border-b border-slate-100 text-xs">${fmtDate(m.tgl)} • <b>${esc(m.tipe)}</b> (${esc(m.status)}) — ${esc(m.tujuan) || '-'}</div>`).join('') : '<p class="text-slate-400 text-xs">No history yet.</p>'}</div>`;
-  $('detailFooter').innerHTML = `${a.rm ? `<button class="btn btn-ghost" data-act="doneRM" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Maintenance done</button>` : ''}<button class="btn btn-ghost" data-act="addLogFor" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Add log</button><button class="btn btn-ghost" data-act="labelOne" data-id="${esc(a.kode)}">QR label</button><button class="btn btn-primary" data-act="editAsset" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Edit</button>`;
+  $('detailBody').innerHTML = `<div><p class="font-mono font-bold text-blue-600">${esc(a.kode)}</p><h4 class="text-lg font-bold text-slate-900">${esc(a.nama)}</h4><div class="flex gap-2 mt-2">${badge(a.status, STATUS_CLS)}${badge(a.kondisi, COND_CLS)}</div></div><div>${row('Category', esc(a.kategori))}${row('Branch', esc(a.cabang))}${row('Location', esc(a.lokasi) || '-')}${row('Acquisition date', fmtDate(a.tgl))}${permOK('view_price') ? row('Asset value', fmtIDR(a.harga)) : ''}${row('PIC', esc(a.pic) || '-')}${row('S/N', esc(a.sn) || '-')}${row('Warranty until', a.garansi ? fmtDate(a.garansi) : '-')}${row('Next maintenance', dueHtml(a.servis, 'service', a.rm ? a.rmRemind : 30))}</div>${a.specs ? `<div><p class="text-xs font-semibold text-slate-500 uppercase mb-1">Specifications / Notes</p><p class="text-sm text-slate-700" style="white-space:pre-wrap">${esc(a.specs)}</p></div>` : ''}<div><p class="text-xs font-semibold text-slate-500 uppercase mb-2">History (${logs.length})</p>${logs.length ? logs.map(m => `<div class="py-1 border-b border-slate-100 text-xs">${fmtDate(m.tgl)} • <b>${esc(m.tipe)}</b> (${esc(m.status)}) — ${esc(m.tujuan) || '-'}</div>`).join('') : '<p class="text-slate-400 text-xs">No history yet.</p>'}</div>`;
+  $('detailFooter').innerHTML = `${a.rm ? `<button class="btn btn-ghost" data-act="doneRM" data-id="${esc(a.kode)}" ${!(canAssets() && canLogs()) ? 'disabled' : ''}>Maintenance done</button>` : ''}<button class="btn btn-ghost" data-act="addLogFor" data-id="${esc(a.kode)}" ${!canLogs() ? 'disabled' : ''}>Add log</button>${permOK('labels') ? `<button class="btn btn-ghost" data-act="labelOne" data-id="${esc(a.kode)}">QR label</button>` : ''}<button class="btn btn-primary" data-act="editAsset" data-id="${esc(a.kode)}" ${!canAssets() ? 'disabled' : ''}>Edit</button>`;
   openModal('modalDetail');
 }
 
 function nextLogId() { let max = 0; mutasiData.forEach(m => { const r = /^LOG-(\d+)$/.exec(m.id); if (r) max = Math.max(max, +r[1]); }); return `LOG-${String(max + 1).padStart(3, '0')}`; }
 function openLogForm(id, kode) {
-  if (!canWrite()) return toast('Read-only role.', 'warn');
+  if (!canLogs()) return toast('Read-only role.', 'warn');
   const m = id ? mutasiData.find(x => x.id === id) : null; $('formLog').reset(); populateSelects(); $('editLogId').value = m ? m.id : ''; $('logTitle').textContent = m ? 'Edit Log Entry' : 'Add Mutation / Service Log';
   if (m) { $('logKode').value = m.kode; $('logNama').value = m.nama; $('logTgl').value = m.tgl; $('logTipe').value = m.tipe; $('logAsal').value = m.asal; $('logTujuan').value = m.tujuan; $('logBiaya').value = m.biaya || ''; $('logStat').value = m.status; $('logKet').value = m.ket; $('logApply').checked = false; }
   else { $('logTgl').value = todayStr(); $('logApply').checked = true; if (kode) { $('logKode').value = kode; fillLogAsset(kode); } }
@@ -1773,7 +1828,7 @@ function recalcRM(a, keepManual) {
 }
 function saveLog(e) {
   e.preventDefault();
-  if (!canWrite()) return toast('Read-only role.', 'warn');
+  if (!canLogs()) return toast('Read-only role.', 'warn');
   const editId = $('editLogId').value, a = assetData.find(x => x.kode.toLowerCase() === $('logKode').value.trim().toLowerCase());
   if (!a) return toast('Asset code not found.', 'error');
   const log = normLog({ id: editId || nextLogId(), kode:a.kode, nama:a.nama, tgl:$('logTgl').value, tipe:$('logTipe').value, asal:$('logAsal').value.trim(), tujuan:$('logTujuan').value.trim(), biaya:+$('logBiaya').value || 0, status:$('logStat').value, ket:$('logKet').value.trim() });
@@ -1929,8 +1984,12 @@ async function delSetting(i) {
 
 const ASSET_HDRS = ['No.','Asset Code','Asset Name','Category','Branch','Location','Qty','Unit Price (IDR)','Total Price (IDR)','Acquisition Date','Condition','Status','PIC','S/N','Specifications','Warranty Until','Routine Maintenance','Interval','Interval Unit','Last Maintenance','Remind Days Before','Next Maintenance Due'];
 const LOG_HDRS = ['No.','Log ID','Asset Code','Asset Name','Date','Action Type','Origin','Destination / Vendor','Cost (IDR)','Status','Notes'];
-const assetRows = list => list.map((a, i) => ({ 'No.':i + 1, 'Asset Code':a.kode, 'Asset Name':a.nama, 'Category':a.kategori, 'Branch':a.cabang, 'Location':a.lokasi, 'Qty':1, 'Unit Price (IDR)':a.harga, 'Total Price (IDR)':a.harga, 'Acquisition Date':a.tgl, 'Condition':a.kondisi, 'Status':a.status, 'PIC':a.pic, 'S/N':a.sn, 'Specifications':a.specs, 'Warranty Until':a.garansi, 'Routine Maintenance':a.rm ? 'Yes' : 'No', 'Interval':a.rm ? a.rmEvery : '', 'Interval Unit':a.rm ? (UNIT_SING[a.rmUnit][0].toUpperCase() + UNIT_SING[a.rmUnit].slice(1) + 's') : '', 'Last Maintenance':a.rmLast, 'Remind Days Before':a.rm ? a.rmRemind : '', 'Next Maintenance Due':a.servis }));
-const logRows = list => list.map((m, i) => ({ 'No.':i + 1, 'Log ID':m.id, 'Asset Code':m.kode, 'Asset Name':m.nama, 'Date':m.tgl, 'Action Type':m.tipe, 'Origin':m.asal, 'Destination / Vendor':m.tujuan, 'Cost (IDR)':m.biaya, 'Status':m.status, 'Notes':m.ket }));
+const stripPrice = r => { if (!permOK('view_price')) Object.keys(r).forEach(k => { if (/Price|Cost/.test(k)) delete r[k]; }); return r; };
+const hdrsA = () => ASSET_HDRS.filter(h => permOK('view_price') || !/Price/.test(h));
+const hdrsL = () => LOG_HDRS.filter(h => permOK('view_price') || !/Cost/.test(h));
+const noMoney = (arr, i) => permOK('view_price') ? arr : arr.filter((_, j) => j !== i);
+const assetRows = list => list.map((a, i) => stripPrice({ 'No.':i + 1, 'Asset Code':a.kode, 'Asset Name':a.nama, 'Category':a.kategori, 'Branch':a.cabang, 'Location':a.lokasi, 'Qty':1, 'Unit Price (IDR)':a.harga, 'Total Price (IDR)':a.harga, 'Acquisition Date':a.tgl, 'Condition':a.kondisi, 'Status':a.status, 'PIC':a.pic, 'S/N':a.sn, 'Specifications':a.specs, 'Warranty Until':a.garansi, 'Routine Maintenance':a.rm ? 'Yes' : 'No', 'Interval':a.rm ? a.rmEvery : '', 'Interval Unit':a.rm ? (UNIT_SING[a.rmUnit][0].toUpperCase() + UNIT_SING[a.rmUnit].slice(1) + 's') : '', 'Last Maintenance':a.rmLast, 'Remind Days Before':a.rm ? a.rmRemind : '', 'Next Maintenance Due':a.servis }));
+const logRows = list => list.map((m, i) => stripPrice({ 'No.':i + 1, 'Log ID':m.id, 'Asset Code':m.kode, 'Asset Name':m.nama, 'Date':m.tgl, 'Action Type':m.tipe, 'Origin':m.asal, 'Destination / Vendor':m.tujuan, 'Cost (IDR)':m.biaya, 'Status':m.status, 'Notes':m.ket }));
 function downloadBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
 async function ensureXLSX() {
   if (typeof XLSX !== 'undefined') return true;
@@ -1946,12 +2005,12 @@ function finishSheet(ws, hdrs, rows, moneyHdrs = []) {
   return ws;
 }
 function summarySheet() {
-  const s = computeStats();
+  const s = computeStats(), hp = permOK('view_price');
   const aoa = [['Asset Management System — Summary'], ['Generated', new Date().toLocaleString('en-GB')], [],
-    ['Metric', 'Value'], ['Total units (excl. disposed)', s.qty], ['Total asset value (IDR)', s.value], ['Active units', s.active],
-    ['Under repair / in transit units', s.attention], ['Disposed units', s.disposed], ['Open logs', s.openLogs], ['Routine-maintenance assets', s.routineCount], ['Maintenance due / overdue', s.dueCount], ['Maintenance overdue', s.overdueCount], [`Maintenance cost ${s.year} (IDR)`, s.spend], [],
-    ['By Branch'], ['Branch', 'Units', 'Valuation (IDR)'], ...s.byBranch.map(b => [b.name, b.qty, b.value]), [],
-    ['By Category'], ['Category', 'Units', 'Valuation (IDR)'], ...s.byCat.map(c => [c.name, c.qty, c.value])];
+    ['Metric', 'Value'], ['Total units (excl. disposed)', s.qty], ...(hp ? [['Total asset value (IDR)', s.value]] : []), ['Active units', s.active],
+    ['Under repair / in transit units', s.attention], ['Disposed units', s.disposed], ['Open logs', s.openLogs], ['Routine-maintenance assets', s.routineCount], ['Maintenance due / overdue', s.dueCount], ['Maintenance overdue', s.overdueCount], ...(hp ? [[`Maintenance cost ${s.year} (IDR)`, s.spend]] : []), [],
+    ['By Branch'], noMoney(['Branch', 'Units', 'Valuation (IDR)'], 2), ...s.byBranch.map(b => noMoney([b.name, b.qty, b.value], 2)), [],
+    ['By Category'], noMoney(['Category', 'Units', 'Valuation (IDR)'], 2), ...s.byCat.map(c => noMoney([c.name, c.qty, c.value], 2))];
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   Object.keys(ws).forEach(k => { if (k[0] !== '!' && k[0] !== 'A' && typeof ws[k].v === 'number') ws[k].z = '#,##0'; });
   ws['!cols'] = [{ wch:38 }, { wch:20 }, { wch:22 }];
@@ -1962,16 +2021,16 @@ async function exportExcel(scope, useFilter) {
   const assets = useFilter ? filteredAssets() : assetData;
   const wb = XLSX.utils.book_new();
   if (scope === 'all' || scope === 'dashboard') XLSX.utils.book_append_sheet(wb, summarySheet(), 'Summary');
-  if (scope === 'all' || scope === 'master') { const r = assetRows(assets); XLSX.utils.book_append_sheet(wb, finishSheet(XLSX.utils.json_to_sheet(r, { header:ASSET_HDRS }), ASSET_HDRS, r, ['Unit Price (IDR)', 'Total Price (IDR)']), 'Assets'); }
-  if (scope === 'all' || scope === 'mutasi') { const r = logRows(mutasiData); XLSX.utils.book_append_sheet(wb, finishSheet(XLSX.utils.json_to_sheet(r, { header:LOG_HDRS }), LOG_HDRS, r, ['Cost (IDR)']), 'Asset Logs'); }
+  if (scope === 'all' || scope === 'master') { const r = assetRows(assets); XLSX.utils.book_append_sheet(wb, finishSheet(XLSX.utils.json_to_sheet(r, { header:hdrsA() }), hdrsA(), r, ['Unit Price (IDR)', 'Total Price (IDR)']), 'Assets'); }
+  if (scope === 'all' || scope === 'mutasi') { const r = logRows(mutasiData); XLSX.utils.book_append_sheet(wb, finishSheet(XLSX.utils.json_to_sheet(r, { header:hdrsL() }), hdrsL(), r, ['Cost (IDR)']), 'Asset Logs'); }
   XLSX.writeFile(wb, `Asset_${scope === 'all' ? 'Report' : scope}_${stamp()}.xlsx`);
   toast('Excel file downloaded.', 'success');
 }
 function exportCSV(scope, useFilter) {
   const sets = [];
-  if (scope === 'all' || scope === 'master') sets.push(['Assets', ASSET_HDRS, assetRows(useFilter ? filteredAssets() : assetData)]);
-  if (scope === 'all' || scope === 'mutasi') sets.push(['Logs', LOG_HDRS, logRows(mutasiData)]);
-  if (scope === 'dashboard') { const s = computeStats(); sets.push(['Summary', ['Branch','Units','Valuation (IDR)'], s.byBranch.map(b => ({ 'Branch':b.name, 'Units':b.qty, 'Valuation (IDR)':b.value }))]); }
+  if (scope === 'all' || scope === 'master') sets.push(['Assets', hdrsA(), assetRows(useFilter ? filteredAssets() : assetData)]);
+  if (scope === 'all' || scope === 'mutasi') sets.push(['Logs', hdrsL(), logRows(mutasiData)]);
+  if (scope === 'dashboard') { const s = computeStats(), hp = permOK('view_price'); sets.push(['Summary', hp ? ['Branch','Units','Valuation (IDR)'] : ['Branch','Units'], s.byBranch.map(b => hp ? ({ 'Branch':b.name, 'Units':b.qty, 'Valuation (IDR)':b.value }) : ({ 'Branch':b.name, 'Units':b.qty }))]); }
   sets.forEach(([name, hdrs, rows], i) => setTimeout(() => {
     const body = [hdrs.join(';'), ...rows.map(r => hdrs.map(h => `"${String(r[h] ?? '').replace(/"/g, '""')}"`).join(';'))].join('\r\n');
     downloadBlob(new Blob(['\uFEFF' + body], { type:'text/csv;charset=utf-8;' }), `Asset_${name}_${stamp()}.csv`);
@@ -1986,25 +2045,25 @@ function exportPDF(scope, useFilter) {
   if (scope === 'all' || scope === 'dashboard') {
     const s = computeStats(); title('Asset Summary');
     doc.autoTable({ startY:26, head:[['Metric', 'Value']], theme:'striped', headStyles:{ fillColor:head }, body:[
-      ['Total units (excl. disposed)', fmtNum(s.qty)], ['Total asset value', fmtIDR(s.value)], ['Active units', fmtNum(s.active)],
-      ['Under repair / in transit', fmtNum(s.attention)], ['Disposed units', fmtNum(s.disposed)], ['Open logs', fmtNum(s.openLogs)], ['Routine-maintenance assets', fmtNum(s.routineCount)], ['Maintenance due / overdue', `${s.dueCount} (${s.overdueCount} overdue)`], [`Maintenance cost ${s.year}`, fmtIDR(s.spend)]] });
-    doc.autoTable({ startY:doc.lastAutoTable.finalY + 8, head:[['Branch', 'Units', 'Valuation']], theme:'grid', headStyles:{ fillColor:[37, 99, 235] }, columnStyles:{ 1:{ halign:'right' }, 2:{ halign:'right' } },
-      body:s.byBranch.map(b => [b.name, fmtNum(b.qty), fmtIDR(b.value)]) });
-    doc.autoTable({ startY:doc.lastAutoTable.finalY + 8, head:[['Category', 'Units', 'Valuation']], theme:'grid', headStyles:{ fillColor:[37, 99, 235] }, columnStyles:{ 1:{ halign:'right' }, 2:{ halign:'right' } },
-      body:s.byCat.filter(c => c.qty).map(c => [c.name, fmtNum(c.qty), fmtIDR(c.value)]) });
+      ['Total units (excl. disposed)', fmtNum(s.qty)], ...(permOK('view_price') ? [['Total asset value', fmtIDR(s.value)]] : []), ['Active units', fmtNum(s.active)],
+      ['Under repair / in transit', fmtNum(s.attention)], ['Disposed units', fmtNum(s.disposed)], ['Open logs', fmtNum(s.openLogs)], ['Routine-maintenance assets', fmtNum(s.routineCount)], ['Maintenance due / overdue', `${s.dueCount} (${s.overdueCount} overdue)`], ...(permOK('view_price') ? [[`Maintenance cost ${s.year}`, fmtIDR(s.spend)]] : [])] });
+    doc.autoTable({ startY:doc.lastAutoTable.finalY + 8, head:[noMoney(['Branch', 'Units', 'Valuation'], 2)], theme:'grid', headStyles:{ fillColor:[37, 99, 235] }, columnStyles:{ 1:{ halign:'right' }, 2:{ halign:'right' } },
+      body:s.byBranch.map(b => noMoney([b.name, fmtNum(b.qty), fmtIDR(b.value)], 2)) });
+    doc.autoTable({ startY:doc.lastAutoTable.finalY + 8, head:[noMoney(['Category', 'Units', 'Valuation'], 2)], theme:'grid', headStyles:{ fillColor:[37, 99, 235] }, columnStyles:{ 1:{ halign:'right' }, 2:{ halign:'right' } },
+      body:s.byCat.filter(c => c.qty).map(c => noMoney([c.name, fmtNum(c.qty), fmtIDR(c.value)], 2)) });
   }
   if (scope === 'all' || scope === 'master') {
     const list = useFilter ? filteredAssets() : assetData;
     title('Asset Data', `${list.length} assets • Generated ${new Date().toLocaleString('en-GB')}`);
     doc.autoTable({ startY:26, styles:{ fontSize:7.5, cellPadding:1.6 }, headStyles:{ fillColor:head }, columnStyles:{ 6:{ halign:'right' } },
-      head:[['No.', 'Code', 'Asset Name', 'Category', 'Branch', 'Location', 'Value', 'Condition', 'Status', 'PIC', 'Next Maint.']],
-      body:list.map((a, i) => [i + 1, a.kode, a.nama, a.kategori, a.cabang, a.lokasi || '-', fmtIDR(a.harga), a.kondisi, a.status, a.pic || '-', a.servis || '-']) });
+      head:[noMoney(['No.', 'Code', 'Asset Name', 'Category', 'Branch', 'Location', 'Value', 'Condition', 'Status', 'PIC', 'Next Maint.'], 6)],
+      body:list.map((a, i) => noMoney([i + 1, a.kode, a.nama, a.kategori, a.cabang, a.lokasi || '-', fmtIDR(a.harga), a.kondisi, a.status, a.pic || '-', a.servis || '-'], 6)) });
   }
   if (scope === 'all' || scope === 'mutasi') {
     title('Mutation & Service Logs', `${mutasiData.length} entries • Generated ${new Date().toLocaleString('en-GB')}`);
     doc.autoTable({ startY:26, styles:{ fontSize:7.5, cellPadding:1.6 }, headStyles:{ fillColor:head }, columnStyles:{ 8:{ halign:'right' } },
-      head:[['No.', 'Log ID', 'Code', 'Asset Name', 'Date', 'Action', 'Origin', 'Destination / Vendor', 'Cost', 'Status']],
-      body:filteredLogs().map((m, i) => [i + 1, m.id, m.kode, m.nama, m.tgl, m.tipe, m.asal || '-', m.tujuan || '-', fmtIDR(m.biaya), m.status]) });
+      head:[noMoney(['No.', 'Log ID', 'Code', 'Asset Name', 'Date', 'Action', 'Origin', 'Destination / Vendor', 'Cost', 'Status'], 8)],
+      body:filteredLogs().map((m, i) => noMoney([i + 1, m.id, m.kode, m.nama, m.tgl, m.tipe, m.asal || '-', m.tujuan || '-', fmtIDR(m.biaya), m.status], 8)) });
   }
   const n = doc.getNumberOfPages();
   for (let i = 1; i <= n; i++) { doc.setPage(i); doc.setFontSize(8); doc.setTextColor(140); doc.text(`Page ${i} of ${n}`, doc.internal.pageSize.getWidth() - 14, doc.internal.pageSize.getHeight() - 7, { align:'right' }); }
@@ -2062,7 +2121,7 @@ async function clearAll() {
   assetData = []; mutasiData = []; sel.clear(); saveAll(); refreshAll();
 }
 
-function openImport() { if (!canWrite()) return toast('Read-only role.', 'warn'); imp = null; $('importFile').value = ''; $('importFileName').textContent = 'No file selected'; $('importResult').classList.add('hidden'); $('importCommit').disabled = true; openModal('modalImport'); }
+function openImport() { if (!canImport()) return toast('Read-only role.', 'warn'); imp = null; $('importFile').value = ''; $('importFileName').textContent = 'No file selected'; $('importResult').classList.add('hidden'); $('importCommit').disabled = true; openModal('modalImport'); }
 async function handleImportFile(file) {
   if (!file) return;
   if (!(await ensureXLSX())) return toast('Excel reader could not be loaded. Check your internet connection.', 'error');
@@ -2223,7 +2282,7 @@ function rebuildImport() {
   $('importCommit').querySelector('span').textContent = ok ? `Import ${ok} record${ok > 1 ? 's' : ''}` : 'Nothing to import';
 }
 function commitImport() {
-  if (!imp || !imp.plan || !canWrite()) return;
+  if (!imp || !imp.plan || !canImport()) return;
   const { assets, logs, pendCab, pendKat } = imp.plan;
   pendCab.forEach(c => cabangData.push({ kode:c.kode, nama:c.nama }));
   pendKat.forEach(c => kategoriData.push({ kode:c.kode, nama:c.nama }));
@@ -2241,6 +2300,7 @@ function commitImport() {
 function closeMenus() { document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden')); }
 function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden'); closeMenus(); if (was) m.classList.remove('hidden'); }
 const I18N={"Dashboard":"Dashboard","Asset data":"Data aset","Assets":"Aset","Branches":"Cabang","Categories":"Kategori","Transactions":"Transaksi","Mutation & Service Logs":"Mutasi & Riwayat Servis","Import and export":"Impor dan ekspor","Import from Excel / CSV":"Impor dari Excel / CSV","Export to Excel":"Ekspor ke Excel","Export to PDF":"Ekspor ke PDF","Download import template":"Unduh template impor","System":"Sistem","Sync with Supabase":"Sinkronkan dengan Supabase","Deleted / Restore":"Terhapus / Pulihkan","Backup all data (.json)":"Cadangkan semua data (.json)","Restore from backup":"Pulihkan dari cadangan","Load sample data":"Muat data contoh","Clear all data":"Hapus semua data","Asset Management System":"Sistem Manajemen Aset","Asset Management":"Manajemen Aset","Logout":"Keluar","Sign out":"Keluar","Menu":"Menu","Local Mode":"Mode Lokal","Signed Out":"Belum masuk","Supabase Connected":"Terhubung ke Supabase","Supabase Offline":"Supabase tidak terjangkau","Syncing...":"Menyinkronkan…","Syncing…":"Menyinkronkan…","Saving…":"Menyimpan…","Not saved — will retry":"Belum tersimpan, akan dicoba lagi","GUEST":"Tamu","Operational asset tracking":"Pencatatan aset operasional","Sign in":"Masuk","Sign In":"Masuk","Password":"Kata sandi","Use the account given to you by your administrator.":"Gunakan akun yang diberikan oleh administrator Anda.","Every office asset, recorded and maintained.":"Setiap aset kantor, tercatat dan terawat.","One record for each unit, with its full history.":"Satu catatan untuk setiap unit, lengkap dengan riwayatnya.","Routine maintenance reminders before they become overdue.":"Pengingat perawatan rutin sebelum jadwalnya terlewat.","Branch transfers and service logs in one place.":"Mutasi antar cabang dan riwayat servis dalam satu tempat.","Signed in as {} ({})":"Masuk sebagai {} ({})","Signed out.":"Anda sudah keluar.","Sign in first.":"Silakan masuk terlebih dahulu.","Supabase client not initialized.":"Koneksi Supabase belum siap.","Total Units":"Total Unit","Total Asset Value":"Total Nilai Aset","Excludes disposed assets":"Tidak termasuk aset yang sudah afkir","Active":"Aktif","Ready":"Siap","Maintenance Due":"Perawatan Jatuh Tempo","{} overdue":"{} terlambat","Repair / Transit":"Perbaikan / Transit","Under repair or in transit":"Sedang diperbaiki atau dalam perjalanan","Open Logs":"Log Terbuka","Service / transfer in progress":"Servis / mutasi sedang berjalan","Maintenance {}":"Perawatan {}","Total cost of logs this year":"Total biaya log tahun ini","Routine Assets":"Aset Rutin","With a maintenance schedule":"Punya jadwal perawatan","Maintenance Schedule":"Jadwal Perawatan","View all due":"Lihat semua yang jatuh tempo","Needs Attention":"Perlu Perhatian","Status Breakdown":"Rincian Status","Units by Branch":"Unit per Cabang","Units by Category":"Unit per Kategori","Maintenance cost per month":"Biaya perawatan per bulan","Recent Activity":"Aktivitas Terbaru","units":"unit","{} units":"{} unit","No data yet.":"Belum ada data.","All clear.":"Semua aman.","No logs yet.":"Belum ada log.","No maintenance cost recorded this year.":"Belum ada biaya perawatan tercatat tahun ini.","No routine maintenance set up yet.":"Belum ada perawatan rutin yang diatur.","Nothing due in the next 60 days ({} routine units tracked).":"Tidak ada yang jatuh tempo dalam 60 hari ke depan ({} unit rutin dipantau).","Log done":"Catat selesai","Overdue {}d":"Telat {} hari","Due in {}d":"{} hari lagi","Due today":"Hari ini","In {}d":"{} hari lagi","Service overdue":"Servis terlambat","Service due":"Servis segera","Warranty ending":"Garansi berakhir","Major damage":"Rusak berat","Open log":"Log terbuka","{} [{}] — overdue {}d":"{} [{}] — terlambat {} hari","{} [{}] — due in {}d":"{} [{}] — jatuh tempo {} hari lagi","{} [{}] — ends in {}d":"{} [{}] — berakhir {} hari lagi","{} [{}] marked Active":"{} [{}] masih berstatus Aktif","{}: {} [{}]":"{}: {} [{}]","Every {} {}":"Setiap {} {}","month":"bulan","months":"bulan","year":"tahun","years":"tahun","week":"minggu","weeks":"minggu","day":"hari","days":"hari","{} (overdue)":"{} (terlambat)","{} (expired)":"{} (kedaluwarsa)","{} ({}d)":"{} ({} hari)","(overdue)":"(terlambat)","(expired)":"(kedaluwarsa)","Under Repair":"Dalam Perbaikan","In Transit":"Dalam Perjalanan","Disposed":"Afkir","Excellent":"Sangat Baik","Good":"Baik","Minor Damage":"Rusak Ringan","Major Damage":"Rusak Berat","In Progress":"Berjalan","Completed":"Selesai","Cancelled":"Dibatalkan","Service / Repair":"Servis / Perbaikan","Branch Transfer":"Mutasi Cabang","Routine Maintenance":"Perawatan Rutin","Disposed / Written Off":"Afkir / Dihapusbukukan","Search name, code, S/N, PIC...":"Cari nama, kode, S/N, PIC...","All Branches":"Semua Cabang","All Categories":"Semua Kategori","All Statuses":"Semua Status","All Maintenance":"Semua Perawatan","Routine only":"Hanya rutin","Due / overdue":"Jatuh tempo / terlambat","Clear filters":"Hapus filter","Columns":"Kolom","Display columns":"Tampilkan kolom","Add New Asset":"Tambah Aset Baru","No.":"No.","Asset Code":"Kode Aset","Asset Name":"Nama Aset","Category":"Kategori","Branch":"Cabang","Location / Room":"Lokasi / Ruangan","Location":"Lokasi","Qty":"Jml","Unit Price":"Harga Satuan","Asset Value":"Nilai Aset","Asset value":"Nilai aset","Condition":"Kondisi","Status":"Status","Routine":"Rutin","Next Maintenance":"Perawatan Berikutnya","Next maintenance":"Perawatan berikutnya","Warranty":"Garansi","Actions":"Aksi","Serial Number":"Nomor Seri","Code":"Kode","Name":"Nama","Value":"Nilai","Showing":"Menampilkan","of":"dari","units • Total value {}":"unit • Total nilai {}","unit • Total value {}":"unit • Total nilai {}","Page {} / {}":"Halaman {} / {}","No units found.":"Tidak ada unit yang ditemukan.","Set status…":"Ubah status…","{} selected":"{} dipilih","Delete":"Hapus","Edit":"Ubah","View":"Lihat","Clear selection":"Batalkan pilihan","Close":"Tutup","Cancel":"Batal","Confirm":"Konfirmasi","Delete all":"Hapus semua","Add log":"Tambah log","Maintenance done":"Perawatan selesai","Asset Details":"Detail Aset","History ({})":"Riwayat ({})","No history yet.":"Belum ada riwayat.","Log ID":"ID Log","Asset":"Aset","Date":"Tanggal","Action Type":"Jenis Tindakan","Origin":"Asal","Destination / Vendor":"Tujuan / Vendor","Cost":"Biaya","Notes":"Catatan","Search code, name, vendor...":"Cari kode, nama, vendor...","All Types":"Semua Jenis","Add Log Entry":"Tambah Log","No log entries":"Belum ada entri log","entries • Total cost (excl. cancelled):":"entri • Total biaya (tidak termasuk yang dibatalkan):","Mutation, service and routine maintenance history":"Riwayat mutasi, servis, dan perawatan rutin","Edit Asset Unit":"Ubah Unit Aset","Branch *":"Cabang *","Category *":"Kategori *","Asset Code (auto, 1 code = 1 unit)":"Kode Aset (otomatis, 1 kode = 1 unit)","Asset Name *":"Nama Aset *","Units to Create *":"Jumlah Unit yang Dibuat *","Unit Price (IDR)":"Harga Satuan (IDR)","Acquisition Date":"Tanggal Perolehan","PIC (Person in Charge)":"PIC (Penanggung Jawab)","Serial Number (S/N)":"Nomor Seri (S/N)","Warranty Until":"Garansi Sampai","Next Maintenance Due":"Jatuh Tempo Perawatan Berikutnya","Specifications / Notes":"Spesifikasi / Catatan","Save Asset":"Simpan Aset","This asset needs routine maintenance":"Aset ini memerlukan perawatan rutin","Repeat every":"Ulangi setiap","Last maintenance":"Perawatan terakhir","Remind (days before)":"Ingatkan (hari sebelumnya)","Months":"Bulan","Days":"Hari","Weeks":"Minggu","Years":"Tahun","e.g. ThinkPad X1 Carbon":"mis. ThinkPad X1 Carbon","e.g. John Doe":"mis. Budi Santoso","Server Room / Floor 2":"Ruang Server / Lantai 2","Hardware specs or notes...":"Spesifikasi atau catatan...","1 code = 1 unit:":"1 kode = 1 unit:","Creates":"Membuat","{} separate codes":"{} kode terpisah","starting from":"mulai dari","1 is automatically split into 1 code = 1 unit.":"1 otomatis dipecah menjadi 1 kode = 1 unit.","Add Mutation / Service Log":"Tambah Log Mutasi / Servis","Edit Log Entry":"Ubah Log","Asset Code *":"Kode Aset *","Log Date *":"Tanggal Log *","Action Type *":"Jenis Tindakan *","Origin / Current Branch":"Asal / Cabang Saat Ini","Destination / Service Vendor":"Tujuan / Vendor Servis","Cost (IDR)":"Biaya (IDR)","Log Status":"Status Log","Update the asset automatically":"Perbarui aset secara otomatis","(status / branch) based on this log.":"(status / cabang) berdasarkan log ini.","Save Log":"Simpan Log","Type to search...":"Ketik untuk mencari...","Manage":"Kelola","Manage Branches":"Kelola Cabang","Manage Categories":"Kelola Kategori","Branch name":"Nama cabang","Category name":"Nama kategori","Add":"Tambah","In use":"Dipakai","CODE":"KODE","Fill code and name.":"Isi kode dan nama.","Duplicate code or name.":"Kode atau nama sudah ada.","Item is still in use.":"Item ini masih dipakai.","Delete item":"Hapus item","Export":"Ekspor","Everything":"Semuanya","Summary + Assets + Logs":"Ringkasan + Aset + Log","Dashboard Summary":"Ringkasan Dashboard","KPIs, per branch, per category":"KPI, per cabang, per kategori","Asset Data":"Data Aset","Full asset listing":"Daftar aset lengkap","Maintenance and transfer history":"Riwayat perawatan dan mutasi","Only export assets matching the current filter / search":"Ekspor hanya aset sesuai filter / pencarian saat ini","Excel file downloaded.":"File Excel sudah diunduh.","PDF downloaded.":"PDF sudah diunduh.","Drop your file here, or click to browse":"Letakkan file di sini, atau klik untuk memilih","No file selected":"Belum ada file dipilih","Download template":"Unduh template","If an asset code already exists":"Jika kode aset sudah ada","Skip the row":"Lewati baris","Update the existing asset (overwrites it with the file's values)":"Perbarui aset yang ada (ditimpa dengan isi file)","Import as a new asset (new code)":"Impor sebagai aset baru (kode baru)","Unknown branches / categories":"Cabang / kategori yang tidak dikenal","Create them automatically":"Buat otomatis","If unchecked, rows with an unknown branch or category are rejected.":"Jika tidak dicentang, baris dengan cabang atau kategori tidak dikenal akan ditolak.","Type":"Jenis","Row":"Baris","Result":"Hasil","Import":"Impor","Nothing to import":"Tidak ada yang diimpor","Qty ignored on update (1 code = 1 unit)":"Jml diabaikan saat update (1 kode = 1 unit)","Code already exists":"Kode sudah ada","Code auto-generated":"Kode dibuat otomatis","Duplicate code inside the file":"Kode ganda di dalam file","Duplicate code → new code assigned":"Kode ganda → diberi kode baru","Same log already exists":"Log yang sama sudah ada","Asset name is empty":"Nama aset kosong","Asset code is empty":"Kode aset kosong","Date missing or not recognised":"Tanggal kosong atau tidak dikenali","Acquisition date not recognised (left blank)":"Tanggal perolehan tidak dikenali (dikosongkan)","Qty invalid → 1":"Jml tidak valid → 1","No branch available":"Tidak ada cabang","No category available":"Tidak ada kategori","Unknown branch \"{}\"":"Cabang \"{}\" tidak dikenal","Unknown category \"{}\"":"Kategori \"{}\" tidak dikenal","Branch empty → {}":"Cabang kosong → {}","Category empty → {}":"Kategori kosong → {}","Asset code {} not found":"Kode aset {} tidak ditemukan","Unknown condition \"{}\" → Good":"Kondisi \"{}\" tidak dikenal → Baik","Unknown status \"{}\" → Active":"Status \"{}\" tidak dikenal → Aktif","Unknown status \"{}\" → Completed":"Status \"{}\" tidak dikenal → Selesai","Unknown action type \"{}\" → Service / Repair":"Jenis tindakan \"{}\" tidak dikenal → Servis / Perbaikan","Unknown interval unit \"{}\" → Months":"Satuan interval \"{}\" tidak dikenal → Bulan","Routine maintenance needs an interval → routine turned off":"Perawatan rutin butuh interval → rutin dimatikan","Last maintenance date not recognised":"Tanggal perawatan terakhir tidak dikenali","Next maintenance date not recognised":"Tanggal perawatan berikutnya tidak dikenali","Qty {} → {} separate units ({} … {})":"Jml {} → {} unit terpisah ({} … {})","Import {} record{}":"Impor {} data","Import {} units":"Impor {} unit","Showing the first 100 of {} rows (errors first). All valid rows will be imported.":"Menampilkan 100 baris pertama dari {} baris (error lebih dulu). Semua baris yang valid akan diimpor.","Import complete: {} new, {} updated assets, {} logs.":"Impor selesai: {} baru, {} aset diperbarui, {} log.","Could not read the file.":"File tidak bisa dibaca.","Could not read this file:":"File ini tidak bisa dibaca:","No asset or log rows were found. Check the column headers (download the template for reference).":"Tidak ada baris aset atau log. Periksa judul kolom (unduh template sebagai acuan).","Excel library could not be loaded. Check your internet connection.":"Library Excel gagal dimuat. Periksa koneksi internet Anda.","Excel reader could not be loaded. Check your internet connection.":"Pembaca Excel gagal dimuat. Periksa koneksi internet Anda.","Excel library could not be loaded (check your internet). Exporting CSV instead.":"Library Excel gagal dimuat (periksa internet). Mengekspor CSV sebagai gantinya.","PDF library is still loading or blocked. Please try again.":"Library PDF masih dimuat atau diblokir. Silakan coba lagi.","Metric":"Metrik","Summary":"Ringkasan","Asset Summary":"Ringkasan Aset","Generated":"Dibuat","Deleted Records & Restore (Super Admin)":"Data Terhapus & Pemulihan (Super Admin)","Archived snapshots of deleted items":"Arsip data yang sudah dihapus","Table":"Tabel","Key":"Kunci","Deleted By":"Dihapus Oleh","Deleted At":"Dihapus Pada","Archived":"Diarsipkan","Restored":"Dipulihkan","Restore":"Pulihkan","Loading archived records...":"Memuat arsip...","No archived records.":"Tidak ada arsip.","Record not found.":"Data tidak ditemukan.","Restored {}.":"{} dipulihkan.","Failed to archive record before delete:":"Gagal mengarsipkan data sebelum dihapus:","Please confirm":"Mohon konfirmasi","Delete asset":"Hapus aset","Delete assets":"Hapus aset","Delete log":"Hapus log","Replace":"Ganti","Sample data":"Data contoh","Restore backup":"Pulihkan cadangan","Clear everything":"Hapus semuanya","Upload local data":"Unggah data lokal","Upload":"Unggah","Archive & delete \"{}\"?":"Arsipkan & hapus \"{}\"?","Archive & delete {} selected units?":"Arsipkan & hapus {} unit terpilih?","Archive & delete asset {}?":"Arsipkan & hapus aset {}?","Its log history is archived too. You can restore both from Deleted / Restore.":"Riwayat lognya ikut diarsipkan. Keduanya bisa dipulihkan dari Terhapus / Pulihkan.","Archive & delete log {}?":"Arsipkan & hapus log {}?","Delete ALL assets and logs for everyone?":"Hapus SEMUA aset dan log untuk semua orang?","A backup file is downloaded first. This cannot be undone from the app.":"File cadangan diunduh lebih dulu. Ini tidak bisa dibatalkan dari aplikasi.","Replace ALL current data (for everyone) with sample data?":"Ganti SEMUA data saat ini (untuk semua orang) dengan data contoh?","A backup of the current data is downloaded first.":"Cadangan data saat ini diunduh lebih dulu.","Restore this backup ({} assets)?":"Pulihkan cadangan ini ({} aset)?","This REPLACES all current data for everyone. A backup of the current data is downloaded first.":"Ini MENGGANTI semua data saat ini untuk semua orang. Cadangan data saat ini diunduh lebih dulu.","The cloud database is empty, but this browser holds {} assets.":"Database cloud masih kosong, tetapi browser ini menyimpan {} aset.","Upload them to the cloud now?":"Unggah ke cloud sekarang?","(Cancel = clear the local copy and start empty.)":"(Batal = hapus salinan lokal dan mulai dari kosong.)","Asset {} archived & deleted.":"Aset {} diarsipkan & dihapus.","Asset {} added.":"Aset {} ditambahkan.","Asset updated.":"Aset diperbarui.","Log saved.":"Log disimpan.","Log archived & deleted.":"Log diarsipkan & dihapus.","Selected units archived & deleted.":"Unit terpilih diarsipkan & dihapus.","Status updated to {}.":"Status diubah menjadi {}.","Backup restored.":"Cadangan dipulihkan.","Invalid backup file":"File cadangan tidak valid","Asset code not found.":"Kode aset tidak ditemukan.","Up to date with Supabase.":"Sudah sinkron dengan Supabase.","Could not reach Supabase.":"Tidak bisa terhubung ke Supabase.","Supabase connection issue:":"Masalah koneksi Supabase:","Could not save to browser storage.":"Tidak bisa menyimpan ke penyimpanan browser.","Could not save to Supabase:":"Tidak bisa menyimpan ke Supabase:","Read-only role.":"Peran hanya-lihat.","Read-only role: cannot modify assets.":"Peran hanya-lihat: tidak bisa mengubah aset.","Super Admin only.":"Hanya untuk Super Admin.","Only Super Admin can delete assets.":"Hanya Super Admin yang bisa menghapus aset.","Only Super Admin can delete branches/categories.":"Hanya Super Admin yang bisa menghapus cabang/kategori.","Only Super Admin can delete logs.":"Hanya Super Admin yang bisa menghapus log.","Only Super Admin can load sample data.":"Hanya Super Admin yang bisa memuat data contoh.","Only Super Admin can restore a backup.":"Hanya Super Admin yang bisa memulihkan cadangan.","Some changes were not allowed for your role and were reverted.":"Sebagian perubahan tidak diizinkan untuk peran Anda dan dibatalkan.","Unnamed asset":"Aset tanpa nama","Total asset value":"Total nilai aset","(Unassigned)":"(Belum ditentukan)","Action":"Tindakan","Asset Logs":"Log Aset","By Branch":"Per Cabang","By Category":"Per Kategori","Email":"Email","Log":"Log","Logs":"Log","Open logs":"Log terbuka","Under repair / in transit":"Dalam perbaikan / transit","Routine-maintenance assets":"Aset perawatan rutin","Valuation":"Valuasi","Units":"Unit","Yes":"Ya","Interval":"Interval"};
+Object.assign(I18N,{"Role permissions":"Hak akses peran","Choose what each role can use. Super Admin can always use everything. Viewer can never change data.":"Pilih fitur apa yang boleh dipakai tiap peran. Super Admin selalu bisa memakai semuanya. Viewer tidak pernah bisa mengubah data.","Feature":"Fitur","Add and edit assets":"Tambah dan ubah aset","Import from Excel / CSV":"Impor dari Excel / CSV","Record mutation and service logs":"Catat mutasi dan riwayat servis","Stock opname (count and close)":"Stok opname (menghitung dan menutup)","Print QR labels":"Cetak label QR","Export to Excel / PDF":"Ekspor ke Excel / PDF","See asset values, prices and costs":"Lihat nilai aset, harga, dan biaya","Locked by server":"Dikunci server","Hidden only":"Hanya disembunyikan","Permissions saved.":"Hak akses disimpan.","Permissions are not set up yet. Run role_permissions.sql in Supabase first.":"Hak akses belum diaktifkan. Jalankan role_permissions.sql di Supabase terlebih dahulu."});
 Object.assign(I18N,{"Want your existing assets to use this format too?":"Ingin aset yang sudah ada memakai format ini juga?","Apply to existing assets…":"Terapkan ke aset yang sudah ada…","Apply new code format":"Terapkan format kode baru","All assets (":"Semua aset (","Only the assets currently shown in the table (":"Hanya aset yang tampil di tabel saat ini (","Numbers are assigned again from 1 in each group, oldest acquisition date first. Check the list below before you continue.":"Nomor dibuat ulang mulai dari 1 di tiap kelompok, mulai dari tanggal perolehan paling lama. Periksa daftar di bawah sebelum melanjutkan.","Old code":"Kode lama","New code":"Kode baru","Asset":"Aset","Service history and stock opname results move to the new codes. QR labels already printed with old codes will stop working. A backup file is downloaded automatically.":"Riwayat servis dan hasil stok opname ikut pindah ke kode baru. Label QR yang sudah dicetak dengan kode lama tidak akan berfungsi lagi. File backup terunduh otomatis.","Change codes":"Ubah kode","No codes need to change.":"Tidak ada kode yang perlu diubah.","{} will change • {} already match":"{} akan berubah • {} sudah sesuai","There are no assets yet.":"Belum ada aset.","Not set up yet. Run renumber_assets.sql in Supabase first.":"Belum diaktifkan. Jalankan renumber_assets.sql di Supabase terlebih dahulu.","Could not change codes: ":"Tidak bisa mengubah kode: ","{} asset codes changed.":"{} kode aset diubah.","Before adding your first asset, check Administration > Asset code format.":"Sebelum menambah aset pertama, cek Administrasi > Format kode aset."});
 Object.assign(I18N,{"Total value {}":"Total nilai {}","Total value":"Total nilai"});
 Object.assign(I18N,{"Asset code format":"Format kode aset","Choose how new asset codes look. Existing codes do not change.":"Pilih tampilan kode aset yang baru. Kode yang sudah ada tidak berubah.","Prefix (optional, letters and numbers only)":"Awalan (opsional, hanya huruf dan angka)","e.g. AST or your company initials":"mis. AST atau inisial perusahaan","Include category code":"Sertakan kode kategori","Include branch code":"Sertakan kode cabang","Include current year":"Sertakan tahun berjalan","If an asset moves to another branch, its code still shows the old branch. Leave this off if assets often move.":"Jika aset dipindah ke cabang lain, kodenya tetap menampilkan cabang lama. Biarkan mati jika aset sering berpindah.","Number length":"Panjang nomor","3 digits (001)":"3 digit (001)","4 digits (0001)":"4 digit (0001)","5 digits (00001)":"5 digit (00001)","6 digits (000001)":"6 digit (000001)","Separator":"Pemisah","Dash ( - )":"Strip ( - )","Dot ( . )":"Titik ( . )","Underscore ( _ )":"Garis bawah ( _ )","None":"Tanpa pemisah","Next code will look like":"Kode berikutnya akan tampak seperti","Code format saved.":"Format kode disimpan.","Code format is not set up yet. Run company_settings.sql in Supabase first.":"Format kode belum diaktifkan. Jalankan company_settings.sql di Supabase terlebih dahulu.","Could not save: ":"Tidak bisa menyimpan: "});
@@ -2600,7 +2660,7 @@ function renderOpnames() {
   }).join('') : `<tr><td colspan="6" class="p-8 text-center text-slate-400">No stock opname yet. Click "New stock opname" to start counting.</td></tr>`;
 }
 function newOpname() {
-  if (!canWrite()) return toast('Read-only role.', 'warn');
+  if (!canOpname()) return toast('Read-only role.', 'warn');
   $('opnBranch').innerHTML = `<option value="">All branches</option>` + cabangData.map(c => `<option value="${esc(c.nama)}">${esc(c.nama)}</option>`).join('');
   $('opnBranch').value = ''; opnNameAuto(); $('opnName').dataset.auto = '1'; openModal('modalOpnameNew');
 }
@@ -2656,8 +2716,8 @@ function renderOpDetail() {
   $('opMeta').textContent = `${o.branch || 'All branches'} • ${fmtDate(String(o.created_at || '').slice(0, 10))} • ${o.created_email || ''}`;
   $('opStatus').className = 'badge ' + (open ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-600'); $('opStatus').textContent = open ? 'Open' : 'Closed';
   $('opBar').style.width = pct + '%'; $('opPct').textContent = `${fmtNum(s.found)} / ${fmtNum(s.total)} (${pct}%)`;
-  $('opScanBox').classList.toggle('hidden', !open || !canWrite());
-  $('btnOpClose').classList.toggle('hidden', !open || !canWrite());
+  $('opScanBox').classList.toggle('hidden', !open || !canOpname());
+  $('btnOpClose').classList.toggle('hidden', !open || !canOpname());
   const chips = [['all', 'All', opItems.length], ['pending', open ? 'Not scanned yet' : 'Missing', s.missing], ['found', 'Found', s.found], ['misplaced', 'Found in another branch', s.misplaced], ['unknown', 'Unknown code', s.unknown]];
   $('opChips').innerHTML = chips.map(([k, l, n]) => `<button class="btn ${opFilter === k ? 'btn-primary' : 'btn-ghost'}" style="padding:.3rem .75rem" data-act="opFilter" data-id="${k}">${l} <b>${fmtNum(n)}</b></button>`).join('');
   const q = ($('opSearch').value || '').toLowerCase();
@@ -2665,7 +2725,7 @@ function renderOpDetail() {
   const shown = rows.slice(0, 300);
   $('opItems').innerHTML = shown.length ? shown.map(i => {
     const a = assetData.find(x => x.kode === i.asset_code), [rl, rc] = opResult(i);
-    const act = open && canWrite() ? (i.status === 'pending' ? `<button class="btn btn-ghost" style="padding:.2rem .55rem" data-act="opMark" data-id="${esc(i.asset_code)}">Mark found</button>` : (i.expected ? `<button class="btn btn-ghost" style="padding:.2rem .55rem" data-act="opUndo" data-id="${esc(i.asset_code)}">Undo</button>` : '')) : '';
+    const act = open && canOpname() ? (i.status === 'pending' ? `<button class="btn btn-ghost" style="padding:.2rem .55rem" data-act="opMark" data-id="${esc(i.asset_code)}">Mark found</button>` : (i.expected ? `<button class="btn btn-ghost" style="padding:.2rem .55rem" data-act="opUndo" data-id="${esc(i.asset_code)}">Undo</button>` : '')) : '';
     return `<tr class="hover:bg-slate-50"><td class="p-2.5 font-mono font-semibold text-blue-600">${esc(i.asset_code)}</td><td class="p-2.5">${esc(a ? a.nama : '-')}</td><td class="p-2.5">${esc(i.system_branch || (a ? a.cabang : '') || '-')}</td>
       <td class="p-2.5"><span class="badge ${rc}">${rl}</span></td><td class="p-2.5 text-slate-500 text-xs">${i.scanned_at ? esc(new Date(i.scanned_at).toLocaleString(locale(), { dateStyle: 'short', timeStyle: 'short' })) + '<br>' + esc(i.scanned_email || '') : ''}</td><td class="p-2.5 text-center">${act}</td></tr>`;
   }).join('') : `<tr><td colspan="6" class="p-6 text-center text-slate-400">No items.</td></tr>`;
@@ -2673,7 +2733,7 @@ function renderOpDetail() {
 }
 async function opScan(raw, manual) {
   if (!curOp || curOp.status !== 'open') return;
-  if (!canWrite()) return toast('Read-only role.', 'warn');
+  if (!canOpname()) return toast('Read-only role.', 'warn');
   const code = String(raw || '').trim(); if (!code) return;
   const status = $('scanStatus'), say = (m, t) => { $('opLast').textContent = m; if ($('modalScan') && !$('modalScan').classList.contains('hidden')) status.textContent = m; if (t) toast(m, t); };
   const asset = assetData.find(a => a.kode.toLowerCase() === code.toLowerCase()), key = asset ? asset.kode : code;
@@ -2888,7 +2948,7 @@ async function changeUserRole(id, role) {
 
 const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
-  codeFmt: openCodeFormat, saveCodeFmt: saveCodeFormat, renumberOpen: openRenumber, renumberApply: rnApply,
+  perms: openPerms, savePerms: savePerms, codeFmt: openCodeFormat, saveCodeFmt: saveCodeFormat, renumberOpen: openRenumber, renumberApply: rnApply,
   syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
   openDeleted: openDeletedModal, openAudit, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },

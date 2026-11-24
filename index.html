@@ -1280,6 +1280,7 @@ async function applySession(session) {
   await pullFromSupabase(true);
   try { if (currentCompany) localStorage.setItem('ams_company', currentCompany.id); } catch (e) {}
   startPolling();
+  openPendingAsset();
 }
 
 async function forgotPassword() {
@@ -2272,6 +2273,22 @@ function openLabels(codes) {
   lbSizeUI(); openModal('modalLabels');
 }
 function lbSizeUI() { $('lbCustom').classList.toggle('hidden', $('lbSize').value !== 'custom'); }
+// QR content = link to the app, so the phone's normal camera opens the asset directly.
+function assetUrl(kode) { return location.origin + location.pathname + '?a=' + encodeURIComponent(kode); }
+function codeFromScan(raw) {
+  const t = String(raw || '').trim();
+  if (/^https?:\/\//i.test(t)) { try { const v = new URL(t).searchParams.get('a'); if (v) return v.trim(); } catch (e) {} }
+  return t;
+}
+let pendingAsset = null;
+try { pendingAsset = new URLSearchParams(location.search).get('a'); } catch (e) {}
+function openPendingAsset() {
+  if (!pendingAsset || pwForced) return;
+  const code = pendingAsset; pendingAsset = null;
+  try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  const a = assetData.find(x => x.kode.toLowerCase() === code.toLowerCase());
+  if (a) viewAsset(a.kode); else toast(`Asset "${code}" was not found.`, 'error');
+}
 function lbDims() {
   const v = $('lbSize').value;
   if (v === 'custom') return { w: Math.max(2, +$('lbW').value || 5) * 10, h: Math.max(2, +$('lbH').value || 3) * 10 };
@@ -2279,7 +2296,7 @@ function lbDims() {
 }
 // Draws one label (all sizes in mm) onto a jsPDF document.
 function drawLabel(doc, x, y, w, h, a, o) {
-  const pad = Math.max(1, Math.min(w, h) * 0.06), M = qrMatrix(a.kode), n = M.length;
+  const pad = Math.max(1, Math.min(w, h) * 0.06), M = qrMatrix(assetUrl(a.kode)), n = M.length;
   const fit = (txt, maxW, big, small) => { let s = big; doc.setFontSize(s); while (s > small && doc.getTextWidth(txt) > maxW) { s -= 0.5; doc.setFontSize(s); } return s; };
   const drawQr = (qx, qy, qs) => {
     const cell = qs / (n + 2); doc.setFillColor(0, 0, 0);
@@ -2370,7 +2387,7 @@ async function scanFrame() {
   } catch (e) {} finally { SC.busy = false; }
 }
 async function scanHit(raw) {
-  const code = String(raw || '').trim(); if (!code) return;
+  const code = codeFromScan(raw); if (!code) return;
   const now = Date.now(); if (code === SC.last && now - SC.lastAt < 2500) return;
   SC.last = code; SC.lastAt = now; try { navigator.vibrate && navigator.vibrate(60); } catch (e) {}
   if (SC.onCode) await SC.onCode(code);

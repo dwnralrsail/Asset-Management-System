@@ -196,10 +196,12 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <button class="nav-item active" id="tab-dashboard" data-act="tab" data-id="dashboard"><i data-lucide="layout-dashboard"></i>Dashboard</button>
     <div class="nav-title">Asset data</div>
     <button class="nav-item" id="tab-master" data-act="tab" data-id="master"><i data-lucide="package"></i>Assets<span id="cntAssets" class="nav-count">0</span></button>
+    <button class="nav-item" data-act="quickScan"><i data-lucide="scan-line"></i>Scan QR</button>
     <button class="nav-item" data-act="settings" data-id="cabang"><i data-lucide="building-2"></i>Branches</button>
     <button class="nav-item" data-act="settings" data-id="kategori"><i data-lucide="tags"></i>Categories</button>
     <div class="nav-title">Transactions</div>
     <button class="nav-item" id="tab-mutasi" data-act="tab" data-id="mutasi"><i data-lucide="arrow-left-right"></i>Mutation &amp; Service Logs<span id="cntLogs" class="nav-count">0</span></button>
+    <button class="nav-item" id="tab-opname" data-act="tab" data-id="opname"><i data-lucide="clipboard-check"></i>Stock Opname</button>
     <div class="nav-title">Import and export</div>
     <button class="nav-item" data-act="openImport"><i data-lucide="upload"></i>Import from Excel / CSV</button>
     <button class="nav-item" data-act="openExport" data-id="excel"><i data-lucide="file-spreadsheet"></i>Export to Excel</button>
@@ -278,7 +280,8 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
           <div id="colMenu" class="menu hidden" style="right:auto;left:0;min-width:13rem"></div>
         </div>
       </div>
-      <button id="btnAddAsset" class="btn btn-primary justify-center" data-act="addAsset"><i data-lucide="plus"></i>Add New Asset</button>
+      <div class="flex flex-wrap gap-2"><button class="btn btn-ghost justify-center" data-act="labelsFiltered"><i data-lucide="qr-code"></i>QR labels</button>
+      <button id="btnAddAsset" class="btn btn-primary justify-center" data-act="addAsset"><i data-lucide="plus"></i>Add New Asset</button></div>
     </div>
     <div class="card overflow-x-auto">
       <table class="data-table w-full text-left text-sm border-collapse min-w-max">
@@ -315,6 +318,52 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     </div>
     <div id="logFooter" class="text-sm text-slate-500"></div>
   </section>
+  <section id="sec-opname" class="hidden space-y-4">
+    <div id="opList" class="space-y-4">
+      <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-slate-500">Count your assets in the field and compare the result with the system.</p>
+        <button class="btn btn-primary" data-act="newOpname"><i data-lucide="plus"></i>New stock opname</button>
+      </div>
+      <div class="card overflow-x-auto">
+        <table class="data-table w-full text-left text-sm min-w-max">
+          <thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-3">Name</th><th class="p-3">Branch</th><th class="p-3">Status</th><th class="p-3">Found</th><th class="p-3">Created</th><th class="p-3">By</th></tr></thead>
+          <tbody id="opBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+      <p id="opNote" class="text-xs text-rose-600"></p>
+    </div>
+    <div id="opDetail" class="hidden space-y-4">
+      <div class="card p-4 space-y-3">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div><button class="btn btn-ghost" style="padding:.2rem .6rem;margin-bottom:8px" data-act="opBack"><i data-lucide="arrow-left"></i>All stock opnames</button>
+            <div class="flex items-center gap-2 flex-wrap"><h2 id="opTitle" class="font-bold" style="font-size:18px"></h2><span id="opStatus" class="badge"></span></div>
+            <p id="opMeta" class="text-xs text-slate-500" style="margin-top:2px"></p></div>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn btn-ghost" data-act="opExport"><i data-lucide="file-spreadsheet"></i>Export Excel</button>
+            <button id="btnOpClose" class="btn btn-primary" data-act="opCloseSession"><i data-lucide="check-check"></i>Close stock opname</button>
+            <button class="btn btn-danger admin-only" data-act="opDelete"><i data-lucide="trash-2"></i>Delete</button>
+          </div>
+        </div>
+        <div><div class="flex justify-between text-xs text-slate-500" style="margin-bottom:4px"><span>Progress</span><b id="opPct"></b></div>
+          <div class="htrack"><div id="opBar" style="height:100%;width:0;background:var(--brand);border-radius:99px"></div></div></div>
+        <div id="opScanBox" class="flex flex-wrap items-center gap-2">
+          <button class="btn btn-primary" data-act="opCamera"><i data-lucide="scan-line"></i>Scan with camera</button>
+          <input id="opCode" class="input" style="max-width:340px" placeholder="Scan or type an asset code, then press Enter" autocomplete="off">
+          <span id="opLast" class="text-sm text-slate-500"></span>
+        </div>
+      </div>
+      <div class="card p-3 flex flex-wrap items-center gap-2"><div id="opChips" class="flex flex-wrap gap-2"></div>
+        <input id="opSearch" class="input" style="max-width:240px;margin-left:auto" placeholder="Search code or name..."></div>
+      <div class="card overflow-x-auto">
+        <table class="data-table w-full text-left text-sm min-w-max">
+          <thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-2.5">Asset Code</th><th class="p-2.5">Asset Name</th><th class="p-2.5">System Branch</th><th class="p-2.5">Result</th><th class="p-2.5">Scanned</th><th class="p-2.5 text-center">Actions</th></tr></thead>
+          <tbody id="opItems" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+      <p id="opMore" class="text-xs text-slate-400"></p>
+    </div>
+  </section>
+
   <section id="sec-users" class="hidden space-y-4">
     <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-2">
@@ -353,6 +402,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   <span class="text-sm font-medium" id="bulkCount">0 selected</span>
   <div class="h-4 w-px bg-slate-700"></div>
   <select id="bulkStatus" class="bg-slate-800 border border-slate-600 text-sm rounded-lg px-2 py-1.5"></select>
+  <button class="btn btn-primary" style="padding:.35rem .8rem" data-act="labelsSelected"><i data-lucide="qr-code"></i>QR labels</button>
   <button id="btnBulkDelete" class="btn btn-danger admin-only" style="padding:.35rem .8rem" data-act="bulkDelete"><i data-lucide="trash-2"></i>Delete</button>
   <button class="text-slate-400 hover:text-white" data-act="bulkClear" title="Clear selection"><i data-lucide="x" class="w-4 h-4"></i></button>
 </div>
@@ -556,6 +606,37 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       <button class="btn btn-ghost" id="pwCancel" data-act="closeModal" data-id="modalPw">Cancel</button>
       <button class="btn btn-primary" id="pwSave" data-act="savePw">Save new password</button>
     </div>
+  </div>
+</div>
+
+<div id="modalLabels" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold" id="modalLabelsTitle">Print QR labels</h3>
+      <button data-act="closeModal" data-id="modalLabels" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 overflow-y-auto grow space-y-3"><p id="lbCount" class="text-sm text-slate-600"></p><div><label class="lbl">Label size</label><select id="lbSize" class="input"><option value="5x3">5 × 3 cm (QR + code + name)</option><option value="3x3">3 × 3 cm (small sticker)</option><option value="7x4">7 × 4 cm (large)</option><option value="custom">Custom size…</option></select></div><div id="lbCustom" class="hidden grid grid-cols-2 gap-3"><div><label class="lbl">Width (cm)</label><input id="lbW" type="number" step="0.1" min="2" class="input" value="5"></div><div><label class="lbl">Height (cm)</label><input id="lbH" type="number" step="0.1" min="2" class="input" value="3"></div></div><div><label class="lbl">Layout</label><select id="lbLayout" class="input"><option value="sheet">A4 sheet (many labels per page, with cut lines)</option><option value="single">One label per page (label printer)</option></select></div><label class="flex items-center gap-2 text-sm"><input id="lbName" type="checkbox" checked> Show asset name</label><label class="flex items-center gap-2 text-sm"><input id="lbBranch" type="checkbox" checked> Show branch</label><p class="text-xs text-slate-400">Print the PDF at 100% (actual size). If the labels turn out too big or small, come back here and choose another size.</p></div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalLabels">Cancel</button><button class="btn btn-primary" data-act="makeLabels"><i data-lucide="download"></i>Download PDF</button></div>
+  </div>
+</div>
+
+<div id="modalScan" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-[60] p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[92vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold" id="scanTitle">Scan QR code</h3>
+      <button data-act="closeModal" data-id="modalScan" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-4 space-y-3 overflow-y-auto">
+      <div style="background:#0b1220;border-radius:10px;overflow:hidden;aspect-ratio:4/3"><video id="scanVideo" playsinline muted style="width:100%;height:100%;object-fit:cover"></video></div>
+      <p id="scanStatus" class="text-sm text-slate-600" style="min-height:2.6em"></p>
+      <div class="flex gap-2"><input id="scanManual" class="input" placeholder="Or type the asset code" autocomplete="off"><button class="btn btn-ghost" data-act="scanManualGo">OK</button></div>
+    </div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end"><button class="btn btn-ghost" data-act="closeModal" data-id="modalScan">Done</button></div>
+  </div>
+</div>
+
+<div id="modalOpnameNew" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold" id="modalOpnameNewTitle">New stock opname</h3>
+      <button data-act="closeModal" data-id="modalOpnameNew" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 overflow-y-auto grow space-y-3"><div><label class="lbl">Name</label><input id="opnName" class="input"></div><div><label class="lbl">Which assets will be counted?</label><select id="opnBranch" class="input"></select></div><p class="text-xs text-slate-400">The list of assets to count is fixed when you create it. Assets added later will not appear in this count.</p></div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalOpnameNew">Cancel</button><button class="btn btn-primary" id="opnSave" data-act="saveOpname">Start counting</button></div>
   </div>
 </div>
 
@@ -863,7 +944,7 @@ function toast(msg, type = 'info') {
   setTimeout(() => el.remove(), type === 'error' ? 6000 : 3500);
 }
 function openModal(id) { $(id).classList.remove('hidden'); icons(); }
-function closeModal(id) { if (id === 'modalPw' && pwForced) return; $(id).classList.add('hidden'); }
+function closeModal(id) { if (id === 'modalPw' && pwForced) return; if (id === 'modalScan') stopScanner(); $(id).classList.add('hidden'); }
 function confirmDialog(msg, { title = 'Please confirm', ok = 'Confirm', danger = true } = {}) {
   $('confirmTitle').textContent = title;
   $('confirmMsg').textContent = msg;
@@ -1423,7 +1504,7 @@ function renderLogs() {
 }
 
 function updateBulkBar() { const bar = $('bulkBar'); if (sel.size) { $('bulkCount').textContent = `${sel.size} selected`; bar.classList.remove('hidden'); bar.classList.add('flex'); } else { bar.classList.add('hidden'); bar.classList.remove('flex'); } }
-function switchTab(t) { ['dashboard', 'master', 'mutasi', 'users', 'owner'].forEach(x => { $('sec-' + x).classList.toggle('hidden', x !== t); $('tab-' + x).classList.toggle('active', x === t); }); window.scrollTo({ top:0 }); if ($('pageTitle')) $('pageTitle').textContent = { dashboard:'Dashboard', master:'Assets', mutasi:'Mutation & Service Logs', users:'Users', owner:'Owner Panel' }[t]; document.body.classList.remove('nav-open'); if (t === 'owner') loadOwner(); if (t === 'users') loadUsers(); }
+function switchTab(t) { ['dashboard', 'master', 'mutasi', 'opname', 'users', 'owner'].forEach(x => { $('sec-' + x).classList.toggle('hidden', x !== t); $('tab-' + x).classList.toggle('active', x === t); }); window.scrollTo({ top:0 }); if ($('pageTitle')) $('pageTitle').textContent = { dashboard:'Dashboard', master:'Assets', mutasi:'Mutation & Service Logs', opname:'Stock Opname', users:'Users', owner:'Owner Panel' }[t]; document.body.classList.remove('nav-open'); if (t === 'owner') loadOwner(); if (t === 'users') loadUsers(); if (t !== 'opname') { clearInterval(opTimer); opTimer = null; } if (t === 'opname' && !curOp) loadOpnames(); }
 
 function genCode() {
   if ($('editOrig').value) return;
@@ -1497,7 +1578,7 @@ function viewAsset(kode) {
   const logs = mutasiData.filter(m => m.kode === kode).sort((x, y) => String(y.tgl).localeCompare(String(x.tgl)));
   const row = (l, v) => `<div class="flex justify-between gap-4 py-1.5 border-b border-slate-100"><span class="text-slate-500">${l}</span><span class="font-medium text-right">${v}</span></div>`;
   $('detailBody').innerHTML = `<div><p class="font-mono font-bold text-blue-600">${esc(a.kode)}</p><h4 class="text-lg font-bold text-slate-900">${esc(a.nama)}</h4><div class="flex gap-2 mt-2">${badge(a.status, STATUS_CLS)}${badge(a.kondisi, COND_CLS)}</div></div><div>${row('Category', esc(a.kategori))}${row('Branch', esc(a.cabang))}${row('Location', esc(a.lokasi) || '-')}${row('Asset value', fmtIDR(a.harga))}${row('PIC', esc(a.pic) || '-')}${row('S/N', esc(a.sn) || '-')}${row('Next maintenance', dueHtml(a.servis, 'service', a.rm ? a.rmRemind : 30))}</div><div><p class="text-xs font-semibold text-slate-500 uppercase mb-2">History (${logs.length})</p>${logs.length ? logs.map(m => `<div class="py-1 border-b border-slate-100 text-xs">${fmtDate(m.tgl)} • <b>${esc(m.tipe)}</b> (${esc(m.status)}) — ${esc(m.tujuan) || '-'}</div>`).join('') : '<p class="text-slate-400 text-xs">No history yet.</p>'}</div>`;
-  $('detailFooter').innerHTML = `${a.rm ? `<button class="btn btn-ghost" data-act="doneRM" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Maintenance done</button>` : ''}<button class="btn btn-ghost" data-act="addLogFor" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Add log</button><button class="btn btn-primary" data-act="editAsset" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Edit</button>`;
+  $('detailFooter').innerHTML = `${a.rm ? `<button class="btn btn-ghost" data-act="doneRM" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Maintenance done</button>` : ''}<button class="btn btn-ghost" data-act="addLogFor" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Add log</button><button class="btn btn-ghost" data-act="labelOne" data-id="${esc(a.kode)}">QR label</button><button class="btn btn-primary" data-act="editAsset" data-id="${esc(a.kode)}" ${!canWrite() ? 'disabled' : ''}>Edit</button>`;
   openModal('modalDetail');
 }
 
@@ -1992,7 +2073,7 @@ function commitImport() {
 function closeMenus() { document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden')); }
 function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden'); closeMenus(); if (was) m.classList.remove('hidden'); }
 const I18N={"Dashboard":"Dashboard","Asset data":"Data aset","Assets":"Aset","Branches":"Cabang","Categories":"Kategori","Transactions":"Transaksi","Mutation & Service Logs":"Mutasi & Riwayat Servis","Import and export":"Impor dan ekspor","Import from Excel / CSV":"Impor dari Excel / CSV","Export to Excel":"Ekspor ke Excel","Export to PDF":"Ekspor ke PDF","Download import template":"Unduh template impor","System":"Sistem","Sync with Supabase":"Sinkronkan dengan Supabase","Deleted / Restore":"Terhapus / Pulihkan","Backup all data (.json)":"Cadangkan semua data (.json)","Restore from backup":"Pulihkan dari cadangan","Load sample data":"Muat data contoh","Clear all data":"Hapus semua data","Asset Management System":"Sistem Manajemen Aset","Asset Management":"Manajemen Aset","Logout":"Keluar","Sign out":"Keluar","Menu":"Menu","Local Mode":"Mode Lokal","Signed Out":"Belum masuk","Supabase Connected":"Terhubung ke Supabase","Supabase Offline":"Supabase tidak terjangkau","Syncing...":"Menyinkronkan…","Syncing…":"Menyinkronkan…","Saving…":"Menyimpan…","Not saved — will retry":"Belum tersimpan, akan dicoba lagi","GUEST":"Tamu","Operational asset tracking":"Pencatatan aset operasional","Sign in":"Masuk","Sign In":"Masuk","Password":"Kata sandi","Use the account given to you by your administrator.":"Gunakan akun yang diberikan oleh administrator Anda.","Every office asset, recorded and maintained.":"Setiap aset kantor, tercatat dan terawat.","One record for each unit, with its full history.":"Satu catatan untuk setiap unit, lengkap dengan riwayatnya.","Routine maintenance reminders before they become overdue.":"Pengingat perawatan rutin sebelum jadwalnya terlewat.","Branch transfers and service logs in one place.":"Mutasi antar cabang dan riwayat servis dalam satu tempat.","Signed in as {} ({})":"Masuk sebagai {} ({})","Signed out.":"Anda sudah keluar.","Sign in first.":"Silakan masuk terlebih dahulu.","Supabase client not initialized.":"Koneksi Supabase belum siap.","Total Units":"Total Unit","Total Asset Value":"Total Nilai Aset","Excludes disposed assets":"Tidak termasuk aset yang sudah afkir","Active":"Aktif","Ready":"Siap","Maintenance Due":"Perawatan Jatuh Tempo","{} overdue":"{} terlambat","Repair / Transit":"Perbaikan / Transit","Under repair or in transit":"Sedang diperbaiki atau dalam perjalanan","Open Logs":"Log Terbuka","Service / transfer in progress":"Servis / mutasi sedang berjalan","Maintenance {}":"Perawatan {}","Total cost of logs this year":"Total biaya log tahun ini","Routine Assets":"Aset Rutin","With a maintenance schedule":"Punya jadwal perawatan","Maintenance Schedule":"Jadwal Perawatan","View all due":"Lihat semua yang jatuh tempo","Needs Attention":"Perlu Perhatian","Status Breakdown":"Rincian Status","Units by Branch":"Unit per Cabang","Units by Category":"Unit per Kategori","Maintenance cost per month":"Biaya perawatan per bulan","Recent Activity":"Aktivitas Terbaru","units":"unit","{} units":"{} unit","No data yet.":"Belum ada data.","All clear.":"Semua aman.","No logs yet.":"Belum ada log.","No maintenance cost recorded this year.":"Belum ada biaya perawatan tercatat tahun ini.","No routine maintenance set up yet.":"Belum ada perawatan rutin yang diatur.","Nothing due in the next 60 days ({} routine units tracked).":"Tidak ada yang jatuh tempo dalam 60 hari ke depan ({} unit rutin dipantau).","Log done":"Catat selesai","Overdue {}d":"Telat {} hari","Due in {}d":"{} hari lagi","Due today":"Hari ini","In {}d":"{} hari lagi","Service overdue":"Servis terlambat","Service due":"Servis segera","Warranty ending":"Garansi berakhir","Major damage":"Rusak berat","Open log":"Log terbuka","{} [{}] — overdue {}d":"{} [{}] — terlambat {} hari","{} [{}] — due in {}d":"{} [{}] — jatuh tempo {} hari lagi","{} [{}] — ends in {}d":"{} [{}] — berakhir {} hari lagi","{} [{}] marked Active":"{} [{}] masih berstatus Aktif","{}: {} [{}]":"{}: {} [{}]","Every {} {}":"Setiap {} {}","month":"bulan","months":"bulan","year":"tahun","years":"tahun","week":"minggu","weeks":"minggu","day":"hari","days":"hari","{} (overdue)":"{} (terlambat)","{} (expired)":"{} (kedaluwarsa)","{} ({}d)":"{} ({} hari)","(overdue)":"(terlambat)","(expired)":"(kedaluwarsa)","Under Repair":"Dalam Perbaikan","In Transit":"Dalam Perjalanan","Disposed":"Afkir","Excellent":"Sangat Baik","Good":"Baik","Minor Damage":"Rusak Ringan","Major Damage":"Rusak Berat","In Progress":"Berjalan","Completed":"Selesai","Cancelled":"Dibatalkan","Service / Repair":"Servis / Perbaikan","Branch Transfer":"Mutasi Cabang","Routine Maintenance":"Perawatan Rutin","Disposed / Written Off":"Afkir / Dihapusbukukan","Search name, code, S/N, PIC...":"Cari nama, kode, S/N, PIC...","All Branches":"Semua Cabang","All Categories":"Semua Kategori","All Statuses":"Semua Status","All Maintenance":"Semua Perawatan","Routine only":"Hanya rutin","Due / overdue":"Jatuh tempo / terlambat","Clear filters":"Hapus filter","Columns":"Kolom","Display columns":"Tampilkan kolom","Add New Asset":"Tambah Aset Baru","No.":"No.","Asset Code":"Kode Aset","Asset Name":"Nama Aset","Category":"Kategori","Branch":"Cabang","Location / Room":"Lokasi / Ruangan","Location":"Lokasi","Qty":"Jml","Unit Price":"Harga Satuan","Asset Value":"Nilai Aset","Asset value":"Nilai aset","Condition":"Kondisi","Status":"Status","Routine":"Rutin","Next Maintenance":"Perawatan Berikutnya","Next maintenance":"Perawatan berikutnya","Warranty":"Garansi","Actions":"Aksi","Serial Number":"Nomor Seri","Code":"Kode","Name":"Nama","Value":"Nilai","Showing":"Menampilkan","of":"dari","units • Total value {}":"unit • Total nilai {}","unit • Total value {}":"unit • Total nilai {}","Page {} / {}":"Halaman {} / {}","No units found.":"Tidak ada unit yang ditemukan.","Set status…":"Ubah status…","{} selected":"{} dipilih","Delete":"Hapus","Edit":"Ubah","View":"Lihat","Clear selection":"Batalkan pilihan","Close":"Tutup","Cancel":"Batal","Confirm":"Konfirmasi","Delete all":"Hapus semua","Add log":"Tambah log","Maintenance done":"Perawatan selesai","Asset Details":"Detail Aset","History ({})":"Riwayat ({})","No history yet.":"Belum ada riwayat.","Log ID":"ID Log","Asset":"Aset","Date":"Tanggal","Action Type":"Jenis Tindakan","Origin":"Asal","Destination / Vendor":"Tujuan / Vendor","Cost":"Biaya","Notes":"Catatan","Search code, name, vendor...":"Cari kode, nama, vendor...","All Types":"Semua Jenis","Add Log Entry":"Tambah Log","No log entries":"Belum ada entri log","entries • Total cost (excl. cancelled):":"entri • Total biaya (tidak termasuk yang dibatalkan):","Mutation, service and routine maintenance history":"Riwayat mutasi, servis, dan perawatan rutin","Edit Asset Unit":"Ubah Unit Aset","Branch *":"Cabang *","Category *":"Kategori *","Asset Code (auto, 1 code = 1 unit)":"Kode Aset (otomatis, 1 kode = 1 unit)","Asset Name *":"Nama Aset *","Units to Create *":"Jumlah Unit yang Dibuat *","Unit Price (IDR)":"Harga Satuan (IDR)","Acquisition Date":"Tanggal Perolehan","PIC (Person in Charge)":"PIC (Penanggung Jawab)","Serial Number (S/N)":"Nomor Seri (S/N)","Warranty Until":"Garansi Sampai","Next Maintenance Due":"Jatuh Tempo Perawatan Berikutnya","Specifications / Notes":"Spesifikasi / Catatan","Save Asset":"Simpan Aset","This asset needs routine maintenance":"Aset ini memerlukan perawatan rutin","Repeat every":"Ulangi setiap","Last maintenance":"Perawatan terakhir","Remind (days before)":"Ingatkan (hari sebelumnya)","Months":"Bulan","Days":"Hari","Weeks":"Minggu","Years":"Tahun","e.g. ThinkPad X1 Carbon":"mis. ThinkPad X1 Carbon","e.g. John Doe":"mis. Budi Santoso","Server Room / Floor 2":"Ruang Server / Lantai 2","Hardware specs or notes...":"Spesifikasi atau catatan...","1 code = 1 unit:":"1 kode = 1 unit:","Creates":"Membuat","{} separate codes":"{} kode terpisah","starting from":"mulai dari","1 is automatically split into 1 code = 1 unit.":"1 otomatis dipecah menjadi 1 kode = 1 unit.","Add Mutation / Service Log":"Tambah Log Mutasi / Servis","Edit Log Entry":"Ubah Log","Asset Code *":"Kode Aset *","Log Date *":"Tanggal Log *","Action Type *":"Jenis Tindakan *","Origin / Current Branch":"Asal / Cabang Saat Ini","Destination / Service Vendor":"Tujuan / Vendor Servis","Cost (IDR)":"Biaya (IDR)","Log Status":"Status Log","Update the asset automatically":"Perbarui aset secara otomatis","(status / branch) based on this log.":"(status / cabang) berdasarkan log ini.","Save Log":"Simpan Log","Type to search...":"Ketik untuk mencari...","Manage":"Kelola","Manage Branches":"Kelola Cabang","Manage Categories":"Kelola Kategori","Branch name":"Nama cabang","Category name":"Nama kategori","Add":"Tambah","In use":"Dipakai","CODE":"KODE","Fill code and name.":"Isi kode dan nama.","Duplicate code or name.":"Kode atau nama sudah ada.","Item is still in use.":"Item ini masih dipakai.","Delete item":"Hapus item","Export":"Ekspor","Everything":"Semuanya","Summary + Assets + Logs":"Ringkasan + Aset + Log","Dashboard Summary":"Ringkasan Dashboard","KPIs, per branch, per category":"KPI, per cabang, per kategori","Asset Data":"Data Aset","Full asset listing":"Daftar aset lengkap","Maintenance and transfer history":"Riwayat perawatan dan mutasi","Only export assets matching the current filter / search":"Ekspor hanya aset sesuai filter / pencarian saat ini","Excel file downloaded.":"File Excel sudah diunduh.","PDF downloaded.":"PDF sudah diunduh.","Drop your file here, or click to browse":"Letakkan file di sini, atau klik untuk memilih","No file selected":"Belum ada file dipilih","Download template":"Unduh template","If an asset code already exists":"Jika kode aset sudah ada","Skip the row":"Lewati baris","Update the existing asset (overwrites it with the file's values)":"Perbarui aset yang ada (ditimpa dengan isi file)","Import as a new asset (new code)":"Impor sebagai aset baru (kode baru)","Unknown branches / categories":"Cabang / kategori yang tidak dikenal","Create them automatically":"Buat otomatis","If unchecked, rows with an unknown branch or category are rejected.":"Jika tidak dicentang, baris dengan cabang atau kategori tidak dikenal akan ditolak.","Type":"Jenis","Row":"Baris","Result":"Hasil","Import":"Impor","Nothing to import":"Tidak ada yang diimpor","Qty ignored on update (1 code = 1 unit)":"Jml diabaikan saat update (1 kode = 1 unit)","Code already exists":"Kode sudah ada","Code auto-generated":"Kode dibuat otomatis","Duplicate code inside the file":"Kode ganda di dalam file","Duplicate code → new code assigned":"Kode ganda → diberi kode baru","Same log already exists":"Log yang sama sudah ada","Asset name is empty":"Nama aset kosong","Asset code is empty":"Kode aset kosong","Date missing or not recognised":"Tanggal kosong atau tidak dikenali","Acquisition date not recognised (left blank)":"Tanggal perolehan tidak dikenali (dikosongkan)","Qty invalid → 1":"Jml tidak valid → 1","No branch available":"Tidak ada cabang","No category available":"Tidak ada kategori","Unknown branch \"{}\"":"Cabang \"{}\" tidak dikenal","Unknown category \"{}\"":"Kategori \"{}\" tidak dikenal","Branch empty → {}":"Cabang kosong → {}","Category empty → {}":"Kategori kosong → {}","Asset code {} not found":"Kode aset {} tidak ditemukan","Unknown condition \"{}\" → Good":"Kondisi \"{}\" tidak dikenal → Baik","Unknown status \"{}\" → Active":"Status \"{}\" tidak dikenal → Aktif","Unknown status \"{}\" → Completed":"Status \"{}\" tidak dikenal → Selesai","Unknown action type \"{}\" → Service / Repair":"Jenis tindakan \"{}\" tidak dikenal → Servis / Perbaikan","Unknown interval unit \"{}\" → Months":"Satuan interval \"{}\" tidak dikenal → Bulan","Routine maintenance needs an interval → routine turned off":"Perawatan rutin butuh interval → rutin dimatikan","Last maintenance date not recognised":"Tanggal perawatan terakhir tidak dikenali","Next maintenance date not recognised":"Tanggal perawatan berikutnya tidak dikenali","Qty {} → {} separate units ({} … {})":"Jml {} → {} unit terpisah ({} … {})","Import {} record{}":"Impor {} data","Import {} units":"Impor {} unit","Showing the first 100 of {} rows (errors first). All valid rows will be imported.":"Menampilkan 100 baris pertama dari {} baris (error lebih dulu). Semua baris yang valid akan diimpor.","Import complete: {} new, {} updated assets, {} logs.":"Impor selesai: {} baru, {} aset diperbarui, {} log.","Could not read the file.":"File tidak bisa dibaca.","Could not read this file:":"File ini tidak bisa dibaca:","No asset or log rows were found. Check the column headers (download the template for reference).":"Tidak ada baris aset atau log. Periksa judul kolom (unduh template sebagai acuan).","Excel library could not be loaded. Check your internet connection.":"Library Excel gagal dimuat. Periksa koneksi internet Anda.","Excel reader could not be loaded. Check your internet connection.":"Pembaca Excel gagal dimuat. Periksa koneksi internet Anda.","Excel library could not be loaded (check your internet). Exporting CSV instead.":"Library Excel gagal dimuat (periksa internet). Mengekspor CSV sebagai gantinya.","PDF library is still loading or blocked. Please try again.":"Library PDF masih dimuat atau diblokir. Silakan coba lagi.","Metric":"Metrik","Summary":"Ringkasan","Asset Summary":"Ringkasan Aset","Generated":"Dibuat","Deleted Records & Restore (Super Admin)":"Data Terhapus & Pemulihan (Super Admin)","Archived snapshots of deleted items":"Arsip data yang sudah dihapus","Table":"Tabel","Key":"Kunci","Deleted By":"Dihapus Oleh","Deleted At":"Dihapus Pada","Archived":"Diarsipkan","Restored":"Dipulihkan","Restore":"Pulihkan","Loading archived records...":"Memuat arsip...","No archived records.":"Tidak ada arsip.","Record not found.":"Data tidak ditemukan.","Restored {}.":"{} dipulihkan.","Failed to archive record before delete:":"Gagal mengarsipkan data sebelum dihapus:","Please confirm":"Mohon konfirmasi","Delete asset":"Hapus aset","Delete assets":"Hapus aset","Delete log":"Hapus log","Replace":"Ganti","Sample data":"Data contoh","Restore backup":"Pulihkan cadangan","Clear everything":"Hapus semuanya","Upload local data":"Unggah data lokal","Upload":"Unggah","Archive & delete \"{}\"?":"Arsipkan & hapus \"{}\"?","Archive & delete {} selected units?":"Arsipkan & hapus {} unit terpilih?","Archive & delete asset {}?":"Arsipkan & hapus aset {}?","Its log history is archived too. You can restore both from Deleted / Restore.":"Riwayat lognya ikut diarsipkan. Keduanya bisa dipulihkan dari Terhapus / Pulihkan.","Archive & delete log {}?":"Arsipkan & hapus log {}?","Delete ALL assets and logs for everyone?":"Hapus SEMUA aset dan log untuk semua orang?","A backup file is downloaded first. This cannot be undone from the app.":"File cadangan diunduh lebih dulu. Ini tidak bisa dibatalkan dari aplikasi.","Replace ALL current data (for everyone) with sample data?":"Ganti SEMUA data saat ini (untuk semua orang) dengan data contoh?","A backup of the current data is downloaded first.":"Cadangan data saat ini diunduh lebih dulu.","Restore this backup ({} assets)?":"Pulihkan cadangan ini ({} aset)?","This REPLACES all current data for everyone. A backup of the current data is downloaded first.":"Ini MENGGANTI semua data saat ini untuk semua orang. Cadangan data saat ini diunduh lebih dulu.","The cloud database is empty, but this browser holds {} assets.":"Database cloud masih kosong, tetapi browser ini menyimpan {} aset.","Upload them to the cloud now?":"Unggah ke cloud sekarang?","(Cancel = clear the local copy and start empty.)":"(Batal = hapus salinan lokal dan mulai dari kosong.)","Asset {} archived & deleted.":"Aset {} diarsipkan & dihapus.","Asset {} added.":"Aset {} ditambahkan.","Asset updated.":"Aset diperbarui.","Log saved.":"Log disimpan.","Log archived & deleted.":"Log diarsipkan & dihapus.","Selected units archived & deleted.":"Unit terpilih diarsipkan & dihapus.","Status updated to {}.":"Status diubah menjadi {}.","Backup restored.":"Cadangan dipulihkan.","Invalid backup file":"File cadangan tidak valid","Asset code not found.":"Kode aset tidak ditemukan.","Up to date with Supabase.":"Sudah sinkron dengan Supabase.","Could not reach Supabase.":"Tidak bisa terhubung ke Supabase.","Supabase connection issue:":"Masalah koneksi Supabase:","Could not save to browser storage.":"Tidak bisa menyimpan ke penyimpanan browser.","Could not save to Supabase:":"Tidak bisa menyimpan ke Supabase:","Read-only role.":"Peran hanya-lihat.","Read-only role: cannot modify assets.":"Peran hanya-lihat: tidak bisa mengubah aset.","Super Admin only.":"Hanya untuk Super Admin.","Only Super Admin can delete assets.":"Hanya Super Admin yang bisa menghapus aset.","Only Super Admin can delete branches/categories.":"Hanya Super Admin yang bisa menghapus cabang/kategori.","Only Super Admin can delete logs.":"Hanya Super Admin yang bisa menghapus log.","Only Super Admin can load sample data.":"Hanya Super Admin yang bisa memuat data contoh.","Only Super Admin can restore a backup.":"Hanya Super Admin yang bisa memulihkan cadangan.","Some changes were not allowed for your role and were reverted.":"Sebagian perubahan tidak diizinkan untuk peran Anda dan dibatalkan.","Unnamed asset":"Aset tanpa nama","Total asset value":"Total nilai aset","(Unassigned)":"(Belum ditentukan)","Action":"Tindakan","Asset Logs":"Log Aset","By Branch":"Per Cabang","By Category":"Per Kategori","Email":"Email","Log":"Log","Logs":"Log","Open logs":"Log terbuka","Under repair / in transit":"Dalam perbaikan / transit","Routine-maintenance assets":"Aset perawatan rutin","Valuation":"Valuasi","Units":"Unit","Yes":"Ya","Interval":"Interval"};
-Object.assign(I18N,{"For your security, please set your own password before you continue. Use the temporary password you were given as the current password.": "Demi keamanan, silakan buat kata sandi Anda sendiri sebelum melanjutkan. Gunakan kata sandi sementara yang Anda terima sebagai kata sandi saat ini.", "Sign out": "Keluar","Change password": "Ubah kata sandi", "Current password": "Kata sandi saat ini", "New password (min. 8 characters)": "Kata sandi baru (min. 8 karakter)", "Enter your current password.": "Isi kata sandi Anda saat ini.", "New password must be at least 8 characters.": "Kata sandi baru minimal 8 karakter.", "The new password must be different from the current one.": "Kata sandi baru harus berbeda dari yang lama.", "Current password is incorrect.": "Kata sandi saat ini salah.", "Cancel": "Batal", "After signing in, they can set their own password from the menu: Change password.": "Setelah masuk, mereka bisa mengganti kata sandinya sendiri lewat menu: Ubah kata sandi.","Email: {}":"Email: {}","Password: {}":"Kata sandi: {}","Administration": "Administrasi", "Users": "Pengguna", "Owner Panel": "Panel Pemilik", "People who can sign in to this company.": "Orang yang bisa masuk ke perusahaan ini.", "Add user": "Tambah pengguna", "Added": "Ditambahkan", "Actions": "Aksi", "Super Admin can do everything, Staff can add and edit, Viewer can only look. Only Super Admin can delete.": "Super Admin bisa semuanya, Staff bisa menambah dan mengubah, Viewer hanya bisa melihat. Hanya Super Admin yang bisa menghapus.", "All companies using this system. Only you (the owner) can see this page.": "Semua perusahaan yang memakai sistem ini. Hanya Anda (pemilik) yang bisa melihat halaman ini.", "New company": "Perusahaan baru", "Company": "Perusahaan", "Plan": "Paket", "Valid until": "Berlaku sampai", "Edit company": "Ubah perusahaan", "Company name *": "Nama perusahaan *", "Admin email *": "Email admin *", "Temporary password * (min. 8 characters)": "Kata sandi sementara * (min. 8 karakter)", "Generate": "Buat otomatis", "Trial": "Trial", "Active (paid)": "Aktif (berbayar)", "Suspended": "Ditangguhkan", "Trial days (from today)": "Lama trial (hari, mulai hari ini)", "Trial ends on": "Trial berakhir pada", "Active until (empty = no end date)": "Aktif sampai (kosong = tanpa batas)", "Max assets (empty = unlimited)": "Maks. aset (kosong = tanpa batas)", "Max users (empty = unlimited)": "Maks. pengguna (kosong = tanpa batas)", "Email *": "Email *", "Role": "Peran", "Reset password": "Atur ulang kata sandi", "Remove": "Hapus", "Remove user": "Hapus pengguna", "Save": "Simpan", "Copy": "Salin", "Super Admin": "Super Admin", "Staff": "Staff", "Viewer": "Viewer", "Owner": "Pemilik", "(you)": "(Anda)", "Trial ended": "Trial berakhir", "Expired": "Kedaluwarsa", "No end date": "Tanpa batas waktu", "No companies yet.": "Belum ada perusahaan.", "No users.": "Belum ada pengguna.", "No company.": "Tidak ada perusahaan.", "Company created.": "Perusahaan dibuat.", "Company updated.": "Perusahaan diperbarui.", "User created.": "Pengguna dibuat.", "Password changed.": "Kata sandi diubah.", "User removed.": "Pengguna dihapus.", "Role updated.": "Peran diperbarui.", "Copied.": "Tersalin.", "Company name is required.": "Nama perusahaan wajib diisi.", "Remove {}? They will no longer be able to sign in.": "Hapus {}? Mereka tidak akan bisa masuk lagi.", "Could not copy. Select the text and copy it manually.": "Tidak bisa menyalin. Blok teksnya dan salin manual.", "The server function \"owner-admin\" is not installed yet.": "Fungsi server \"owner-admin\" belum dipasang.", "Done.": "Selesai.", "Share these sign-in details with the user (the password is shown only now):": "Bagikan data masuk ini ke pengguna (kata sandi hanya ditampilkan sekarang):", "Email:": "Email:", "Password:": "Kata sandi:", "Add user ": "Tambah pengguna", "Edit": "Ubah", "Close": "Tutup","Forgot password?":"Lupa kata sandi?","Enter your email above first, then click Forgot password.":"Isi email di atas dulu, lalu klik Lupa kata sandi.","If this email is registered, a password reset link has been sent. Check your inbox.":"Jika email ini terdaftar, tautan untuk mengatur ulang kata sandi sudah dikirim. Periksa kotak masuk Anda.","Set a new password":"Buat kata sandi baru","Choose a new password for your account.":"Pilih kata sandi baru untuk akun Anda.","New password":"Kata sandi baru","Repeat new password":"Ulangi kata sandi baru","Save new password":"Simpan kata sandi baru","Passwords do not match.":"Kata sandi tidak sama.","Password updated.":"Kata sandi diperbarui.","Trial: {} days left • up to {} assets. Contact the owner to activate your plan.":"Trial: sisa {} hari • maksimal {} aset. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} day left • up to {} assets. Contact the owner to activate your plan.":"Trial: sisa {} hari • maksimal {} aset. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} days left. Contact the owner to activate your plan.":"Trial: sisa {} hari. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} day left. Contact the owner to activate your plan.":"Trial: sisa {} hari. Hubungi pemilik untuk mengaktifkan paket Anda.","Your trial has ended. The account is read-only until the plan is activated.":"Masa trial sudah berakhir. Akun hanya bisa dilihat sampai paket diaktifkan.","This account is suspended and read-only. Please contact the owner.":"Akun ini ditangguhkan dan hanya bisa dilihat. Silakan hubungi pemilik.","Your plan has expired. The account is read-only until it is renewed.":"Paket Anda sudah berakhir. Akun hanya bisa dilihat sampai diperpanjang.","This change is not allowed (plan expired or insufficient role). It was not saved.":"Perubahan ini tidak diizinkan (paket berakhir atau peran tidak cukup). Tidak tersimpan.","your plan allows a maximum of {} assets. Upgrade to add more.":"paket Anda hanya mengizinkan maksimal {} aset. Tingkatkan paket untuk menambah.","Audit Trail":"Jejak Audit","Audit Trail (Super Admin)":"Jejak Audit (Super Admin)","Who changed what, and when. Recorded automatically by the server.":"Siapa mengubah apa dan kapan. Dicatat otomatis oleh server.","Search code, user, field...":"Cari kode, pengguna, kolom...","All actions":"Semua tindakan","Created":"Dibuat","Changed":"Diubah","Deleted":"Dihapus","All data":"Semua data","When":"Waktu","User":"Pengguna","Data":"Data","Details":"Detail","Branch":"Cabang","Loading...":"Memuat...","No audit records.":"Belum ada catatan audit.","Showing {} of the latest {} records.":"Menampilkan {} dari {} catatan terbaru.","Audit trail is not set up yet. Run audit_trail.sql in Supabase first.":"Jejak audit belum diaktifkan. Jalankan audit_trail.sql di Supabase terlebih dahulu.","{} unit":"{} unit"});
+Object.assign(I18N,{"Scan QR": "Pindai QR", "Stock Opname": "Stok Opname", "QR labels": "Label QR", "QR label": "Label QR", "Print QR labels": "Cetak label QR", "Label size": "Ukuran label", "5 × 3 cm (QR + code + name)": "5 × 3 cm (QR + kode + nama)", "3 × 3 cm (small sticker)": "3 × 3 cm (stiker kecil)", "7 × 4 cm (large)": "7 × 4 cm (besar)", "Custom size…": "Ukuran sendiri…", "Width (cm)": "Lebar (cm)", "Height (cm)": "Tinggi (cm)", "Layout": "Tata letak", "A4 sheet (many labels per page, with cut lines)": "Lembar A4 (banyak label per halaman, dengan garis potong)", "One label per page (label printer)": "Satu label per halaman (printer label)", "Show asset name": "Tampilkan nama aset", "Show branch": "Tampilkan cabang", "Download PDF": "Unduh PDF", "Print the PDF at 100% (actual size). If the labels turn out too big or small, come back here and choose another size.": "Cetak PDF dengan skala 100% (ukuran asli). Kalau label terlalu besar atau kecil, kembali ke sini dan pilih ukuran lain.", "{} labels will be created.": "{} label akan dibuat.", "{} label will be created.": "{} label akan dibuat.", "Select at least one asset first.": "Pilih minimal satu aset dulu.", "Labels PDF downloaded.": "PDF label sudah diunduh.", "Label is larger than an A4 sheet.": "Label lebih besar dari lembar A4.", "Scan QR code": "Pindai kode QR", "Scan an asset QR code": "Pindai QR aset", "Scan assets": "Pindai aset", "Starting camera...": "Menyalakan kamera...", "Point the camera at a QR code.": "Arahkan kamera ke kode QR.", "Camera not available. Allow camera access, or type the code below.": "Kamera tidak tersedia. Izinkan akses kamera, atau ketik kodenya di bawah.", "Or type the asset code": "Atau ketik kode aset", "Done": "Selesai", "Asset \"{}\" was not found.": "Aset \"{}\" tidak ditemukan.", "Count your assets in the field and compare the result with the system.": "Hitung aset di lapangan dan cocokkan hasilnya dengan sistem.", "New stock opname": "Stok opname baru", "Found": "Ditemukan", "Created": "Dibuat", "By": "Oleh", "Open": "Berjalan", "Closed": "Selesai", "All branches": "Semua cabang", "No stock opname yet. Click \"New stock opname\" to start counting.": "Belum ada stok opname. Klik \"Stok opname baru\" untuk mulai menghitung.", "Stock opname is not set up yet. Run stock_opname.sql in Supabase first.": "Stok opname belum diaktifkan. Jalankan stock_opname.sql di Supabase terlebih dahulu.", "All stock opnames": "Semua stok opname", "Export Excel": "Ekspor Excel", "Close stock opname": "Tutup stok opname", "Progress": "Kemajuan", "Scan with camera": "Pindai dengan kamera", "Scan or type an asset code, then press Enter": "Pindai atau ketik kode aset, lalu tekan Enter", "Search code or name...": "Cari kode atau nama...", "System Branch": "Cabang Sistem", "Result": "Hasil", "Scanned": "Dipindai", "All": "Semua", "Not scanned yet": "Belum dipindai", "Missing": "Hilang", "Found in another branch": "Ditemukan di cabang lain", "Unknown code": "Kode tidak dikenal", "Mark found": "Tandai ditemukan", "Undo": "Batalkan", "No items.": "Tidak ada item.", "Showing the first {} of {}. Use search or a filter to narrow down.": "Menampilkan {} pertama dari {}. Gunakan pencarian atau filter untuk mempersempit.", "Name": "Nama", "Which assets will be counted?": "Aset mana yang akan dihitung?", "The list of assets to count is fixed when you create it. Assets added later will not appear in this count.": "Daftar aset yang dihitung ditetapkan saat dibuat. Aset yang ditambahkan kemudian tidak masuk hitungan ini.", "Start counting": "Mulai menghitung", "Enter a name for this stock opname.": "Isi nama untuk stok opname ini.", "There are no assets in this scope.": "Tidak ada aset pada cakupan ini.", "Stock opname created with {} assets to count.": "Stok opname dibuat dengan {} aset untuk dihitung.", "{} was already scanned.": "{} sudah dipindai.", "Found: {}": "Ditemukan: {}", "{} belongs to {}, found outside this count.": "{} milik {}, ditemukan di luar hitungan ini.", "Code \"{}\" is not registered.": "Kode \"{}\" tidak terdaftar.", "Close \"{}\"? {} assets not scanned will be marked as missing. Scanning is no longer possible afterwards.": "Tutup \"{}\"? {} aset yang belum dipindai akan ditandai hilang. Setelah itu tidak bisa memindai lagi.", "Close \"{}\"? {} asset not scanned will be marked as missing. Scanning is no longer possible afterwards.": "Tutup \"{}\"? {} aset yang belum dipindai akan ditandai hilang. Setelah itu tidak bisa memindai lagi.", "Close stock opname ": "Tutup stok opname", "Stock opname closed.": "Stok opname ditutup.", "Delete stock opname": "Hapus stok opname", "Delete \"{}\" and all its results?": "Hapus \"{}\" beserta seluruh hasilnya?", "Stock opname deleted.": "Stok opname dihapus.","For your security, please set your own password before you continue. Use the temporary password you were given as the current password.": "Demi keamanan, silakan buat kata sandi Anda sendiri sebelum melanjutkan. Gunakan kata sandi sementara yang Anda terima sebagai kata sandi saat ini.", "Sign out": "Keluar","Change password": "Ubah kata sandi", "Current password": "Kata sandi saat ini", "New password (min. 8 characters)": "Kata sandi baru (min. 8 karakter)", "Enter your current password.": "Isi kata sandi Anda saat ini.", "New password must be at least 8 characters.": "Kata sandi baru minimal 8 karakter.", "The new password must be different from the current one.": "Kata sandi baru harus berbeda dari yang lama.", "Current password is incorrect.": "Kata sandi saat ini salah.", "Cancel": "Batal", "After signing in, they can set their own password from the menu: Change password.": "Setelah masuk, mereka bisa mengganti kata sandinya sendiri lewat menu: Ubah kata sandi.","Email: {}":"Email: {}","Password: {}":"Kata sandi: {}","Administration": "Administrasi", "Users": "Pengguna", "Owner Panel": "Panel Pemilik", "People who can sign in to this company.": "Orang yang bisa masuk ke perusahaan ini.", "Add user": "Tambah pengguna", "Added": "Ditambahkan", "Actions": "Aksi", "Super Admin can do everything, Staff can add and edit, Viewer can only look. Only Super Admin can delete.": "Super Admin bisa semuanya, Staff bisa menambah dan mengubah, Viewer hanya bisa melihat. Hanya Super Admin yang bisa menghapus.", "All companies using this system. Only you (the owner) can see this page.": "Semua perusahaan yang memakai sistem ini. Hanya Anda (pemilik) yang bisa melihat halaman ini.", "New company": "Perusahaan baru", "Company": "Perusahaan", "Plan": "Paket", "Valid until": "Berlaku sampai", "Edit company": "Ubah perusahaan", "Company name *": "Nama perusahaan *", "Admin email *": "Email admin *", "Temporary password * (min. 8 characters)": "Kata sandi sementara * (min. 8 karakter)", "Generate": "Buat otomatis", "Trial": "Trial", "Active (paid)": "Aktif (berbayar)", "Suspended": "Ditangguhkan", "Trial days (from today)": "Lama trial (hari, mulai hari ini)", "Trial ends on": "Trial berakhir pada", "Active until (empty = no end date)": "Aktif sampai (kosong = tanpa batas)", "Max assets (empty = unlimited)": "Maks. aset (kosong = tanpa batas)", "Max users (empty = unlimited)": "Maks. pengguna (kosong = tanpa batas)", "Email *": "Email *", "Role": "Peran", "Reset password": "Atur ulang kata sandi", "Remove": "Hapus", "Remove user": "Hapus pengguna", "Save": "Simpan", "Copy": "Salin", "Super Admin": "Super Admin", "Staff": "Staff", "Viewer": "Viewer", "Owner": "Pemilik", "(you)": "(Anda)", "Trial ended": "Trial berakhir", "Expired": "Kedaluwarsa", "No end date": "Tanpa batas waktu", "No companies yet.": "Belum ada perusahaan.", "No users.": "Belum ada pengguna.", "No company.": "Tidak ada perusahaan.", "Company created.": "Perusahaan dibuat.", "Company updated.": "Perusahaan diperbarui.", "User created.": "Pengguna dibuat.", "Password changed.": "Kata sandi diubah.", "User removed.": "Pengguna dihapus.", "Role updated.": "Peran diperbarui.", "Copied.": "Tersalin.", "Company name is required.": "Nama perusahaan wajib diisi.", "Remove {}? They will no longer be able to sign in.": "Hapus {}? Mereka tidak akan bisa masuk lagi.", "Could not copy. Select the text and copy it manually.": "Tidak bisa menyalin. Blok teksnya dan salin manual.", "The server function \"owner-admin\" is not installed yet.": "Fungsi server \"owner-admin\" belum dipasang.", "Done.": "Selesai.", "Share these sign-in details with the user (the password is shown only now):": "Bagikan data masuk ini ke pengguna (kata sandi hanya ditampilkan sekarang):", "Email:": "Email:", "Password:": "Kata sandi:", "Add user ": "Tambah pengguna", "Edit": "Ubah", "Close": "Tutup","Forgot password?":"Lupa kata sandi?","Enter your email above first, then click Forgot password.":"Isi email di atas dulu, lalu klik Lupa kata sandi.","If this email is registered, a password reset link has been sent. Check your inbox.":"Jika email ini terdaftar, tautan untuk mengatur ulang kata sandi sudah dikirim. Periksa kotak masuk Anda.","Set a new password":"Buat kata sandi baru","Choose a new password for your account.":"Pilih kata sandi baru untuk akun Anda.","New password":"Kata sandi baru","Repeat new password":"Ulangi kata sandi baru","Save new password":"Simpan kata sandi baru","Passwords do not match.":"Kata sandi tidak sama.","Password updated.":"Kata sandi diperbarui.","Trial: {} days left • up to {} assets. Contact the owner to activate your plan.":"Trial: sisa {} hari • maksimal {} aset. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} day left • up to {} assets. Contact the owner to activate your plan.":"Trial: sisa {} hari • maksimal {} aset. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} days left. Contact the owner to activate your plan.":"Trial: sisa {} hari. Hubungi pemilik untuk mengaktifkan paket Anda.","Trial: {} day left. Contact the owner to activate your plan.":"Trial: sisa {} hari. Hubungi pemilik untuk mengaktifkan paket Anda.","Your trial has ended. The account is read-only until the plan is activated.":"Masa trial sudah berakhir. Akun hanya bisa dilihat sampai paket diaktifkan.","This account is suspended and read-only. Please contact the owner.":"Akun ini ditangguhkan dan hanya bisa dilihat. Silakan hubungi pemilik.","Your plan has expired. The account is read-only until it is renewed.":"Paket Anda sudah berakhir. Akun hanya bisa dilihat sampai diperpanjang.","This change is not allowed (plan expired or insufficient role). It was not saved.":"Perubahan ini tidak diizinkan (paket berakhir atau peran tidak cukup). Tidak tersimpan.","your plan allows a maximum of {} assets. Upgrade to add more.":"paket Anda hanya mengizinkan maksimal {} aset. Tingkatkan paket untuk menambah.","Audit Trail":"Jejak Audit","Audit Trail (Super Admin)":"Jejak Audit (Super Admin)","Who changed what, and when. Recorded automatically by the server.":"Siapa mengubah apa dan kapan. Dicatat otomatis oleh server.","Search code, user, field...":"Cari kode, pengguna, kolom...","All actions":"Semua tindakan","Created":"Dibuat","Changed":"Diubah","Deleted":"Dihapus","All data":"Semua data","When":"Waktu","User":"Pengguna","Data":"Data","Details":"Detail","Branch":"Cabang","Loading...":"Memuat...","No audit records.":"Belum ada catatan audit.","Showing {} of the latest {} records.":"Menampilkan {} dari {} catatan terbaru.","Audit trail is not set up yet. Run audit_trail.sql in Supabase first.":"Jejak audit belum diaktifkan. Jalankan audit_trail.sql di Supabase terlebih dahulu.","{} unit":"{} unit"});
 
 let LANG='id';
 try{LANG=localStorage.getItem('ams_lang')||'id';}catch(e){}
@@ -2091,6 +2172,370 @@ async function savePw() {
     pwForced = false; closeModal('modalPw'); toast('Password changed.', 'success');
   } catch (e) { fail(e.message || String(e)); }
   finally { btn.disabled = false; }
+}
+
+// ================= QR labels, scanner, stock opname =================
+// Minimal QR Code encoder: byte mode, error correction level M, versions 1-10 (up to 213 bytes).
+// Returns an array of rows (true = dark module). Self-contained, no dependencies.
+function qrMatrix(text) {
+  const ECC = [0, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26];       // EC codewords per block (level M), index = version
+  const BLK = [0, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5];                  // number of blocks (level M)
+  const data = Array.from(new TextEncoder().encode(String(text)));
+  const rawModules = v => { let r = (16 * v + 128) * v + 64; if (v >= 2) { const n = Math.floor(v / 7) + 2; r -= (25 * n - 10) * n - 55; if (v >= 7) r -= 36; } return r; };
+  let ver = 0;
+  for (let v = 1; v <= 10; v++) {
+    const cap = Math.floor(rawModules(v) / 8) - ECC[v] * BLK[v];
+    if (data.length + 2 <= cap) { ver = v; break; }                // 4-bit mode + 8/16-bit count + data -> need +2 bytes margin
+  }
+  if (!ver) throw new Error('Text too long for QR');
+  const size = ver * 4 + 17, capBytes = Math.floor(rawModules(ver) / 8) - ECC[ver] * BLK[ver];
+  // ---- bit stream
+  const bits = [];
+  const put = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1); };
+  put(4, 4); put(data.length, ver < 10 ? 8 : 16); data.forEach(b => put(b, 8));
+  const capBits = capBytes * 8;
+  put(0, Math.min(4, capBits - bits.length)); while (bits.length % 8) bits.push(0);
+  for (let pad = 0xEC; bits.length < capBits; pad ^= 0xEC ^ 0x11) put(pad, 8);
+  const cw = []; for (let i = 0; i < bits.length; i += 8) cw.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+  // ---- Reed-Solomon
+  const exp = new Array(512), log = new Array(256); let x = 1;
+  for (let i = 0; i < 255; i++) { exp[i] = x; log[x] = i; x <<= 1; if (x & 256) x ^= 0x11D; }
+  for (let i = 255; i < 512; i++) exp[i] = exp[i - 255];
+  const mul = (a, b) => (a && b) ? exp[log[a] + log[b]] : 0;
+  const gen = n => { let g = [1]; for (let i = 0; i < n; i++) { const ng = new Array(g.length + 1).fill(0); for (let j = 0; j < g.length; j++) { ng[j] ^= g[j]; ng[j + 1] ^= mul(g[j], exp[i]); } g = ng; } return g; };
+  const rs = (d, n) => { const g = gen(n), r = new Array(n).fill(0); for (const b of d) { const f = b ^ r[0]; r.shift(); r.push(0); for (let i = 0; i < n; i++) r[i] ^= mul(g[i + 1], f); } return r; };
+  const nb = BLK[ver], ne = ECC[ver], total = Math.floor(rawModules(ver) / 8), shortLen = Math.floor(total / nb), nShort = nb - total % nb;
+  const blocks = []; let k = 0;
+  for (let i = 0; i < nb; i++) { const dl = shortLen - ne + (i < nShort ? 0 : 1); const d = cw.slice(k, k + dl); k += dl; blocks.push({ d, e: rs(d, ne) }); }
+  const out = [];
+  for (let i = 0; i <= shortLen - ne; i++) blocks.forEach((b, j) => { if (i < b.d.length) out.push(b.d[i]); });
+  for (let i = 0; i < ne; i++) blocks.forEach(b => out.push(b.e[i]));
+  // ---- matrix
+  const M = Array.from({ length: size }, () => new Array(size).fill(false)), F = Array.from({ length: size }, () => new Array(size).fill(false));
+  const set = (r, c, v) => { M[r][c] = v; F[r][c] = true; };
+  const finder = (r0, c0) => { for (let dr = -1; dr <= 7; dr++) for (let dc = -1; dc <= 7; dc++) { const r = r0 + dr, c = c0 + dc; if (r < 0 || c < 0 || r >= size || c >= size) continue; const d = Math.max(Math.abs(dr - 3), Math.abs(dc - 3)); set(r, c, d !== 2 && d !== 4); } };
+  finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+  for (let i = 8; i < size - 8; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+  const na = ver === 1 ? 0 : Math.floor(ver / 7) + 2, step = ver === 1 ? 0 : Math.ceil((ver * 4 + 4) / (na * 2 - 2)) * 2;
+  const ap = ver === 1 ? [] : [6]; for (let p = size - 7; ap.length < na; p -= step) ap.splice(1, 0, p);
+  ap.forEach((r, i) => ap.forEach((c, j) => { if ((i === 0 && j === 0) || (i === 0 && j === na - 1) || (i === na - 1 && j === 0)) return; for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) set(r + dr, c + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1); }));
+  const bch = (v, poly, deg) => { let r = v << deg; const top = 31 - Math.clz32(poly); for (let i = 31 - Math.clz32(r); i >= top; i--) if ((r >>> i) & 1) r ^= poly << (i - top); return (v << deg) | r; };
+  const drawFormat = mask => {
+    const f = bch((0 << 3) | mask, 0x537, 10) ^ 0x5412, bit = i => ((f >>> i) & 1) === 1;   // level M = 0
+    for (let i = 0; i <= 5; i++) set(i, 8, bit(i)); set(7, 8, bit(6)); set(8, 8, bit(7)); set(8, 7, bit(8));
+    for (let i = 9; i < 15; i++) set(8, 14 - i, bit(i));
+    for (let i = 0; i < 8; i++) set(8, size - 1 - i, bit(i)); for (let i = 8; i < 15; i++) set(size - 15 + i, 8, bit(i));
+    set(size - 8, 8, true);
+  };
+  drawFormat(0);
+  if (ver >= 7) { const v = bch(ver, 0x1F25, 12); for (let i = 0; i < 18; i++) { const b = ((v >>> i) & 1) === 1, a = size - 11 + i % 3, c = Math.floor(i / 3); set(a, c, b); set(c, a, b); } }
+  // ---- data placement
+  const dbits = []; out.forEach(b => { for (let i = 7; i >= 0; i--) dbits.push((b >>> i) & 1); });
+  const place = mask => {
+    const T = M.map(r => r.slice()); let bi = 0;
+    for (let right = size - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (let v = 0; v < size; v++) for (let j = 0; j < 2; j++) {
+        const c = right - j, up = ((right + 1) & 2) === 0, r = up ? size - 1 - v : v;
+        if (F[r][c]) continue;
+        let dark = bi < dbits.length && dbits[bi] === 1; bi++;
+        const inv = [ (r + c) % 2 === 0, r % 2 === 0, c % 3 === 0, (r + c) % 3 === 0, (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0, (r * c) % 2 + (r * c) % 3 === 0, ((r * c) % 2 + (r * c) % 3) % 2 === 0, ((r + c) % 2 + (r * c) % 3) % 2 === 0 ][mask];
+        T[r][c] = dark !== inv;
+      }
+    }
+    return T;
+  };
+  const penalty = T => {
+    let p = 0;
+    for (let a = 0; a < size; a++) for (const row of [true, false]) {
+      let run = 1;
+      for (let b = 1; b < size; b++) { const cur = row ? T[a][b] : T[b][a], prev = row ? T[a][b - 1] : T[b - 1][a]; if (cur === prev) { run++; if (run === 5) p += 3; else if (run > 5) p++; } else run = 1; }
+    }
+    for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++) if (T[r][c] === T[r][c + 1] && T[r][c] === T[r + 1][c] && T[r][c] === T[r + 1][c + 1]) p += 3;
+    let dark = 0; T.forEach(r => r.forEach(v => { if (v) dark++; })); p += Math.floor(Math.abs(dark * 20 - size * size * 10) / (size * size)) * 10;
+    return p;
+  };
+  let best = 0, bestP = Infinity, bestT = null;
+  for (let m = 0; m < 8; m++) { const T = place(m); const p = penalty(T); if (p < bestP) { bestP = p; best = m; bestT = T; } }
+  for (let i = 0; i < size; i++) for (let j = 0; j < size; j++) M[i][j] = bestT[i][j];
+  drawFormat(best);
+  return M;
+}
+
+
+let labelCodes = [];
+function openLabels(codes) {
+  codes = (codes || []).filter(Boolean);
+  if (!codes.length) return toast('Select at least one asset first.', 'warn');
+  labelCodes = codes;
+  $('lbCount').textContent = `${codes.length} label${codes.length === 1 ? '' : 's'} will be created.`;
+  lbSizeUI(); openModal('modalLabels');
+}
+function lbSizeUI() { $('lbCustom').classList.toggle('hidden', $('lbSize').value !== 'custom'); }
+function lbDims() {
+  const v = $('lbSize').value;
+  if (v === 'custom') return { w: Math.max(2, +$('lbW').value || 5) * 10, h: Math.max(2, +$('lbH').value || 3) * 10 };
+  const [w, h] = v.split('x').map(Number); return { w: w * 10, h: h * 10 };
+}
+// Draws one label (all sizes in mm) onto a jsPDF document.
+function drawLabel(doc, x, y, w, h, a, o) {
+  const pad = Math.max(1, Math.min(w, h) * 0.06), M = qrMatrix(a.kode), n = M.length;
+  const fit = (txt, maxW, big, small) => { let s = big; doc.setFontSize(s); while (s > small && doc.getTextWidth(txt) > maxW) { s -= 0.5; doc.setFontSize(s); } return s; };
+  const drawQr = (qx, qy, qs) => {
+    const cell = qs / (n + 2); doc.setFillColor(0, 0, 0);
+    for (let r = 0; r < n; r++) { let c = 0; while (c < n) { if (!M[r][c]) { c++; continue; } let e = c; while (e < n && M[r][e]) e++; doc.rect(qx + (c + 1) * cell, qy + (r + 1) * cell, (e - c) * cell, cell, 'F'); c = e; } }
+  };
+  doc.setTextColor(0, 0, 0);
+  const lines = []; if (o.name) lines.push(a.nama || ''); if (o.branch) lines.push(a.cabang || '');
+  const wideTextW = w - pad - (pad + (h - 2 * pad) + pad * 0.6);
+  if (w >= h * 1.25 && wideTextW >= 15) {                      // wide label: QR left, text right
+    const qs = h - 2 * pad, tx = x + pad + qs + pad * 0.6, tw = x + w - pad - tx;
+    drawQr(x + pad, y + pad, qs);
+    doc.setFont('helvetica', 'bold'); const fs = fit(a.kode, tw, Math.min(11, h * 0.5), 4.5); let ty = y + pad + fs * 0.3528 + 0.4; doc.text(a.kode, tx, ty);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(Math.min(8, Math.max(5, h * 0.24)));
+    const lh = doc.getFontSize() * 0.3528 * 1.25, maxLines = Math.max(1, Math.floor((y + h - pad - ty) / lh));
+    let rest = []; if (o.name && a.nama) rest = rest.concat(doc.splitTextToSize(a.nama, tw).slice(0, Math.max(1, maxLines - (o.branch ? 1 : 0))));
+    if (o.branch && a.cabang) rest.push(a.cabang);
+    rest.slice(0, maxLines).forEach((t, i) => { ty += lh; doc.text(t, tx, ty); });
+  } else {                                                      // square-ish label: QR on top, text below
+    const textH = lines.length ? h * 0.3 : h * 0.18, qs = Math.min(w - 2 * pad, h - 2 * pad - textH);
+    drawQr(x + (w - qs) / 2, y + pad, qs);
+    doc.setFont('helvetica', 'bold'); const fs = fit(a.kode, w - 2 * pad, 8, 4); let ty = y + pad + qs + fs * 0.3528 + 0.3; doc.text(a.kode, x + w / 2, ty, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(5.5);
+    lines.slice(0, 2).forEach(t => { ty += 5.5 * 0.3528 * 1.2; if (ty < y + h - 0.2) doc.text(doc.splitTextToSize(t, w - 2 * pad)[0], x + w / 2, ty, { align: 'center' }); });
+  }
+}
+function buildLabelsPdf(codes, o) {
+  const { jsPDF } = window.jspdf, A4W = 210, A4H = 297, MX = 8, MY = 8;
+  const assets = codes.map(k => assetData.find(a => a.kode === k) || { kode: k });
+  let doc;
+  if (o.sheet) {
+    const cols = Math.floor((A4W - 2 * MX) / o.w), rows = Math.floor((A4H - 2 * MY) / o.h);
+    if (!cols || !rows) throw new Error('Label is larger than an A4 sheet.');
+    doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const per = cols * rows, ox = (A4W - cols * o.w) / 2, oy = MY;
+    doc.setDrawColor(190); doc.setLineWidth(0.1);
+    assets.forEach((a, i) => {
+      if (i && i % per === 0) doc.addPage();
+      const k = i % per, x = ox + (k % cols) * o.w, y = oy + Math.floor(k / cols) * o.h;
+      doc.rect(x, y, o.w, o.h); drawLabel(doc, x, y, o.w, o.h, a, o);
+    });
+  } else {
+    doc = new jsPDF({ unit: 'mm', format: [o.w, o.h], orientation: o.w > o.h ? 'landscape' : 'portrait' });
+    assets.forEach((a, i) => { if (i) doc.addPage([o.w, o.h], o.w > o.h ? 'landscape' : 'portrait'); drawLabel(doc, 0, 0, o.w, o.h, a, o); });
+  }
+  return doc;
+}
+function makeLabels() {
+  if (!(window.jspdf && window.jspdf.jsPDF)) return toast('PDF library is still loading or blocked. Please try again.', 'error');
+  const d = lbDims();
+  try {
+    const doc = buildLabelsPdf(labelCodes, { w: d.w, h: d.h, name: $('lbName').checked, branch: $('lbBranch').checked, sheet: $('lbLayout').value === 'sheet' });
+    doc.save(`QR-labels-${todayStr()}.pdf`); closeModal('modalLabels'); toast('Labels PDF downloaded.', 'success');
+  } catch (e) { toast(e.message || String(e), 'error'); }
+}
+
+// ---------- camera scanner ----------
+const SC = { stream: null, timer: null, det: null, onCode: null, last: '', lastAt: 0, canvas: null };
+async function loadJsQR() {
+  if (window.jsQR) return true;
+  return new Promise(res => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'; s.onload = () => res(!!window.jsQR); s.onerror = () => res(false); document.head.appendChild(s); });
+}
+async function openScanner(onCode, title) {
+  SC.onCode = onCode; SC.last = ''; $('scanTitle').textContent = title || 'Scan QR code'; $('scanManual').value = '';
+  $('scanStatus').textContent = 'Starting camera...'; openModal('modalScan');
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('no camera api');
+    SC.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+    const v = $('scanVideo'); v.srcObject = SC.stream; await v.play();
+    if ('BarcodeDetector' in window) { try { SC.det = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'code_39', 'ean_13'] }); } catch (e) { SC.det = null; } }
+    if (!SC.det && !(await loadJsQR())) throw new Error('no decoder');
+    $('scanStatus').textContent = 'Point the camera at a QR code.';
+    SC.timer = setInterval(scanFrame, 220);
+  } catch (e) {
+    $('scanStatus').textContent = 'Camera not available. Allow camera access, or type the code below.';
+  }
+}
+async function scanFrame() {
+  const v = $('scanVideo'); if (!v || !v.videoWidth || SC.busy) return; SC.busy = true;
+  try {
+    let code = '';
+    if (SC.det) { const r = await SC.det.detect(v); if (r.length) code = r[0].rawValue; }
+    else if (window.jsQR) {
+      const c = SC.canvas || (SC.canvas = document.createElement('canvas')), w = Math.min(640, v.videoWidth), h = Math.round(w * v.videoHeight / v.videoWidth);
+      c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(v, 0, 0, w, h);
+      const q = window.jsQR(g.getImageData(0, 0, w, h).data, w, h); if (q) code = q.data;
+    }
+    if (code) await scanHit(code);
+  } catch (e) {} finally { SC.busy = false; }
+}
+async function scanHit(raw) {
+  const code = String(raw || '').trim(); if (!code) return;
+  const now = Date.now(); if (code === SC.last && now - SC.lastAt < 2500) return;
+  SC.last = code; SC.lastAt = now; try { navigator.vibrate && navigator.vibrate(60); } catch (e) {}
+  if (SC.onCode) await SC.onCode(code);
+}
+function stopScanner() {
+  clearInterval(SC.timer); SC.timer = null;
+  if (SC.stream) { SC.stream.getTracks().forEach(t => t.stop()); SC.stream = null; }
+  const v = $('scanVideo'); if (v) v.srcObject = null;
+}
+function scanManualGo() { const v = $('scanManual').value.trim(); $('scanManual').value = ''; if (v) { SC.last = ''; scanHit(v); } }
+function quickScan() {
+  openScanner(async code => {
+    const a = assetData.find(x => x.kode.toLowerCase() === code.toLowerCase());
+    if (!a) { $('scanStatus').textContent = `Asset "${code}" was not found.`; return; }
+    closeModal('modalScan'); viewAsset(a.kode);
+  }, 'Scan an asset QR code');
+}
+
+// ---------- stock opname ----------
+let opnames = [], curOp = null, opItems = [], opFilter = 'all', opTimer = null;
+const OP_BATCH = 500;
+async function loadOpnames() {
+  $('opBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Loading...</td></tr>`;
+  const { data, error } = await sb.from('stock_opnames').select('*').order('created_at', { ascending: false }).limit(100);
+  if (error) { $('opBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-rose-600">${esc(error.message)}</td></tr>`; $('opNote').textContent = /does not exist|schema cache/i.test(error.message) ? 'Stock opname is not set up yet. Run stock_opname.sql in Supabase first.' : ''; return; }
+  $('opNote').textContent = ''; opnames = data || [];
+  const cnt = async (id, st) => { let q = sb.from('stock_opname_items').select('asset_code', { count: 'exact', head: true }).eq('opname_id', id).eq('expected', true); if (st) q = q.eq('status', st); const r = await q; return r.count || 0; };
+  await Promise.all(opnames.slice(0, 30).map(async o => { o._total = await cnt(o.id); o._found = await cnt(o.id, 'found'); }));
+  renderOpnames();
+}
+function renderOpnames() {
+  $('opBody').innerHTML = opnames.length ? opnames.map(o => {
+    const pct = o._total ? Math.round(o._found * 100 / o._total) : 0;
+    return `<tr class="hover:bg-slate-50 cursor-pointer" data-act="openOpname" data-id="${esc(o.id)}"><td class="p-3 font-semibold">${esc(o.name)}</td><td class="p-3">${esc(o.branch || 'All branches')}</td>
+      <td class="p-3"><span class="badge ${o.status === 'open' ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-600'}">${o.status === 'open' ? 'Open' : 'Closed'}</span></td>
+      <td class="p-3 whitespace-nowrap">${o._total != null ? `${fmtNum(o._found)} / ${fmtNum(o._total)} (${pct}%)` : '-'}</td>
+      <td class="p-3 text-slate-500">${esc(fmtDate(String(o.created_at || '').slice(0, 10)))}</td><td class="p-3 text-slate-500">${esc(o.created_email || '-')}</td></tr>`;
+  }).join('') : `<tr><td colspan="6" class="p-8 text-center text-slate-400">No stock opname yet. Click "New stock opname" to start counting.</td></tr>`;
+}
+function newOpname() {
+  if (!canWrite()) return toast('Read-only role.', 'warn');
+  $('opnBranch').innerHTML = `<option value="">All branches</option>` + cabangData.map(c => `<option value="${esc(c.nama)}">${esc(c.nama)}</option>`).join('');
+  $('opnBranch').value = ''; opnNameAuto(); $('opnName').dataset.auto = '1'; openModal('modalOpnameNew');
+}
+function opnNameAuto() { const el = $('opnName'); if (el.dataset.auto === '0' && el.value) return; el.value = `Stock Opname ${$('opnBranch').value || 'All'} ${todayStr()}`; el.dataset.auto = '1'; }
+async function saveOpname() {
+  const name = $('opnName').value.trim(), br = $('opnBranch').value;
+  if (!name) return toast('Enter a name for this stock opname.', 'warn');
+  const scope = assetData.filter(a => !br || a.cabang === br);
+  if (!scope.length) return toast('There are no assets in this scope.', 'warn');
+  const btn = $('opnSave'); btn.disabled = true;
+  try {
+    const { data: o, error } = await sb.from('stock_opnames').insert({ name, branch: br || null }).select().single();
+    if (error) throw error;
+    const rows = scope.map(a => ({ opname_id: o.id, asset_code: a.kode, system_branch: a.cabang, expected: true, status: 'pending' }));
+    for (let i = 0; i < rows.length; i += OP_BATCH) { const r = await sb.from('stock_opname_items').insert(rows.slice(i, i + OP_BATCH)); if (r.error) throw r.error; }
+    closeModal('modalOpnameNew'); toast(`Stock opname created with ${scope.length} assets to count.`, 'success');
+    await openOpname(o.id);
+  } catch (e) { toast(e.message || String(e), 'error'); }
+  btn.disabled = false;
+}
+async function opFetchItems(id) {
+  let all = [], from = 0;
+  for (;;) { const { data, error } = await sb.from('stock_opname_items').select('*').eq('opname_id', id).order('asset_code').range(from, from + 999); if (error) throw error; all = all.concat(data || []); if (!data || data.length < 1000) break; from += 1000; }
+  return all;
+}
+async function openOpname(id) {
+  try {
+    const { data: o, error } = await sb.from('stock_opnames').select('*').eq('id', id).maybeSingle();
+    if (error || !o) throw error || new Error('Not found');
+    curOp = o; opItems = await opFetchItems(id); opFilter = 'all'; $('opSearch').value = '';
+    $('opList').classList.add('hidden'); $('opDetail').classList.remove('hidden'); renderOpDetail();
+    clearInterval(opTimer); opTimer = setInterval(opRefresh, 20000);
+  } catch (e) { toast(e.message || String(e), 'error'); }
+}
+function opBack() { clearInterval(opTimer); opTimer = null; curOp = null; $('opDetail').classList.add('hidden'); $('opList').classList.remove('hidden'); loadOpnames(); }
+async function opRefresh() {
+  if (!curOp || document.hidden || !$('sec-opname') || $('sec-opname').classList.contains('hidden')) return;
+  try { const o = await sb.from('stock_opnames').select('*').eq('id', curOp.id).maybeSingle(); if (o.data) curOp = o.data; opItems = await opFetchItems(curOp.id); renderOpDetail(); } catch (e) {}
+}
+function opResult(it) {
+  if (it.status === 'found') return ['Found', 'bg-emerald-100 text-emerald-700'];
+  if (it.status === 'misplaced') return ['Found in another branch', 'bg-amber-100 text-amber-700'];
+  if (it.status === 'unknown') return ['Unknown code', 'bg-rose-100 text-rose-700'];
+  return curOp && curOp.status === 'closed' ? ['Missing', 'bg-rose-100 text-rose-700'] : ['Not scanned yet', 'bg-slate-100 text-slate-600'];
+}
+function opStats() {
+  const exp = opItems.filter(i => i.expected), found = exp.filter(i => i.status === 'found').length;
+  return { total: exp.length, found, missing: exp.length - found, misplaced: opItems.filter(i => i.status === 'misplaced').length, unknown: opItems.filter(i => i.status === 'unknown').length };
+}
+function renderOpDetail() {
+  const o = curOp, s = opStats(), open = o.status === 'open', pct = s.total ? Math.round(s.found * 100 / s.total) : 0;
+  $('opTitle').textContent = o.name;
+  $('opMeta').textContent = `${o.branch || 'All branches'} • ${fmtDate(String(o.created_at || '').slice(0, 10))} • ${o.created_email || ''}`;
+  $('opStatus').className = 'badge ' + (open ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-600'); $('opStatus').textContent = open ? 'Open' : 'Closed';
+  $('opBar').style.width = pct + '%'; $('opPct').textContent = `${fmtNum(s.found)} / ${fmtNum(s.total)} (${pct}%)`;
+  $('opScanBox').classList.toggle('hidden', !open || !canWrite());
+  $('btnOpClose').classList.toggle('hidden', !open || !canWrite());
+  const chips = [['all', 'All', opItems.length], ['pending', open ? 'Not scanned yet' : 'Missing', s.missing], ['found', 'Found', s.found], ['misplaced', 'Found in another branch', s.misplaced], ['unknown', 'Unknown code', s.unknown]];
+  $('opChips').innerHTML = chips.map(([k, l, n]) => `<button class="btn ${opFilter === k ? 'btn-primary' : 'btn-ghost'}" style="padding:.3rem .75rem" data-act="opFilter" data-id="${k}">${l} <b>${fmtNum(n)}</b></button>`).join('');
+  const q = ($('opSearch').value || '').toLowerCase();
+  const rows = opItems.filter(i => (opFilter === 'all' || i.status === opFilter) && (!q || (i.asset_code + ' ' + ((assetData.find(a => a.kode === i.asset_code) || {}).nama || '')).toLowerCase().includes(q)));
+  const shown = rows.slice(0, 300);
+  $('opItems').innerHTML = shown.length ? shown.map(i => {
+    const a = assetData.find(x => x.kode === i.asset_code), [rl, rc] = opResult(i);
+    const act = open && canWrite() ? (i.status === 'pending' ? `<button class="btn btn-ghost" style="padding:.2rem .55rem" data-act="opMark" data-id="${esc(i.asset_code)}">Mark found</button>` : (i.expected ? `<button class="btn btn-ghost" style="padding:.2rem .55rem" data-act="opUndo" data-id="${esc(i.asset_code)}">Undo</button>` : '')) : '';
+    return `<tr class="hover:bg-slate-50"><td class="p-2.5 font-mono font-semibold text-blue-600">${esc(i.asset_code)}</td><td class="p-2.5">${esc(a ? a.nama : '-')}</td><td class="p-2.5">${esc(i.system_branch || (a ? a.cabang : '') || '-')}</td>
+      <td class="p-2.5"><span class="badge ${rc}">${rl}</span></td><td class="p-2.5 text-slate-500 text-xs">${i.scanned_at ? esc(new Date(i.scanned_at).toLocaleString(locale(), { dateStyle: 'short', timeStyle: 'short' })) + '<br>' + esc(i.scanned_email || '') : ''}</td><td class="p-2.5 text-center">${act}</td></tr>`;
+  }).join('') : `<tr><td colspan="6" class="p-6 text-center text-slate-400">No items.</td></tr>`;
+  $('opMore').textContent = rows.length > shown.length ? `Showing the first ${shown.length} of ${fmtNum(rows.length)}. Use search or a filter to narrow down.` : '';
+}
+async function opScan(raw, manual) {
+  if (!curOp || curOp.status !== 'open') return;
+  if (!canWrite()) return toast('Read-only role.', 'warn');
+  const code = String(raw || '').trim(); if (!code) return;
+  const status = $('scanStatus'), say = (m, t) => { $('opLast').textContent = m; if ($('modalScan') && !$('modalScan').classList.contains('hidden')) status.textContent = m; if (t) toast(m, t); };
+  const asset = assetData.find(a => a.kode.toLowerCase() === code.toLowerCase()), key = asset ? asset.kode : code;
+  const ex = opItems.find(i => i.asset_code === key), now = new Date().toISOString(), email = currentUser && currentUser.email;
+  try {
+    if (ex && (ex.status === 'found' || ex.status === 'misplaced')) return say(`${key} was already scanned.`, 'info');
+    if (ex) {
+      const { error } = await sb.from('stock_opname_items').update({ status: 'found', scanned_at: now, scanned_by: currentUser.id, scanned_email: email, note: manual ? 'Marked manually' : '' }).eq('opname_id', curOp.id).eq('asset_code', key);
+      if (error) throw error; Object.assign(ex, { status: 'found', scanned_at: now, scanned_email: email });
+      say(`Found: ${key}${asset ? ' • ' + asset.nama : ''}`, 'success');
+    } else {
+      const row = { opname_id: curOp.id, asset_code: key, expected: false, status: asset ? 'misplaced' : 'unknown', system_branch: asset ? asset.cabang : null, scanned_at: now, scanned_by: currentUser.id, scanned_email: email };
+      const { error } = await sb.from('stock_opname_items').upsert(row, { onConflict: 'opname_id,asset_code', ignoreDuplicates: true });
+      if (error) throw error; opItems.push(row);
+      say(asset ? `${key} belongs to ${asset.cabang}, found outside this count.` : `Code "${key}" is not registered.`, 'warn');
+    }
+    renderOpDetail();
+  } catch (e) { say(e.message || String(e), 'error'); }
+}
+function opCodeEnter(e) { if (e.key === 'Enter') { e.preventDefault(); const v = $('opCode').value; $('opCode').value = ''; opScan(v, false); } }
+function opCamera() { openScanner(code => opScan(code, false), 'Scan assets'); }
+async function opMark(code) { await opScan(code, true); }
+async function opUndo(code) {
+  const it = opItems.find(i => i.asset_code === code); if (!it || curOp.status !== 'open') return;
+  const { error } = await sb.from('stock_opname_items').update({ status: 'pending', scanned_at: null, scanned_by: null, scanned_email: null, note: '' }).eq('opname_id', curOp.id).eq('asset_code', code);
+  if (error) return toast(error.message, 'error'); Object.assign(it, { status: 'pending', scanned_at: null, scanned_email: null }); renderOpDetail();
+}
+async function opCloseSession() {
+  const s = opStats();
+  if (!await confirmDialog(`Close "${curOp.name}"? ${fmtNum(s.missing)} asset${s.missing === 1 ? '' : 's'} not scanned will be marked as missing. Scanning is no longer possible afterwards.`, { title: 'Close stock opname', ok: 'Close', danger: false })) return;
+  const { error } = await sb.from('stock_opnames').update({ status: 'closed', closed_at: new Date().toISOString() }).eq('id', curOp.id);
+  if (error) return toast(error.message, 'error'); curOp.status = 'closed'; renderOpDetail(); toast('Stock opname closed.', 'success');
+}
+async function opDelete() {
+  if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
+  if (!await confirmDialog(`Delete "${curOp.name}" and all its results?`, { title: 'Delete stock opname', ok: 'Delete' })) return;
+  const { error } = await sb.from('stock_opnames').delete().eq('id', curOp.id);
+  if (error) return toast(error.message, 'error'); toast('Stock opname deleted.', 'success'); opBack();
+}
+function opExport() {
+  if (!window.XLSX) return toast('Excel library could not be loaded. Check your internet connection.', 'error');
+  const s = opStats(), name = { found: 'Found', misplaced: 'Found in another branch', unknown: 'Unknown code', pending: curOp.status === 'closed' ? 'Missing' : 'Not scanned yet' };
+  const sum = [['Stock opname', curOp.name], ['Branch', curOp.branch || 'All branches'], ['Status', curOp.status === 'open' ? 'Open' : 'Closed'], ['Created', String(curOp.created_at || '').slice(0, 10)], ['Created by', curOp.created_email || ''],
+    ['Assets to count', s.total], ['Found', s.found], ['Not found / not scanned', s.missing], ['Found in another branch', s.misplaced], ['Unknown codes', s.unknown], ['Accuracy', s.total ? s.found / s.total : 0]];
+  const head = ['Asset Code', 'Asset Name', 'Category', 'System Branch', 'Result', 'Scanned By', 'Scanned At'];
+  const rows = opItems.map(i => { const a = assetData.find(x => x.kode === i.asset_code) || {}; return [i.asset_code, a.nama || '', a.kategori || '', i.system_branch || a.cabang || '', name[i.status], i.scanned_email || '', i.scanned_at ? new Date(i.scanned_at).toLocaleString('en-GB') : '']; });
+  const wb = XLSX.utils.book_new(), w1 = XLSX.utils.aoa_to_sheet(sum), w2 = XLSX.utils.aoa_to_sheet([head, ...rows]);
+  w1['!cols'] = [{ wch: 26 }, { wch: 36 }]; w2['!cols'] = [{ wch: 20 }, { wch: 34 }, { wch: 20 }, { wch: 16 }, { wch: 24 }, { wch: 30 }, { wch: 20 }];
+  if (w1['B11']) w1['B11'].z = '0.0%';
+  XLSX.utils.book_append_sheet(wb, w1, 'Summary'); XLSX.utils.book_append_sheet(wb, w2, 'Items');
+  XLSX.writeFile(wb, `Stock-opname-${todayStr()}.xlsx`); toast('Excel file downloaded.', 'success');
 }
 
 // ---------------- Owner panel & user management ----------------
@@ -2254,7 +2699,7 @@ async function changeUserRole(id, role) {
 
 const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
-  syncNow: () => manualSync(), changePw, savePw, newCompany, editCompany, saveCompany, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
+  syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
   openDeleted: openDeletedModal, openAudit, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
   doExport, template: downloadTemplate, backup: backupData, restore: () => $('restoreFile').click(), loadSample, clearAll, commitImport,
@@ -2278,6 +2723,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('formLogin').addEventListener('submit', handleLogin);
   $('formRecover').addEventListener('submit', handleRecover);
   $('coPlan').addEventListener('change', coPlanUI);
+  $('lbSize').addEventListener('change', lbSizeUI);
+  $('opSearch').addEventListener('input', () => curOp && renderOpDetail());
+  $('opCode').addEventListener('keydown', opCodeEnter);
+  $('scanManual').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); scanManualGo(); } });
+  $('opnBranch').addEventListener('change', opnNameAuto);
+  $('opnName').addEventListener('input', () => { $('opnName').dataset.auto = '0'; });
   $('usersCompany').addEventListener('change', e => { usersCompanyId = e.target.value; loadUsers(); });
   document.addEventListener('change', e => { if (e.target.classList && e.target.classList.contains('user-role')) changeUserRole(e.target.dataset.id, e.target.value); });
   document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (!el) { if (!e.target.closest('.menu')) closeMenus(); return; } const fn = ACTIONS[el.dataset.act]; if (el.dataset.act !== 'menu') closeMenus(); if (el.dataset.act !== 'toggleNav') document.body.classList.remove('nav-open'); if (fn) fn(el.dataset.id, el); });

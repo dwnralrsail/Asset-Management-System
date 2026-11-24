@@ -43,7 +43,10 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   .side-foot{padding:11px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:#7f95c4}
   .content{margin-left:252px;min-height:100vh;display:flex;flex-direction:column}
   .topbar{position:sticky;top:0;z-index:30;min-height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:8px 22px}
-  .crumb{font-size:11.5px;color:var(--muted);line-height:1.2}
+  .company-chip{display:flex;align-items:center;gap:7px;font-size:14px;font-weight:700;color:#14274e;max-width:260px;min-width:0}
+  .company-chip svg{width:17px;height:17px;flex-shrink:0;color:#2b6de8}
+  .company-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .brand h1{line-height:1.2}
   .page-title{font-size:17px;font-weight:700;margin:0;line-height:1.25}
   .top-actions{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
   .hamb{display:none;width:36px;height:36px;border-radius:8px;border:1px solid var(--line);align-items:center;justify-content:center;background:#fff}
@@ -200,7 +203,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
 <aside class="sidebar" id="sidebar">
   <div class="brand">
     <div class="brand-logo"><i data-lucide="boxes"></i></div>
-    <div style="min-width:0"><h1>Asset Management</h1><p id="headerSub">General Affairs</p></div>
+    <div style="min-width:0"><h1>Asset Management System</h1><p id="headerSub">General Affairs</p></div>
   </div>
   <nav class="nav">
     <button class="nav-item active" id="tab-dashboard" data-act="tab" data-id="dashboard"><i data-lucide="layout-dashboard"></i>Dashboard</button>
@@ -239,8 +242,9 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
 <div class="content">
 <header class="topbar">
   <button class="hamb" data-act="toggleNav" title="Menu"><i data-lucide="menu"></i></button>
-  <div style="min-width:0"><div class="crumb">Asset Management System</div><h2 class="page-title" id="pageTitle">Dashboard</h2></div>
+  <div style="min-width:0"><h2 class="page-title" id="pageTitle">Dashboard</h2></div>
   <div class="top-actions">
+    <span id="companyChip" class="company-chip hide-sm hidden"><i data-lucide="building-2"></i><span id="companyName"></span></span>
     <div class="lang"><button data-act="setLang" data-id="id">ID</button><button data-act="setLang" data-id="en">EN</button></div>
     <span id="dbBadge" class="pill">Local Mode</span>
     <span id="roleBadge" class="pill pill-role hidden">GUEST</span>
@@ -1452,9 +1456,9 @@ async function fetchRoleForUser(userId) {
 }
 
 function renderPlanBanner() {
-  const el = $('planBanner'), crumb = document.querySelector('.crumb');
+  const el = $('planBanner'), chip = $('companyChip');
   if (!el) return;
-  if (crumb) crumb.textContent = currentCompany ? ((currentCompany.name === 'Perusahaan Utama' && LANG === 'en') ? 'Main Company' : currentCompany.name) : 'Asset Management System';
+  if (chip) { const nm = currentCompany && currentUser ? ((currentCompany.name === 'Perusahaan Utama' && LANG === 'en') ? 'Main Company' : currentCompany.name) : ''; $('companyName').textContent = nm; chip.title = nm; chip.classList.toggle('hidden', !nm); }
   const c = currentCompany;
   if (!c || !currentUser) { el.classList.add('hidden'); return; }
   let msg = '', tone = 'info';
@@ -1614,7 +1618,6 @@ function filteredAssets() {
 function refreshAll() {
   populateSelects(); renderDashboard(); renderSchedule(); renderMaster(); renderLogs(); updateBulkBar(); renderRoleUI();
   $('cntAssets').textContent = assetData.length; $('cntLogs').textContent = mutasiData.length;
-  $('headerSub').textContent = cabangData.map(c => c.nama).join(' • ') || 'Operational asset tracking';
   icons();
 }
 function opt(list, sel, allLabel) { return (allLabel !== undefined ? `<option value="">${allLabel}</option>` : '') + list.map(x => `<option value="${esc(x)}" ${x === sel ? 'selected' : ''}>${esc(x)}</option>`).join(''); }

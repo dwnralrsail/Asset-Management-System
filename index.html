@@ -218,6 +218,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <div class="nav-title">Transactions</div>
     <button class="nav-item" id="tab-mutasi" data-act="tab" data-id="mutasi"><i data-lucide="arrow-left-right"></i>Mutation &amp; Service Logs<span id="cntLogs" class="nav-count">0</span></button>
     <button class="nav-item" id="tab-opname" data-feat="opname" data-act="tab" data-id="opname"><i data-lucide="clipboard-check"></i>Stock Opname</button>
+    <button class="nav-item" data-feat="bast" data-act="openBast"><i data-lucide="file-signature"></i>Handovers (BAST)</button>
     <button class="nav-item" id="tab-depr" data-feat="depr" data-perm="view_price" data-act="tab" data-id="depr"><i data-lucide="trending-down"></i>Depreciation</button>
     <div class="nav-title">Import and export</div>
     <button class="nav-item" data-perm="import" data-act="openImport"><i data-lucide="upload"></i>Import from Excel / CSV</button>
@@ -613,6 +614,53 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     </div>
     <div id="detailBody" class="p-6 overflow-y-auto text-sm space-y-5"></div>
     <div id="detailFooter" class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2"></div>
+  </div>
+</div>
+
+<div id="modalBastList" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><div><h3 class="font-bold">Asset handovers (BAST)</h3><p class="text-xs text-slate-400">Who holds which asset, with a printable handover letter.</p></div>
+      <button data-act="closeModal" data-id="modalBastList" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 overflow-y-auto grow space-y-3">
+      <div class="flex flex-wrap gap-2"><input id="bastQ" class="input" style="max-width:260px" placeholder="Search holder, code, BAST no...">
+        <select id="bastFilter" class="input" style="max-width:200px"><option value="active">Currently held</option><option value="overdue">Overdue</option><option value="returned">Returned</option><option value="all">All</option></select></div>
+      <div id="bastErr" class="text-sm text-rose-600"></div>
+      <div class="border border-slate-200 rounded-lg overflow-x-auto"><table class="data-table w-full text-left text-xs min-w-max">
+        <thead class="bg-slate-100 text-slate-600 uppercase"><tr><th class="p-2.5">BAST No.</th><th class="p-2.5">Asset</th><th class="p-2.5">Holder</th><th class="p-2.5">Handed over</th><th class="p-2.5">Expected return</th><th class="p-2.5">Status</th><th class="p-2.5 text-center">Actions</th></tr></thead>
+        <tbody id="bastBody" class="divide-y divide-slate-100"></tbody></table></div>
+      <p id="bastNote" class="text-xs text-slate-400"></p>
+    </div>
+  </div>
+</div>
+
+<div id="modalBastForm" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-[60] p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold">Hand over asset</h3>
+      <button data-act="closeModal" data-id="modalBastForm" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 overflow-y-auto grow space-y-3">
+      <div class="rounded-lg bg-slate-50 border border-slate-200 p-3 text-sm"><span class="font-mono font-bold text-blue-600" id="bfCode"></span> <span id="bfName" class="font-medium"></span></div>
+      <div><label class="lbl">Receiver name *</label><input id="bfHolder" class="input" placeholder="Full name"></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Employee ID</label><input id="bfHolderId" class="input"></div><div><label class="lbl">Department</label><input id="bfDept" class="input"></div></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Phone</label><input id="bfPhone" class="input"></div><div><label class="lbl">Handed over by</label><input id="bfGiver" class="input" placeholder="Your name"></div></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Handover date</label><input id="bfDate" type="date" class="input"></div><div><label class="lbl">Expected return (optional)</label><input id="bfDue" type="date" class="input"></div></div>
+      <div><label class="lbl">Condition</label><select id="bfCond" class="input"><option value="Excellent">Excellent</option><option value="Good">Good</option><option value="Minor Damage">Minor Damage</option><option value="Major Damage">Major Damage</option></select></div>
+      <div><label class="lbl">Notes / accessories</label><textarea id="bfNotes" class="input" rows="2" placeholder="e.g. with charger and bag"></textarea></div>
+    </div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalBastForm">Cancel</button><button class="btn btn-primary" id="bfSave" data-act="saveBast"><i data-lucide="file-down"></i>Save and print letter</button></div>
+  </div>
+</div>
+
+<div id="modalBastReturn" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-[60] p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold">Return asset</h3>
+      <button data-act="closeModal" data-id="modalBastReturn" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 overflow-y-auto grow space-y-3">
+      <div class="rounded-lg bg-slate-50 border border-slate-200 p-3 text-sm" id="brInfo"></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Return date</label><input id="brDate" type="date" class="input"></div><div><label class="lbl">Received by</label><input id="brReceiver" class="input" placeholder="Your name"></div></div>
+      <div><label class="lbl">Condition on return</label><select id="brCond" class="input"><option value="Excellent">Excellent</option><option value="Good">Good</option><option value="Minor Damage">Minor Damage</option><option value="Major Damage">Major Damage</option></select></div>
+      <div><label class="lbl">Notes</label><textarea id="brNotes" class="input" rows="2"></textarea></div>
+    </div>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalBastReturn">Cancel</button><button class="btn btn-primary" id="brSave" data-act="saveReturn"><i data-lucide="file-down"></i>Save and print letter</button></div>
   </div>
 </div>
 
@@ -1937,6 +1985,7 @@ function viewAsset(kode) {
   $('detailBody').innerHTML = `<div><p class="font-mono font-bold text-blue-600">${esc(a.kode)}</p><h4 class="text-lg font-bold text-slate-900">${esc(a.nama)}</h4><div class="flex gap-2 mt-2">${badge(a.status, STATUS_CLS)}${badge(a.kondisi, COND_CLS)}</div></div><div>${row('Category', esc(a.kategori))}${row('Branch', esc(a.cabang))}${row('Location', esc(a.lokasi) || '-')}${row('Acquisition date', fmtDate(a.tgl))}${permOK('view_price') ? row('Asset value', fmtIDR(a.harga)) + (deprFor(a).usable ? row('Book value', fmtIDR(deprFor(a).book)) : '') : ''}${row('PIC', esc(a.pic) || '-')}${row('S/N', esc(a.sn) || '-')}${row('Warranty until', a.garansi ? fmtDate(a.garansi) : '-')}${row('Next maintenance', dueHtml(a.servis, 'service', a.rm ? a.rmRemind : 30))}</div>${a.specs ? `<div><p class="text-xs font-semibold text-slate-500 uppercase mb-1">Specifications / Notes</p><p class="text-sm text-slate-700" style="white-space:pre-wrap">${esc(a.specs)}</p></div>` : ''}<div><p class="text-xs font-semibold text-slate-500 uppercase mb-2">History (${logs.length})</p>${logs.length ? logs.map(m => `<div class="py-1 border-b border-slate-100 text-xs">${fmtDate(m.tgl)} • <b>${esc(m.tipe)}</b> (${esc(m.status)}) — ${esc(m.tujuan) || '-'}</div>`).join('') : '<p class="text-slate-400 text-xs">No history yet.</p>'}</div>`;
   $('detailFooter').innerHTML = `${a.rm ? `<button class="btn btn-ghost" data-act="doneRM" data-id="${esc(a.kode)}" ${!(canAssets() && canLogs()) ? 'disabled' : ''}>Maintenance done</button>` : ''}<button class="btn btn-ghost" data-act="addLogFor" data-id="${esc(a.kode)}" ${!canLogs() ? 'disabled' : ''}>Add log</button>${permOK('labels') ? `<button class="btn btn-ghost" data-act="labelOne" data-id="${esc(a.kode)}">QR label</button>` : ''}<button class="btn btn-primary" data-act="editAsset" data-id="${esc(a.kode)}" ${!canAssets() ? 'disabled' : ''}>Edit</button>`;
   openModal('modalDetail');
+  if (featOK('bast') && sb && currentUser) { $('detailBody').insertAdjacentHTML('beforeend', `<div id="detailHolder" data-k="${esc(kode)}"><p class="text-xs text-slate-400">Loading...</p></div>`); loadBast().then(() => renderDetailHolder(kode)); }
 }
 
 function nextLogId() { let max = 0; mutasiData.forEach(m => { const r = /^LOG-(\d+)$/.exec(m.id); if (r) max = Math.max(max, +r[1]); }); return `LOG-${String(max + 1).padStart(3, '0')}`; }
@@ -2435,6 +2484,7 @@ function commitImport() {
 function closeMenus() { document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden')); }
 function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden'); closeMenus(); if (was) m.classList.remove('hidden'); }
 const I18N={"Dashboard":"Dashboard","Asset data":"Data aset","Assets":"Aset","Branches":"Cabang","Categories":"Kategori","Transactions":"Transaksi","Mutation & Service Logs":"Mutasi & Riwayat Servis","Import and export":"Impor dan ekspor","Import from Excel / CSV":"Impor dari Excel / CSV","Export to Excel":"Ekspor ke Excel","Export to PDF":"Ekspor ke PDF","Download import template":"Unduh template impor","System":"Sistem","Sync with Supabase":"Sinkronkan dengan Supabase","Deleted / Restore":"Terhapus / Pulihkan","Backup all data (.json)":"Cadangkan semua data (.json)","Restore from backup":"Pulihkan dari cadangan","Load sample data":"Muat data contoh","Clear all data":"Hapus semua data","Asset Management System":"Sistem Manajemen Aset","Asset Management":"Manajemen Aset","Logout":"Keluar","Sign out":"Keluar","Menu":"Menu","Local Mode":"Mode Lokal","Signed Out":"Belum masuk","Supabase Connected":"Terhubung ke Supabase","Supabase Offline":"Supabase tidak terjangkau","Syncing...":"Menyinkronkan…","Syncing…":"Menyinkronkan…","Saving…":"Menyimpan…","Not saved — will retry":"Belum tersimpan, akan dicoba lagi","GUEST":"Tamu","Operational asset tracking":"Pencatatan aset operasional","Sign in":"Masuk","Sign In":"Masuk","Password":"Kata sandi","Use the account given to you by your administrator.":"Gunakan akun yang diberikan oleh administrator Anda.","Every office asset, recorded and maintained.":"Setiap aset kantor, tercatat dan terawat.","One record for each unit, with its full history.":"Satu catatan untuk setiap unit, lengkap dengan riwayatnya.","Routine maintenance reminders before they become overdue.":"Pengingat perawatan rutin sebelum jadwalnya terlewat.","Branch transfers and service logs in one place.":"Mutasi antar cabang dan riwayat servis dalam satu tempat.","Signed in as {} ({})":"Masuk sebagai {} ({})","Signed out.":"Anda sudah keluar.","Sign in first.":"Silakan masuk terlebih dahulu.","Supabase client not initialized.":"Koneksi Supabase belum siap.","Total Units":"Total Unit","Total Asset Value":"Total Nilai Aset","Excludes disposed assets":"Tidak termasuk aset yang sudah afkir","Active":"Aktif","Ready":"Siap","Maintenance Due":"Perawatan Jatuh Tempo","{} overdue":"{} terlambat","Repair / Transit":"Perbaikan / Transit","Under repair or in transit":"Sedang diperbaiki atau dalam perjalanan","Open Logs":"Log Terbuka","Service / transfer in progress":"Servis / mutasi sedang berjalan","Maintenance {}":"Perawatan {}","Total cost of logs this year":"Total biaya log tahun ini","Routine Assets":"Aset Rutin","With a maintenance schedule":"Punya jadwal perawatan","Maintenance Schedule":"Jadwal Perawatan","View all due":"Lihat semua yang jatuh tempo","Needs Attention":"Perlu Perhatian","Status Breakdown":"Rincian Status","Units by Branch":"Unit per Cabang","Units by Category":"Unit per Kategori","Maintenance cost per month":"Biaya perawatan per bulan","Recent Activity":"Aktivitas Terbaru","units":"unit","{} units":"{} unit","No data yet.":"Belum ada data.","All clear.":"Semua aman.","No logs yet.":"Belum ada log.","No maintenance cost recorded this year.":"Belum ada biaya perawatan tercatat tahun ini.","No routine maintenance set up yet.":"Belum ada perawatan rutin yang diatur.","Nothing due in the next 60 days ({} routine units tracked).":"Tidak ada yang jatuh tempo dalam 60 hari ke depan ({} unit rutin dipantau).","Log done":"Catat selesai","Overdue {}d":"Telat {} hari","Due in {}d":"{} hari lagi","Due today":"Hari ini","In {}d":"{} hari lagi","Service overdue":"Servis terlambat","Service due":"Servis segera","Warranty ending":"Garansi berakhir","Major damage":"Rusak berat","Open log":"Log terbuka","{} [{}] — overdue {}d":"{} [{}] — terlambat {} hari","{} [{}] — due in {}d":"{} [{}] — jatuh tempo {} hari lagi","{} [{}] — ends in {}d":"{} [{}] — berakhir {} hari lagi","{} [{}] marked Active":"{} [{}] masih berstatus Aktif","{}: {} [{}]":"{}: {} [{}]","Every {} {}":"Setiap {} {}","month":"bulan","months":"bulan","year":"tahun","years":"tahun","week":"minggu","weeks":"minggu","day":"hari","days":"hari","{} (overdue)":"{} (terlambat)","{} (expired)":"{} (kedaluwarsa)","{} ({}d)":"{} ({} hari)","(overdue)":"(terlambat)","(expired)":"(kedaluwarsa)","Under Repair":"Dalam Perbaikan","In Transit":"Dalam Perjalanan","Disposed":"Afkir","Excellent":"Sangat Baik","Good":"Baik","Minor Damage":"Rusak Ringan","Major Damage":"Rusak Berat","In Progress":"Berjalan","Completed":"Selesai","Cancelled":"Dibatalkan","Service / Repair":"Servis / Perbaikan","Branch Transfer":"Mutasi Cabang","Routine Maintenance":"Perawatan Rutin","Disposed / Written Off":"Afkir / Dihapusbukukan","Search name, code, S/N, PIC...":"Cari nama, kode, S/N, PIC...","All Branches":"Semua Cabang","All Categories":"Semua Kategori","All Statuses":"Semua Status","All Maintenance":"Semua Perawatan","Routine only":"Hanya rutin","Due / overdue":"Jatuh tempo / terlambat","Clear filters":"Hapus filter","Columns":"Kolom","Display columns":"Tampilkan kolom","Add New Asset":"Tambah Aset Baru","No.":"No.","Asset Code":"Kode Aset","Asset Name":"Nama Aset","Category":"Kategori","Branch":"Cabang","Location / Room":"Lokasi / Ruangan","Location":"Lokasi","Qty":"Jml","Unit Price":"Harga Satuan","Asset Value":"Nilai Aset","Asset value":"Nilai aset","Condition":"Kondisi","Status":"Status","Routine":"Rutin","Next Maintenance":"Perawatan Berikutnya","Next maintenance":"Perawatan berikutnya","Warranty":"Garansi","Actions":"Aksi","Serial Number":"Nomor Seri","Code":"Kode","Name":"Nama","Value":"Nilai","Showing":"Menampilkan","of":"dari","units • Total value {}":"unit • Total nilai {}","unit • Total value {}":"unit • Total nilai {}","Page {} / {}":"Halaman {} / {}","No units found.":"Tidak ada unit yang ditemukan.","Set status…":"Ubah status…","{} selected":"{} dipilih","Delete":"Hapus","Edit":"Ubah","View":"Lihat","Clear selection":"Batalkan pilihan","Close":"Tutup","Cancel":"Batal","Confirm":"Konfirmasi","Delete all":"Hapus semua","Add log":"Tambah log","Maintenance done":"Perawatan selesai","Asset Details":"Detail Aset","History ({})":"Riwayat ({})","No history yet.":"Belum ada riwayat.","Log ID":"ID Log","Asset":"Aset","Date":"Tanggal","Action Type":"Jenis Tindakan","Origin":"Asal","Destination / Vendor":"Tujuan / Vendor","Cost":"Biaya","Notes":"Catatan","Search code, name, vendor...":"Cari kode, nama, vendor...","All Types":"Semua Jenis","Add Log Entry":"Tambah Log","No log entries":"Belum ada entri log","entries • Total cost (excl. cancelled):":"entri • Total biaya (tidak termasuk yang dibatalkan):","Mutation, service and routine maintenance history":"Riwayat mutasi, servis, dan perawatan rutin","Edit Asset Unit":"Ubah Unit Aset","Branch *":"Cabang *","Category *":"Kategori *","Asset Code (auto, 1 code = 1 unit)":"Kode Aset (otomatis, 1 kode = 1 unit)","Asset Name *":"Nama Aset *","Units to Create *":"Jumlah Unit yang Dibuat *","Unit Price (IDR)":"Harga Satuan (IDR)","Acquisition Date":"Tanggal Perolehan","PIC (Person in Charge)":"PIC (Penanggung Jawab)","Serial Number (S/N)":"Nomor Seri (S/N)","Warranty Until":"Garansi Sampai","Next Maintenance Due":"Jatuh Tempo Perawatan Berikutnya","Specifications / Notes":"Spesifikasi / Catatan","Save Asset":"Simpan Aset","This asset needs routine maintenance":"Aset ini memerlukan perawatan rutin","Repeat every":"Ulangi setiap","Last maintenance":"Perawatan terakhir","Remind (days before)":"Ingatkan (hari sebelumnya)","Months":"Bulan","Days":"Hari","Weeks":"Minggu","Years":"Tahun","e.g. ThinkPad X1 Carbon":"mis. ThinkPad X1 Carbon","e.g. John Doe":"mis. Budi Santoso","Server Room / Floor 2":"Ruang Server / Lantai 2","Hardware specs or notes...":"Spesifikasi atau catatan...","1 code = 1 unit:":"1 kode = 1 unit:","Creates":"Membuat","{} separate codes":"{} kode terpisah","starting from":"mulai dari","1 is automatically split into 1 code = 1 unit.":"1 otomatis dipecah menjadi 1 kode = 1 unit.","Add Mutation / Service Log":"Tambah Log Mutasi / Servis","Edit Log Entry":"Ubah Log","Asset Code *":"Kode Aset *","Log Date *":"Tanggal Log *","Action Type *":"Jenis Tindakan *","Origin / Current Branch":"Asal / Cabang Saat Ini","Destination / Service Vendor":"Tujuan / Vendor Servis","Cost (IDR)":"Biaya (IDR)","Log Status":"Status Log","Update the asset automatically":"Perbarui aset secara otomatis","(status / branch) based on this log.":"(status / cabang) berdasarkan log ini.","Save Log":"Simpan Log","Type to search...":"Ketik untuk mencari...","Manage":"Kelola","Manage Branches":"Kelola Cabang","Manage Categories":"Kelola Kategori","Branch name":"Nama cabang","Category name":"Nama kategori","Add":"Tambah","In use":"Dipakai","CODE":"KODE","Fill code and name.":"Isi kode dan nama.","Duplicate code or name.":"Kode atau nama sudah ada.","Item is still in use.":"Item ini masih dipakai.","Delete item":"Hapus item","Export":"Ekspor","Everything":"Semuanya","Summary + Assets + Logs":"Ringkasan + Aset + Log","Dashboard Summary":"Ringkasan Dashboard","KPIs, per branch, per category":"KPI, per cabang, per kategori","Asset Data":"Data Aset","Full asset listing":"Daftar aset lengkap","Maintenance and transfer history":"Riwayat perawatan dan mutasi","Only export assets matching the current filter / search":"Ekspor hanya aset sesuai filter / pencarian saat ini","Excel file downloaded.":"File Excel sudah diunduh.","PDF downloaded.":"PDF sudah diunduh.","Drop your file here, or click to browse":"Letakkan file di sini, atau klik untuk memilih","No file selected":"Belum ada file dipilih","Download template":"Unduh template","If an asset code already exists":"Jika kode aset sudah ada","Skip the row":"Lewati baris","Update the existing asset (overwrites it with the file's values)":"Perbarui aset yang ada (ditimpa dengan isi file)","Import as a new asset (new code)":"Impor sebagai aset baru (kode baru)","Unknown branches / categories":"Cabang / kategori yang tidak dikenal","Create them automatically":"Buat otomatis","If unchecked, rows with an unknown branch or category are rejected.":"Jika tidak dicentang, baris dengan cabang atau kategori tidak dikenal akan ditolak.","Type":"Jenis","Row":"Baris","Result":"Hasil","Import":"Impor","Nothing to import":"Tidak ada yang diimpor","Qty ignored on update (1 code = 1 unit)":"Jml diabaikan saat update (1 kode = 1 unit)","Code already exists":"Kode sudah ada","Code auto-generated":"Kode dibuat otomatis","Duplicate code inside the file":"Kode ganda di dalam file","Duplicate code → new code assigned":"Kode ganda → diberi kode baru","Same log already exists":"Log yang sama sudah ada","Asset name is empty":"Nama aset kosong","Asset code is empty":"Kode aset kosong","Date missing or not recognised":"Tanggal kosong atau tidak dikenali","Acquisition date not recognised (left blank)":"Tanggal perolehan tidak dikenali (dikosongkan)","Qty invalid → 1":"Jml tidak valid → 1","No branch available":"Tidak ada cabang","No category available":"Tidak ada kategori","Unknown branch \"{}\"":"Cabang \"{}\" tidak dikenal","Unknown category \"{}\"":"Kategori \"{}\" tidak dikenal","Branch empty → {}":"Cabang kosong → {}","Category empty → {}":"Kategori kosong → {}","Asset code {} not found":"Kode aset {} tidak ditemukan","Unknown condition \"{}\" → Good":"Kondisi \"{}\" tidak dikenal → Baik","Unknown status \"{}\" → Active":"Status \"{}\" tidak dikenal → Aktif","Unknown status \"{}\" → Completed":"Status \"{}\" tidak dikenal → Selesai","Unknown action type \"{}\" → Service / Repair":"Jenis tindakan \"{}\" tidak dikenal → Servis / Perbaikan","Unknown interval unit \"{}\" → Months":"Satuan interval \"{}\" tidak dikenal → Bulan","Routine maintenance needs an interval → routine turned off":"Perawatan rutin butuh interval → rutin dimatikan","Last maintenance date not recognised":"Tanggal perawatan terakhir tidak dikenali","Next maintenance date not recognised":"Tanggal perawatan berikutnya tidak dikenali","Qty {} → {} separate units ({} … {})":"Jml {} → {} unit terpisah ({} … {})","Import {} record{}":"Impor {} data","Import {} units":"Impor {} unit","Showing the first 100 of {} rows (errors first). All valid rows will be imported.":"Menampilkan 100 baris pertama dari {} baris (error lebih dulu). Semua baris yang valid akan diimpor.","Import complete: {} new, {} updated assets, {} logs.":"Impor selesai: {} baru, {} aset diperbarui, {} log.","Could not read the file.":"File tidak bisa dibaca.","Could not read this file:":"File ini tidak bisa dibaca:","No asset or log rows were found. Check the column headers (download the template for reference).":"Tidak ada baris aset atau log. Periksa judul kolom (unduh template sebagai acuan).","Excel library could not be loaded. Check your internet connection.":"Library Excel gagal dimuat. Periksa koneksi internet Anda.","Excel reader could not be loaded. Check your internet connection.":"Pembaca Excel gagal dimuat. Periksa koneksi internet Anda.","Excel library could not be loaded (check your internet). Exporting CSV instead.":"Library Excel gagal dimuat (periksa internet). Mengekspor CSV sebagai gantinya.","PDF library is still loading or blocked. Please try again.":"Library PDF masih dimuat atau diblokir. Silakan coba lagi.","Metric":"Metrik","Summary":"Ringkasan","Asset Summary":"Ringkasan Aset","Generated":"Dibuat","Deleted Records & Restore (Super Admin)":"Data Terhapus & Pemulihan (Super Admin)","Archived snapshots of deleted items":"Arsip data yang sudah dihapus","Table":"Tabel","Key":"Kunci","Deleted By":"Dihapus Oleh","Deleted At":"Dihapus Pada","Archived":"Diarsipkan","Restored":"Dipulihkan","Restore":"Pulihkan","Loading archived records...":"Memuat arsip...","No archived records.":"Tidak ada arsip.","Record not found.":"Data tidak ditemukan.","Restored {}.":"{} dipulihkan.","Failed to archive record before delete:":"Gagal mengarsipkan data sebelum dihapus:","Please confirm":"Mohon konfirmasi","Delete asset":"Hapus aset","Delete assets":"Hapus aset","Delete log":"Hapus log","Replace":"Ganti","Sample data":"Data contoh","Restore backup":"Pulihkan cadangan","Clear everything":"Hapus semuanya","Upload local data":"Unggah data lokal","Upload":"Unggah","Archive & delete \"{}\"?":"Arsipkan & hapus \"{}\"?","Archive & delete {} selected units?":"Arsipkan & hapus {} unit terpilih?","Archive & delete asset {}?":"Arsipkan & hapus aset {}?","Its log history is archived too. You can restore both from Deleted / Restore.":"Riwayat lognya ikut diarsipkan. Keduanya bisa dipulihkan dari Terhapus / Pulihkan.","Archive & delete log {}?":"Arsipkan & hapus log {}?","Delete ALL assets and logs for everyone?":"Hapus SEMUA aset dan log untuk semua orang?","A backup file is downloaded first. This cannot be undone from the app.":"File cadangan diunduh lebih dulu. Ini tidak bisa dibatalkan dari aplikasi.","Replace ALL current data (for everyone) with sample data?":"Ganti SEMUA data saat ini (untuk semua orang) dengan data contoh?","A backup of the current data is downloaded first.":"Cadangan data saat ini diunduh lebih dulu.","Restore this backup ({} assets)?":"Pulihkan cadangan ini ({} aset)?","This REPLACES all current data for everyone. A backup of the current data is downloaded first.":"Ini MENGGANTI semua data saat ini untuk semua orang. Cadangan data saat ini diunduh lebih dulu.","The cloud database is empty, but this browser holds {} assets.":"Database cloud masih kosong, tetapi browser ini menyimpan {} aset.","Upload them to the cloud now?":"Unggah ke cloud sekarang?","(Cancel = clear the local copy and start empty.)":"(Batal = hapus salinan lokal dan mulai dari kosong.)","Asset {} archived & deleted.":"Aset {} diarsipkan & dihapus.","Asset {} added.":"Aset {} ditambahkan.","Asset updated.":"Aset diperbarui.","Log saved.":"Log disimpan.","Log archived & deleted.":"Log diarsipkan & dihapus.","Selected units archived & deleted.":"Unit terpilih diarsipkan & dihapus.","Status updated to {}.":"Status diubah menjadi {}.","Backup restored.":"Cadangan dipulihkan.","Invalid backup file":"File cadangan tidak valid","Asset code not found.":"Kode aset tidak ditemukan.","Up to date with Supabase.":"Sudah sinkron dengan Supabase.","Could not reach Supabase.":"Tidak bisa terhubung ke Supabase.","Supabase connection issue:":"Masalah koneksi Supabase:","Could not save to browser storage.":"Tidak bisa menyimpan ke penyimpanan browser.","Could not save to Supabase:":"Tidak bisa menyimpan ke Supabase:","Read-only role.":"Peran hanya-lihat.","Read-only role: cannot modify assets.":"Peran hanya-lihat: tidak bisa mengubah aset.","Super Admin only.":"Hanya untuk Super Admin.","Only Super Admin can delete assets.":"Hanya Super Admin yang bisa menghapus aset.","Only Super Admin can delete branches/categories.":"Hanya Super Admin yang bisa menghapus cabang/kategori.","Only Super Admin can delete logs.":"Hanya Super Admin yang bisa menghapus log.","Only Super Admin can load sample data.":"Hanya Super Admin yang bisa memuat data contoh.","Only Super Admin can restore a backup.":"Hanya Super Admin yang bisa memulihkan cadangan.","Some changes were not allowed for your role and were reverted.":"Sebagian perubahan tidak diizinkan untuk peran Anda dan dibatalkan.","Unnamed asset":"Aset tanpa nama","Total asset value":"Total nilai aset","(Unassigned)":"(Belum ditentukan)","Action":"Tindakan","Asset Logs":"Log Aset","By Branch":"Per Cabang","By Category":"Per Kategori","Email":"Email","Log":"Log","Logs":"Log","Open logs":"Log terbuka","Under repair / in transit":"Dalam perbaikan / transit","Routine-maintenance assets":"Aset perawatan rutin","Valuation":"Valuasi","Units":"Unit","Yes":"Ya","Interval":"Interval"};
+Object.assign(I18N,{"Handovers (BAST)":"Serah Terima (BAST)","Asset handovers (BAST)":"Serah terima aset (BAST)","Who holds which asset, with a printable handover letter.":"Siapa memegang aset apa, lengkap dengan surat serah terima yang bisa dicetak.","Search holder, code, BAST no...":"Cari pemegang, kode, no. BAST...","Currently held":"Sedang dipegang","Overdue":"Terlambat","Returned":"Sudah dikembalikan","BAST No.":"No. BAST","Holder":"Pemegang","Handed over":"Diserahkan","Expected return":"Rencana kembali","Hand over asset":"Serahkan aset","Return asset":"Kembalikan aset","Receiver name *":"Nama penerima *","Full name":"Nama lengkap","Employee ID":"No. karyawan","Department":"Departemen","Phone":"Telepon","Handed over by":"Diserahkan oleh","Your name":"Nama Anda","Handover date":"Tanggal serah terima","Expected return (optional)":"Rencana kembali (opsional)","Notes / accessories":"Catatan / kelengkapan","e.g. with charger and bag":"mis. beserta charger dan tas","Save and print letter":"Simpan dan cetak surat","Return date":"Tanggal kembali","Received by":"Diterima oleh","Condition on return":"Kondisi saat kembali","Holder (BAST)":"Pemegang (BAST)","Not handed over to anyone.":"Belum diserahkan ke siapa pun.","Hand over":"Serahkan","Print letter":"Cetak surat","Handover":"Serah terima","Return":"Pengembalian","Handover letter":"Surat serah terima","Return letter":"Surat pengembalian","With holder":"Dipegang","No handovers.":"Belum ada serah terima.","{} of {}":"{} dari {}","Handover is not set up yet. Run handover.sql in Supabase first.":"Serah terima belum diaktifkan. Jalankan handover.sql di Supabase terlebih dahulu.","Handovers need an online account (Supabase).":"Serah terima membutuhkan akun online (Supabase).","This asset is already handed over.":"Aset ini sudah diserahkan.","Enter the receiver name.":"Isi nama penerima.","Expected return cannot be before the handover date.":"Rencana kembali tidak boleh sebelum tanggal serah terima.","Return date cannot be before the handover date.":"Tanggal kembali tidak boleh sebelum tanggal serah terima.","Could not create a BAST number. Please try again.":"Gagal membuat nomor BAST. Coba lagi.","Handover saved.":"Serah terima disimpan.","Asset returned.":"Aset dikembalikan.","Handover deleted.":"Serah terima dihapus.","Delete handover":"Hapus serah terima","Only Super Admin can delete.":"Hanya Super Admin yang bisa menghapus.","Delete handover {} ({} \u2192 {})? This cannot be undone.":"Hapus serah terima {} ({} \u2192 {})? Tidak bisa dibatalkan."});
 Object.assign(I18N,{"Package":"Paket","Basic":"Basic","Business":"Business","Enterprise":"Enterprise","Edit packages":"Atur paket","Feature exceptions for this company":"Pengecualian fitur untuk perusahaan ini","Follow package":"Ikuti paket","Always on":"Selalu aktif","Always off":"Selalu nonaktif","During a trial, all features are open whatever the package.":"Selama trial, semua fitur terbuka apa pun paketnya.","Choose what each package includes. Changes apply to every company on that package right away. Limits are filled in when you pick a package for a company; you can still change them per company.":"Pilih isi tiap paket. Perubahan langsung berlaku untuk semua perusahaan di paket itu. Batas aset/pengguna terisi otomatis saat Anda memilih paket untuk perusahaan; tetap bisa diubah per perusahaan.","Packages saved.":"Paket disimpan.","Packages are not set up yet. Run plans.sql in Supabase first.":"Paket belum diaktifkan. Jalankan plans.sql di Supabase terlebih dahulu.","{} is available in the {} package. Contact the owner to upgrade.":"{} tersedia di paket {}. Hubungi pemilik untuk upgrade.","QR labels & scan":"Label QR & pindai","Custom asset code format":"Format kode aset sendiri","Audit trail":"Jejak audit","Asset handover (BAST)":"Serah terima aset (BAST)","Photos & attachments":"Foto & lampiran","Email / WhatsApp reminders":"Pengingat Email / WhatsApp","Role permissions":"Hak akses peran","Depreciation":"Penyusutan","Stock opname":"Stok opname"});
 Object.assign(I18N,{"Depreciation":"Penyusutan","As of date":"Per tanggal","Search name or code...":"Cari nama atau kode...","Useful life settings":"Pengaturan umur manfaat","Export":"Ekspor","Acquisition date":"Tanggal perolehan","Cost":"Harga perolehan","Useful life":"Umur manfaat","Per month":"Per bulan","Accumulated":"Akumulasi","Book value":"Nilai buku","Straight-line method, counted in full months from the acquisition date. Disposed assets and assets without an acquisition date or price are left out of the totals. This is a management estimate; confirm the rates with your accountant.":"Metode garis lurus, dihitung per bulan penuh sejak tanggal perolehan. Aset yang sudah dilepas serta aset tanpa tanggal perolehan atau harga tidak dihitung dalam total. Ini estimasi manajemen; konfirmasikan tarifnya dengan akuntan Anda.","Set how many years each category is used and the value left at the end (as a % of the price). Common examples: 4 years for computers and office equipment, 8 years for air conditioners, machines and cars.":"Atur berapa tahun tiap kategori dipakai dan nilai sisa di akhir (dalam % dari harga). Contoh umum: 4 tahun untuk komputer dan peralatan kantor, 8 tahun untuk AC, mesin, dan mobil.","Category":"Kategori","Years":"Tahun","Residual %":"Nilai sisa %","All other categories":"Semua kategori lainnya","Total cost":"Total harga perolehan","Accumulated depreciation":"Akumulasi penyusutan","Cost minus accumulated depreciation":"Harga dikurangi akumulasi penyusutan","{} assets counted":"{} aset dihitung","{}% of cost":"{}% dari harga","{} yrs":"{} thn","{} / {} months":"{} / {} bulan","Fully depreciated":"Habis disusutkan","No price":"Tanpa harga","No acquisition date":"Tanpa tanggal perolehan","No assets to show.":"Tidak ada aset untuk ditampilkan.","Depreciation settings saved.":"Pengaturan penyusutan disimpan.","Depreciation is not set up yet. Run depreciation.sql in Supabase first.":"Penyusutan belum diaktifkan. Jalankan depreciation.sql di Supabase terlebih dahulu.","Depreciation report downloaded.":"Laporan penyusutan diunduh."});
 Object.assign(I18N,{"Role permissions":"Hak akses peran","Choose what each role can use. Super Admin can always use everything. Viewer can never change data.":"Pilih fitur apa yang boleh dipakai tiap peran. Super Admin selalu bisa memakai semuanya. Viewer tidak pernah bisa mengubah data.","Feature":"Fitur","Add and edit assets":"Tambah dan ubah aset","Import from Excel / CSV":"Impor dari Excel / CSV","Record mutation and service logs":"Catat mutasi dan riwayat servis","Stock opname (count and close)":"Stok opname (menghitung dan menutup)","Print QR labels":"Cetak label QR","Export to Excel / PDF":"Ekspor ke Excel / PDF","See asset values, prices and costs":"Lihat nilai aset, harga, dan biaya","Locked by server":"Dikunci server","Hidden only":"Hanya disembunyikan","Permissions saved.":"Hak akses disimpan.","Permissions are not set up yet. Run role_permissions.sql in Supabase first.":"Hak akses belum diaktifkan. Jalankan role_permissions.sql di Supabase terlebih dahulu."});
@@ -2927,6 +2977,190 @@ function opExport() {
 }
 
 // ---------------- Owner panel & user management ----------------
+// ================= Asset handover (BAST) =================
+let bastRows = [], bastErr = '', bastRetId = null;
+const BAST_T = {
+  id: { titleOut:'BERITA ACARA SERAH TERIMA ASET', titleRet:'BERITA ACARA PENGEMBALIAN ASET', no:'Nomor', date:'Tanggal',
+    introOut:'Pada tanggal {d}, telah dilakukan serah terima aset perusahaan dengan rincian sebagai berikut:',
+    introRet:'Pada tanggal {d}, telah dilakukan pengembalian aset perusahaan (serah terima nomor {n}) dengan rincian sebagai berikut:',
+    first:'Pihak Pertama (yang menyerahkan)', second:'Pihak Kedua (yang menerima)', retFirst:'Pihak Pertama (yang mengembalikan)', retSecond:'Pihak Kedua (yang menerima kembali)',
+    name:'Nama', empId:'No. Karyawan', dept:'Departemen', phone:'Telepon', code:'Kode', asset:'Nama Aset', cat:'Kategori', sn:'S/N', cond:'Kondisi', notes:'Catatan', due:'Rencana pengembalian', retCond:'Kondisi saat dikembalikan',
+    termsTitle:'Ketentuan:', terms:['Aset digunakan hanya untuk keperluan pekerjaan dan dirawat dengan baik oleh Pihak Kedua.','Kehilangan atau kerusakan akibat kelalaian menjadi tanggung jawab Pihak Kedua.','Aset wajib dikembalikan apabila diminta perusahaan atau saat hubungan kerja berakhir.'],
+    retClose:'Dengan ini aset telah diterima kembali oleh Pihak Pertama sesuai kondisi di atas.',
+    sign:'Yang menyerahkan', signRecv:'Yang menerima', signRet:'Yang mengembalikan', signRecvBack:'Yang menerima kembali', place:'Tempat / tanggal' },
+  en: { titleOut:'ASSET HANDOVER REPORT', titleRet:'ASSET RETURN REPORT', no:'No.', date:'Date',
+    introOut:'On {d}, the following company asset was handed over:',
+    introRet:'On {d}, the following company asset was returned (handover no. {n}):',
+    first:'First party (handing over)', second:'Second party (receiving)', retFirst:'First party (returning)', retSecond:'Second party (receiving back)',
+    name:'Name', empId:'Employee ID', dept:'Department', phone:'Phone', code:'Code', asset:'Asset name', cat:'Category', sn:'S/N', cond:'Condition', notes:'Notes', due:'Expected return', retCond:'Condition on return',
+    termsTitle:'Terms:', terms:['The asset is used for work purposes only and kept in good care by the second party.','Loss or damage caused by negligence is the responsibility of the second party.','The asset must be returned when the company asks for it or when employment ends.'],
+    retClose:'The asset has been received back by the first party in the condition stated above.',
+    sign:'Handed over by', signRecv:'Received by', signRet:'Returned by', signRecvBack:'Received back by', place:'Place / date' }
+};
+async function loadBast() {
+  if (!sb || !currentUser) { bastRows = []; bastErr = 'Handovers need an online account (Supabase).'; return false; }
+  const { data, error } = await sb.from('asset_handovers').select('*').order('handed_at', { ascending:false }).order('created_at', { ascending:false }).limit(2000);
+  if (error) { bastRows = []; bastErr = (error.code === '42P01' || /does not exist|schema cache/i.test(error.message || '')) ? 'Handover is not set up yet. Run handover.sql in Supabase first.' : error.message; return false; }
+  bastErr = ''; bastRows = data || []; return true;
+}
+const bastActive = code => bastRows.find(r => r.asset_code === code && !r.returned_at);
+const bastOverdue = r => !r.returned_at && r.due_at && r.due_at < todayStr();
+function nextBastNo() {
+  const y = new Date().getFullYear(); let max = 0;
+  bastRows.forEach(r => { const m = /^BAST-(\d{4})-(\d+)$/.exec(r.bast_no); if (m && +m[1] === y) max = Math.max(max, +m[2]); });
+  return `BAST-${y}-${String(max + 1).padStart(4, '0')}`;
+}
+function lastName(k) { try { return localStorage.getItem('ams_' + k) || ''; } catch (e) { return ''; } }
+function rememberName(k, v) { try { localStorage.setItem('ams_' + k, v); } catch (e) {} }
+function bastStatus(r) {
+  if (r.returned_at) return `<span class="badge bg-slate-100 text-slate-600">Returned</span>`;
+  return bastOverdue(r) ? `<span class="badge bg-rose-100 text-rose-700">Overdue</span>` : `<span class="badge bg-emerald-100 text-emerald-700">With holder</span>`;
+}
+function renderDetailHolder(kode) {
+  const el = $('detailHolder'); if (!el || el.dataset.k !== kode) return;
+  let h = `<p class="text-xs font-semibold text-slate-500 uppercase mb-2">Holder (BAST)</p>`;
+  if (bastErr) { el.innerHTML = h + `<p class="text-xs text-slate-400">${esc(bastErr)}</p>`; return; }
+  const hist = bastRows.filter(r => r.asset_code === kode), cur = hist.find(r => !r.returned_at), done = hist.filter(r => r.returned_at);
+  const dis = canLogs() ? '' : 'disabled';
+  if (cur) h += `<div class="rounded-lg border border-slate-200 p-3 text-sm"><div class="flex items-start justify-between gap-2"><div><div class="font-semibold">${esc(cur.holder_name)}</div><div class="text-xs text-slate-500">${esc(cur.holder_dept) || '-'} • ${fmtDate(cur.handed_at)}${cur.due_at ? ' → ' + fmtDate(cur.due_at) : ''}</div></div>${bastStatus(cur)}</div>
+      <div class="flex gap-2 mt-2"><button class="btn btn-ghost" data-act="bastPrint" data-id="${esc(cur.id)}|out">Print letter</button><button class="btn btn-primary" data-act="bastReturn" data-id="${esc(cur.id)}" ${dis}>Return asset</button></div></div>`;
+  else h += `<div class="flex items-center justify-between gap-2 text-sm"><span class="text-slate-400">Not handed over to anyone.</span><button class="btn btn-primary" data-act="bastHand" data-id="${esc(kode)}" ${dis}>Hand over</button></div>`;
+  if (done.length) h += `<div class="mt-2">${done.map(r => `<div class="flex items-center justify-between gap-2 py-1 border-b border-slate-100 text-xs"><span>${esc(r.holder_name)} • ${fmtDate(r.handed_at)} → ${fmtDate(r.returned_at)}</span><span class="whitespace-nowrap"><button class="text-blue-600" data-act="bastPrint" data-id="${esc(r.id)}|out">Handover</button> • <button class="text-blue-600" data-act="bastPrint" data-id="${esc(r.id)}|ret">Return</button></span></div>`).join('')}</div>`;
+  el.innerHTML = h; icons();
+}
+async function openBast() {
+  if (!needFeat('bast')) return;
+  openModal('modalBastList'); $('bastBody').innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Loading...</td></tr>`;
+  await loadBast(); renderBast();
+}
+function renderBast() {
+  $('bastErr').textContent = bastErr;
+  const q = ($('bastQ').value || '').toLowerCase(), f = $('bastFilter').value;
+  const rows = bastRows.filter(r => (f === 'all' || (f === 'active' && !r.returned_at) || (f === 'returned' && r.returned_at) || (f === 'overdue' && bastOverdue(r)))
+    && (!q || [r.holder_name, r.asset_code, r.asset_name, r.bast_no, r.holder_dept].some(x => String(x || '').toLowerCase().includes(q))));
+  $('bastBody').innerHTML = rows.length ? rows.map(r => `<tr class="hover:bg-slate-50"><td class="p-2.5 font-mono">${esc(r.bast_no)}</td>
+    <td class="p-2.5"><span class="font-mono text-blue-600">${esc(r.asset_code)}</span><div class="text-slate-500">${esc(r.asset_name)}</div></td>
+    <td class="p-2.5"><div class="font-medium">${esc(r.holder_name)}</div><div class="text-slate-500">${esc(r.holder_dept) || '-'}</div></td>
+    <td class="p-2.5">${fmtDate(r.handed_at)}</td><td class="p-2.5">${r.due_at ? fmtDate(r.due_at) : '-'}</td><td class="p-2.5">${bastStatus(r)}</td>
+    <td class="p-2.5 text-center whitespace-nowrap"><button class="btn btn-ghost" style="padding:.2rem .5rem" data-act="bastPrint" data-id="${esc(r.id)}|out">Handover letter</button>
+      ${r.returned_at ? `<button class="btn btn-ghost" style="padding:.2rem .5rem" data-act="bastPrint" data-id="${esc(r.id)}|ret">Return letter</button>` : `<button class="btn btn-primary" style="padding:.2rem .5rem" data-act="bastReturn" data-id="${esc(r.id)}" ${canLogs() ? '' : 'disabled'}>Return</button>`}
+      ${isSuperAdmin() ? `<button class="btn btn-ghost" style="padding:.2rem .5rem;color:#be123c" data-act="bastDelete" data-id="${esc(r.id)}">Delete</button>` : ''}</td></tr>`).join('')
+    : `<tr><td colspan="7" class="p-6 text-center text-slate-400">No handovers.</td></tr>`;
+  $('bastNote').textContent = bastRows.length ? `${rows.length} of ${bastRows.length}` : '';
+}
+async function bastHand(code) {
+  if (!needFeat('bast')) return;
+  if (!canLogs()) return toast('Read-only role.', 'warn');
+  const a = assetData.find(x => x.kode === code); if (!a) return;
+  if (!bastRows.length || bastErr) await loadBast();
+  if (bastErr) return toast(bastErr, 'error');
+  if (bastActive(code)) return toast('This asset is already handed over.', 'warn');
+  $('bfCode').textContent = a.kode; $('bfName').textContent = a.nama;
+  ['bfHolder', 'bfHolderId', 'bfDept', 'bfPhone', 'bfDue', 'bfNotes'].forEach(i => $(i).value = '');
+  $('bfGiver').value = lastName('giver'); $('bfDate').value = todayStr(); $('bfCond').value = a.kondisi || 'Good';
+  closeModal('modalDetail'); openModal('modalBastForm');
+}
+async function saveBast() {
+  const code = $('bfCode').textContent, a = assetData.find(x => x.kode === code), holder = $('bfHolder').value.trim();
+  if (!a) return;
+  if (!holder) return toast('Enter the receiver name.', 'warn');
+  const due = $('bfDue').value || null, date = $('bfDate').value || todayStr();
+  if (due && due < date) return toast('Expected return cannot be before the handover date.', 'warn');
+  const btn = $('bfSave'); btn.disabled = true;
+  try {
+    let saved = null;
+    for (let i = 0; i < 4 && !saved; i++) {
+      const row = { asset_code:a.kode, asset_name:a.nama, asset_category:a.kategori || '', asset_sn:a.sn || '', bast_no:nextBastNo(), holder_name:holder, holder_id:$('bfHolderId').value.trim(), holder_dept:$('bfDept').value.trim(),
+        holder_phone:$('bfPhone').value.trim(), giver_name:$('bfGiver').value.trim(), handed_at:date, due_at:due, condition_out:$('bfCond').value, notes:$('bfNotes').value.trim() };
+      const { data, error } = await sb.from('asset_handovers').insert(row).select().single();
+      if (!error) { saved = data; break; }
+      const m = (error.message || '') + ' ' + (error.details || '');
+      if (error.code === '23505' && /one_active/.test(m)) { toast('This asset is already handed over.', 'warn'); await loadBast(); return; }
+      if (error.code === '23505') { await loadBast(); continue; }
+      throw new Error(/row-level security/i.test(m) ? 'This change is not allowed (plan, package or role). It was not saved.' : error.message);
+    }
+    if (!saved) throw new Error('Could not create a BAST number. Please try again.');
+    rememberName('giver', $('bfGiver').value.trim());
+    closeModal('modalBastForm'); await loadBast(); toast('Handover saved.', 'success'); printBast(saved.id, 'out'); refreshBastViews(code);
+  } catch (e) { toast(e.message || String(e), 'error'); }
+  btn.disabled = false;
+}
+function refreshBastViews(code) { if (!$('modalBastList').classList.contains('hidden')) renderBast(); if ($('detailHolder')) { $('detailHolder').dataset.k = code; renderDetailHolder(code); } }
+function bastReturn(id) {
+  if (!canLogs()) return toast('Read-only role.', 'warn');
+  const r = bastRows.find(x => x.id === id); if (!r) return;
+  bastRetId = id;
+  $('brInfo').innerHTML = `<span class="font-mono font-bold text-blue-600">${esc(r.asset_code)}</span> ${esc(r.asset_name)}<div class="text-xs text-slate-500 mt-1">${esc(r.holder_name)} • ${esc(r.bast_no)}</div>`;
+  $('brDate').value = todayStr(); $('brReceiver').value = lastName('giver'); $('brCond').value = r.condition_out || 'Good'; $('brNotes').value = '';
+  closeModal('modalDetail'); openModal('modalBastReturn');
+}
+async function saveReturn() {
+  const r = bastRows.find(x => x.id === bastRetId); if (!r) return;
+  const date = $('brDate').value || todayStr();
+  if (date < r.handed_at) return toast('Return date cannot be before the handover date.', 'warn');
+  const btn = $('brSave'); btn.disabled = true;
+  try {
+    const { error } = await sb.from('asset_handovers').update({ returned_at:date, condition_in:$('brCond').value, receiver_name:$('brReceiver').value.trim(), return_notes:$('brNotes').value.trim() }).eq('id', r.id);
+    if (error) throw new Error(/row-level security/i.test(error.message || '') ? 'This change is not allowed (plan, package or role). It was not saved.' : error.message);
+    rememberName('giver', $('brReceiver').value.trim());
+    closeModal('modalBastReturn'); await loadBast(); toast('Asset returned.', 'success'); printBast(r.id, 'ret'); refreshBastViews(r.asset_code);
+  } catch (e) { toast(e.message || String(e), 'error'); }
+  btn.disabled = false;
+}
+async function bastDelete(id) {
+  if (!isSuperAdmin()) return toast('Only Super Admin can delete.', 'warn');
+  const r = bastRows.find(x => x.id === id); if (!r) return;
+  if (!(await confirmDialog(`Delete handover ${r.bast_no} (${r.asset_code} → ${r.holder_name})? This cannot be undone.`, { title:'Delete handover', ok:'Delete' }))) return;
+  const { error } = await sb.from('asset_handovers').delete().eq('id', id);
+  if (error) return toast(error.message, 'error');
+  await loadBast(); renderBast(); toast('Handover deleted.', 'success');
+}
+function printBast(id, kind) {
+  const r = bastRows.find(x => x.id === id); if (!r) return;
+  if (!(window.jspdf && window.jspdf.jsPDF)) return toast('PDF library is still loading or blocked. Please try again.', 'error');
+  const ret = kind === 'ret', T = BAST_T[LANG === 'en' ? 'en' : 'id'];
+  const doc = new window.jspdf.jsPDF({ unit:'mm', format:'a4' }), W = 210, M = 20, CW = W - 2 * M; let y = 22;
+  const co = (currentCompany && currentCompany.name) || '';
+  const room = h => { if (y + h > 280) { doc.addPage(); y = 20; } };
+  const para = (txt, x = M, w = CW, lh = 5) => { const ls = doc.splitTextToSize(String(txt), w); room(ls.length * lh); ls.forEach(l => { doc.text(l, x, y); y += lh; }); };
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text(co.toUpperCase(), W / 2, y, { align:'center' }); y += 7;
+  doc.setFontSize(12); doc.text(ret ? T.titleRet : T.titleOut, W / 2, y, { align:'center' }); y += 4;
+  doc.setLineWidth(0.5); doc.line(M, y, W - M, y); y += 7;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+  doc.text(`${T.no}: ${r.bast_no}${ret ? '-R' : ''}`, M, y); y += 6;
+  const when = ret ? r.returned_at : r.handed_at;
+  para((ret ? T.introRet : T.introOut).replace('{d}', fmtDate(when)).replace('{n}', r.bast_no)); y += 3;
+  const party = (title, o) => {
+    room(34); doc.setFont('helvetica', 'bold'); doc.text(title, M, y); y += 5.5; doc.setFont('helvetica', 'normal');
+    [[T.name, o.name], [T.empId, o.id], [T.dept, o.dept], [T.phone, o.phone]].filter(x => x[1]).forEach(([k, v]) => { doc.text(k, M + 4, y); doc.text(': ' + v, M + 38, y); y += 5; }); y += 2;
+  };
+  const holder = { name:r.holder_name, id:r.holder_id, dept:r.holder_dept, phone:r.holder_phone };
+  if (ret) { party(T.retFirst, holder); party(T.retSecond, { name:r.receiver_name || r.giver_name }); }
+  else { party(T.first, { name:r.giver_name || co }); party(T.second, holder); }
+  // asset table
+  const cols = [[T.code, 32], [T.asset, 56], [T.cat, 34], [T.sn, 28], [T.cond, 20]];
+  const cells = [r.asset_code, r.asset_name, r.asset_category, r.asset_sn, (ret ? r.condition_in : r.condition_out) || '-'];
+  const wrapped = cells.map((c, i) => doc.splitTextToSize(String(c || '-'), cols[i][1] - 3)), rh = Math.max(...wrapped.map(w => w.length)) * 4.6 + 3;
+  room(rh + 14); doc.setFillColor(226, 232, 240); doc.rect(M, y, CW, 7, 'F'); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+  let x = M; cols.forEach(c => { doc.text(c[0], x + 1.5, y + 4.8); x += c[1]; }); y += 7;
+  doc.setFont('helvetica', 'normal'); x = M; wrapped.forEach((w, i) => { w.forEach((l, j) => doc.text(l, x + 1.5, y + 4.5 + j * 4.6)); x += cols[i][1]; });
+  doc.setDrawColor(148, 163, 184); doc.rect(M, y - 7, CW, rh + 7); y += rh + 5; doc.setFontSize(10);
+  const extra = (k, v) => { if (v) { room(12); doc.setFont('helvetica', 'bold'); doc.text(k + ':', M, y); doc.setFont('helvetica', 'normal'); y += 5; para(v, M + 4, CW - 4); y += 1; } };
+  if (!ret) { extra(T.notes, r.notes); if (r.due_at) extra(T.due, fmtDate(r.due_at)); }
+  else { extra(T.retCond, r.condition_in); extra(T.notes, r.return_notes); }
+  y += 2;
+  if (!ret) { room(30); doc.setFont('helvetica', 'bold'); doc.text(T.termsTitle, M, y); y += 5; doc.setFont('helvetica', 'normal'); T.terms.forEach((t, i) => { para(`${i + 1}. ${t}`, M + 2, CW - 2); }); }
+  else para(T.retClose);
+  y += 8; room(48);
+  doc.text(`${T.place}: ........................, ${fmtDate(when)}`, M, y); y += 8;
+  const left = ret ? T.signRet : T.sign, right = ret ? T.signRecvBack : T.signRecv;
+  const lname = ret ? r.holder_name : (r.giver_name || ''), rname = ret ? (r.receiver_name || '') : r.holder_name;
+  doc.text(left, M + 5, y); doc.text(right, W - M - 55, y);
+  y += 26; doc.setLineWidth(0.3); doc.line(M, y, M + 60, y); doc.line(W - M - 60, y, W - M, y);
+  doc.text(lname ? `( ${lname} )` : '(                    )', M + 5, y + 5); doc.text(rname ? `( ${rname} )` : '(                    )', W - M - 55, y + 5);
+  doc.save(`${r.bast_no}${ret ? '-RETURN' : ''}.pdf`);
+}
+
 let planTiers = [], ownerCompanies = [], usersCompanyId = null, usersList = [], coEditId = null, userMode = 'add', userTargetId = null;
 async function callAdmin(payload) {
   if (!sb) throw new Error('Connection is not ready.');
@@ -3119,7 +3353,7 @@ async function changeUserRole(id, role) {
 const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
   drSettings: openDeprSettings, drSave: saveDeprSettings, drExport: exportDepr, perms: openPerms, savePerms: savePerms, codeFmt: openCodeFormat, saveCodeFmt: saveCodeFormat, renumberOpen: openRenumber, renumberApply: rnApply,
-  syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, openPlans, savePlans, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
+  syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, openPlans, savePlans, openBast, bastHand, saveBast, bastReturn, saveReturn, bastDelete, bastPrint: v => { const [i, k] = String(v).split('|'); printBast(i, k); }, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
   openDeleted: openDeletedModal, openAudit, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
   doExport, template: downloadTemplate, backup: backupData, restore: () => $('restoreFile').click(), loadSample, clearAll, commitImport,
@@ -3144,6 +3378,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   $('formRecover').addEventListener('submit', handleRecover);
   $('coPlan').addEventListener('change', coPlanUI);
   $('coTier').addEventListener('change', coTierLimits);
+  ['bastQ', 'bastFilter'].forEach(id => $(id).addEventListener('input', renderBast));
   $('lbSize').addEventListener('change', lbSizeUI);
   $('opSearch').addEventListener('input', () => curOp && renderOpDetail());
   $('opCode').addEventListener('keydown', opCodeEnter);

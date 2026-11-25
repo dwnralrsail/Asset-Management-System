@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Asset Management System</title>
+<meta name="description" content="Track company assets with QR labels, maintenance schedules and printable handover letters.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -140,6 +141,70 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   .nav-item.feat-off::after{content:attr(data-tier);margin-left:auto;font-size:10px;font-weight:700;border:1px solid currentColor;border-radius:999px;padding:0 7px}
   .btn.feat-off{opacity:.5}
   body.no-price .price-el{display:none !important}
+
+  /* ---- public landing page ---- */
+  #landing{position:fixed;inset:0;z-index:79;overflow:auto;background:#fff;scroll-behavior:smooth;color:var(--ink)}
+  .lp-wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+  .lp-nav{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .lp-nav-in{display:flex;align-items:center;gap:28px;height:68px}
+  .lp-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;letter-spacing:-.01em;cursor:pointer}
+  .lp-links{display:flex;gap:6px;margin-right:auto}
+  .lp-links button{padding:8px 12px;border-radius:8px;font-weight:600;color:var(--ink2);font-size:14px}.lp-links button:hover{background:var(--brand-s);color:var(--brand-d)}
+  .lp-nav-r{display:flex;align-items:center;gap:10px}
+  .lp-hero{background:radial-gradient(900px 420px at 85% -10%,#dbe8ff 0%,transparent 70%),linear-gradient(180deg,#f4f8ff 0%,#fff 100%);overflow:hidden}
+  .lp-hero-in{display:grid;grid-template-columns:1fr 1.05fr;gap:48px;align-items:center;padding-top:72px;padding-bottom:84px}
+  .lp-hero h1{font-size:50px;line-height:1.06;font-weight:800;letter-spacing:-.025em;margin:0 0 20px;max-width:560px}
+  .lp-lead{font-size:18px;line-height:1.6;color:var(--ink2);margin:0 0 28px;max-width:520px}
+  .lp-actions{display:flex;gap:12px;flex-wrap:wrap}.lp-big{padding:.85rem 1.5rem !important;font-size:15px !important;border-radius:10px !important}
+  .lp-note{margin:16px 0 0;font-size:13px;color:var(--muted)}
+  .lp-visual{position:relative;min-height:400px}
+  .lp-win{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 70px -20px rgba(13,40,88,.35);overflow:hidden}
+  .lp-win-bar{display:flex;align-items:center;gap:6px;padding:11px 14px;background:#f4f6fb;border-bottom:1px solid var(--line);font-size:11px;color:var(--muted)}
+  .lp-win-bar i{width:9px;height:9px;border-radius:50%;background:#cfd8ea;display:inline-block}
+  .lp-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px}
+  .lp-kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px}.lp-kpi b{display:block;font-size:22px;font-weight:800;line-height:1.2}.lp-kpi span{font-size:11px;color:var(--muted)}
+  .lp-tbl{padding:0 14px 14px;font-size:12px}
+  .lp-tr{display:grid;grid-template-columns:1.5fr 1fr .8fr;gap:8px;padding:9px 4px;border-top:1px solid #eef1f7;align-items:center}
+  .lp-tr.h{color:var(--muted);font-weight:700;font-size:11px;border-top:0}
+  .lp-chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+  .c-ok{background:#d9f5e8;color:#0e7a4f}.c-warn{background:#fdecc8;color:#8a5a00}.c-bad{background:#fde0e0;color:#b02a2a}.c-mute{background:#eef1f7;color:#5a6a8c}
+  .lp-float{position:absolute;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 22px 50px -18px rgba(13,40,88,.4)}
+  .lp-label{left:-34px;bottom:-26px;padding:14px;display:flex;gap:12px;align-items:center;width:250px}
+  .lp-label svg{width:78px;height:78px;flex-shrink:0}.lp-label b{display:block;font-size:12px}.lp-label code{font-size:11px;color:var(--brand-d);font-weight:700}
+  .lp-remind{right:-14px;top:-22px;padding:10px 14px;display:flex;gap:9px;align-items:center;font-size:12px;font-weight:700}.lp-remind i,.lp-remind svg{width:18px;height:18px;color:#b97d00}
+  .lp-sec{padding:88px 0}.lp-sec.alt{background:#f6f8fc}
+  .lp-h2{font-size:34px;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin:0 0 12px}
+  .lp-sub{font-size:16px;color:var(--ink2);margin:0 0 44px;max-width:640px;line-height:1.6}
+  .lp-feat{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;padding:36px 0}
+  .lp-feat.rev .lp-feat-v{order:-1}
+  .lp-feat h3{font-size:26px;font-weight:800;letter-spacing:-.015em;margin:0 0 12px;line-height:1.2}
+  .lp-feat p{color:var(--ink2);line-height:1.65;margin:0 0 16px;font-size:15.5px}
+  .lp-ul{list-style:none;padding:0;margin:0;display:grid;gap:9px;font-size:14.5px;font-weight:600}
+  .lp-ul li{display:flex;gap:9px;align-items:center}.lp-ul svg{width:18px;height:18px;color:var(--good);flex-shrink:0}
+  .lp-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 18px 40px -22px rgba(13,40,88,.3)}
+  .lp-kv{display:grid;grid-template-columns:120px 1fr;gap:9px 12px;font-size:13px;margin:0}.lp-kv dt{color:var(--muted)}.lp-kv dd{margin:0;font-weight:600}
+  .lp-ttl{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}.lp-ttl b{font-size:15px}.lp-ttl code{display:block;font-size:11px;color:var(--brand-d);font-weight:700}
+  .lp-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-top:1px solid #eef1f7;font-size:13px}.lp-row:first-of-type{border-top:0}.lp-row small{display:block;color:var(--muted);font-size:11px}
+  .lp-more{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 36px}
+  .lp-more div{display:flex;gap:14px}.lp-more svg{width:22px;height:22px;color:var(--brand);flex-shrink:0;margin-top:2px}.lp-more b{display:block;margin-bottom:3px;font-size:15px}.lp-more span{font-size:13.5px;color:var(--ink2);line-height:1.55}
+  .lp-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;counter-reset:st;border-top:2px solid var(--ink)}
+  .lp-steps div{padding:22px 28px 0 0;counter-increment:st}.lp-steps div::before{content:counter(st);display:block;font-size:13px;font-weight:800;color:var(--brand);margin-bottom:8px}
+  .lp-steps b{display:block;font-size:17px;margin-bottom:6px}.lp-steps span{font-size:14px;color:var(--ink2);line-height:1.55}
+  .lp-plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+  .lp-plan{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;display:flex;flex-direction:column}
+  .lp-plan h3{font-size:20px;font-weight:800;margin:0 0 4px}.lp-plan .lim{font-size:13px;color:var(--muted);margin:0 0 18px}
+  .lp-plan .lp-ul{margin-bottom:22px;flex-grow:1;font-weight:500;font-size:14px}.lp-plan .lp-ul li.strong{font-weight:700}
+  .lp-plan .btn{justify-content:center;width:100%}
+  .lp-faq{max-width:780px}.lp-faq details{border-top:1px solid var(--line);padding:18px 0}.lp-faq details:last-child{border-bottom:1px solid var(--line)}
+  .lp-faq summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:14px}.lp-faq summary::-webkit-details-marker{display:none}
+  .lp-faq summary::after{content:'+';font-size:22px;line-height:1;color:var(--brand)}.lp-faq details[open] summary::after{content:'\2212'}
+  .lp-faq p{margin:12px 0 0;color:var(--ink2);line-height:1.65;font-size:15px}
+  .lp-band{background:linear-gradient(160deg,#0d2858,#134aa8);color:#fff;padding:72px 0;text-align:center}
+  .lp-band h2{font-size:32px;font-weight:800;letter-spacing:-.02em;margin:0 0 12px}.lp-band p{color:#c8d9fb;margin:0 0 26px;font-size:16px}
+  .lp-band .btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+  .lp-foot{padding:34px 0;font-size:13px;color:var(--muted);background:#fff}.lp-foot .lp-wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .lp-back{position:absolute;top:22px;left:26px;display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--ink2)}.lp-back svg{width:16px;height:16px}
+  @media (max-width:1023px){.lp-hero-in{grid-template-columns:1fr;padding-top:44px;padding-bottom:64px}.lp-hero h1{font-size:38px}.lp-visual{max-width:560px}.lp-links{display:none}.lp-feat{grid-template-columns:1fr;gap:28px}.lp-feat.rev .lp-feat-v{order:0}.lp-more,.lp-steps,.lp-plans{grid-template-columns:1fr}.lp-steps div{padding-bottom:18px}.lp-nav-r .lp-cta-top{display:none}.lp-sec{padding:60px 0}.lp-label{left:-6px}.lp-remind{right:0;top:0}.lp-visual{padding-top:26px}.lp-label{bottom:-34px}.lp-hero-in{padding-bottom:84px}}
   :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
   /* ---- responsive ---- */
   @media (max-width:1279px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}.span2{grid-column:span 2}}
@@ -154,12 +219,138 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
 </head>
 <body>
 
+<!-- PUBLIC LANDING -->
+<div id="landing" class="hidden">
+  <header class="lp-nav"><div class="lp-wrap lp-nav-in">
+    <a class="lp-logo" data-act="lpGo" data-id="lp-top"><span class="brand-logo" style="width:34px;height:34px"><i data-lucide="boxes"></i></span><span id="lpBrand">Asset Management</span></a>
+    <nav class="lp-links"><button data-act="lpGo" data-id="lp-features">Features</button><button data-act="lpGo" data-id="lp-packages">Packages</button><button data-act="lpGo" data-id="lp-faq">FAQ</button><button data-act="lpGo" data-id="lp-contact">Contact</button></nav>
+    <div class="lp-nav-r"><div class="lang"><button data-act="setLang" data-id="id">ID</button><button data-act="setLang" data-id="en">EN</button></div>
+      <button class="btn btn-ghost" data-act="lpLogin">Sign in</button><button class="btn btn-primary lp-cta-top" data-act="lpCta" data-id="trial">Start free trial</button></div>
+  </div></header>
+
+  <section id="lp-top" class="lp-hero"><div class="lp-wrap lp-hero-in">
+    <div>
+      <h1>Every company asset, recorded and looked after.</h1>
+      <p class="lp-lead">Give each asset a QR label, schedule its maintenance, and hand it over with a printable letter. Built for offices, clinics and teams with many branches.</p>
+      <div class="lp-actions"><button class="btn btn-primary lp-big" data-act="lpCta" data-id="trial">Start 14-day free trial</button><button class="btn btn-ghost lp-big" data-act="lpGo" data-id="lp-features">See features</button></div>
+      <p class="lp-note">All features are open during the trial.</p>
+    </div>
+    <div class="lp-visual" aria-hidden="true">
+      <div class="lp-win">
+        <div class="lp-win-bar"><i></i><i></i><i></i><span style="margin-left:8px">Sample data</span></div>
+        <div class="lp-kpis"><div class="lp-kpi"><b>128</b><span>Total units</span></div><div class="lp-kpi"><b>6</b><span>Maintenance due</span></div><div class="lp-kpi"><b>2</b><span>Under repair</span></div></div>
+        <div class="lp-tbl">
+          <div class="lp-tr h"><span>Asset</span><span>Branch</span><span>Status</span></div>
+          <div class="lp-tr"><span>AC Daikin 2.5 PK</span><span>Jakarta Pusat</span><span><i class="lp-chip c-ok">Active</i></span></div>
+          <div class="lp-tr"><span>Laptop Lenovo</span><span>Jakarta Barat</span><span><i class="lp-chip c-ok">Active</i></span></div>
+          <div class="lp-tr"><span>Printer Epson</span><span>Depok</span><span><i class="lp-chip c-warn">Under Repair</i></span></div>
+          <div class="lp-tr"><span>Kursi Kerja</span><span>Bandung</span><span><i class="lp-chip c-ok">Active</i></span></div>
+        </div>
+      </div>
+      <div class="lp-float lp-remind"><i data-lucide="calendar-clock"></i><span>Maintenance due in 6 days</span></div>
+      <div class="lp-float lp-label"><span id="lpQr"></span><div><b>AC Daikin 2.5 PK</b><code>AST-JKT-AC-001</code></div></div>
+    </div>
+  </div></section>
+
+  <section id="lp-features" class="lp-sec"><div class="lp-wrap">
+    <h2 class="lp-h2">Everything about an asset, in one place.</h2>
+    <p class="lp-sub">From the day it is bought to the day it is retired, each asset keeps its own record.</p>
+
+    <div class="lp-feat"><div>
+      <h3>One record for every asset</h3>
+      <p>Code, category, branch, specifications, warranty and photo, all on one page. Print a QR label, stick it on the asset, and anyone with a phone camera can open its record.</p>
+      <ul class="lp-ul"><li><i data-lucide="check"></i><span>QR labels and scanning</span></li><li><i data-lucide="check"></i><span>A photo for each asset</span></li><li><i data-lucide="check"></i><span>Import your existing Excel list</span></li></ul>
+    </div><div class="lp-feat-v"><div class="lp-card">
+      <div class="lp-ttl"><div><b>AC Daikin 2.5 PK</b><code>AST-JKT-AC-001</code></div><i class="lp-chip c-ok">Active</i></div>
+      <dl class="lp-kv"><dt>Category</dt><dd>Air Conditioner</dd><dt>Branch</dt><dd>Jakarta Pusat</dd><dt>Location</dt><dd>Lantai 2, Ruang Meeting</dd><dt>Warranty until</dt><dd>31 Jan 2028</dd><dt>Condition</dt><dd>Good</dd></dl>
+    </div></div></div>
+
+    <div class="lp-feat rev"><div>
+      <h3>Maintenance that does not slip</h3>
+      <p>Set a routine once, for example every three months. The dashboard shows what is coming and what is overdue, and one tap records that the work is done.</p>
+      <ul class="lp-ul"><li><i data-lucide="check"></i><span>Routine maintenance schedules</span></li><li><i data-lucide="check"></i><span>Service and transfer history</span></li><li><i data-lucide="check"></i><span>Maintenance cost per year</span></li></ul>
+    </div><div class="lp-feat-v"><div class="lp-card">
+      <div class="lp-row"><div>AC Daikin 2.5 PK<small>Jakarta Pusat, every 3 months</small></div><i class="lp-chip c-warn">Due in 6d</i></div>
+      <div class="lp-row"><div>Genset 20 kVA<small>Bandung, every 6 months</small></div><i class="lp-chip c-bad">Overdue 2d</i></div>
+      <div class="lp-row"><div>Laptop Lenovo<small>Jakarta Barat, every 6 months</small></div><i class="lp-chip c-mute">In 35d</i></div>
+    </div></div></div>
+
+    <div class="lp-feat"><div>
+      <h3>Always know who holds what</h3>
+      <p>Hand an asset over to an employee and print the letter on the spot. See who has it, when it is due back, and every earlier holder. Move assets between branches and keep the trail.</p>
+      <ul class="lp-ul"><li><i data-lucide="check"></i><span>Printable handover and return letters</span></li><li><i data-lucide="check"></i><span>Branch transfers</span></li><li><i data-lucide="check"></i><span>Stock opname with your phone camera</span></li></ul>
+    </div><div class="lp-feat-v"><div class="lp-card">
+      <div class="lp-ttl"><div><b>Laptop Lenovo</b><code>BAST-2026-0001</code></div><i class="lp-chip c-ok">With holder</i></div>
+      <dl class="lp-kv"><dt>Holder</dt><dd>Budi Santoso, IT</dd><dt>Handed over</dt><dd>12 Nov 2026</dd><dt>Expected return</dt><dd>12 Nov 2027</dd></dl>
+      <div style="margin-top:14px"><span class="btn btn-ghost" style="pointer-events:none"><i data-lucide="file-down"></i>Print letter</span></div>
+    </div></div></div>
+  </div></section>
+
+  <section class="lp-sec alt"><div class="lp-wrap">
+    <h2 class="lp-h2">And the details that save time.</h2>
+    <p class="lp-sub">Included to keep a growing asset list under control.</p>
+    <div class="lp-more">
+      <div><i data-lucide="clipboard-check"></i><p style="margin:0"><b>Stock opname</b><span>Check every asset against the records, branch by branch, and see what is missing.</span></p></div>
+      <div><i data-lucide="trending-down"></i><p style="margin:0"><b>Depreciation</b><span>Book value of each asset, calculated automatically.</span></p></div>
+      <div><i data-lucide="shield-check"></i><p style="margin:0"><b>Role permissions</b><span>Decide what staff and viewers can see and change.</span></p></div>
+      <div><i data-lucide="history"></i><p style="margin:0"><b>Audit trail</b><span>A record of who changed what, and when.</span></p></div>
+      <div><i data-lucide="hash"></i><p style="margin:0"><b>Your own code format</b><span>Asset codes that follow the pattern your company already uses.</span></p></div>
+      <div><i data-lucide="languages"></i><p style="margin:0"><b>Indonesian and English</b><span>Switch the language at any time.</span></p></div>
+    </div>
+  </div></section>
+
+  <section class="lp-sec"><div class="lp-wrap">
+    <h2 class="lp-h2">Start in an afternoon.</h2>
+    <p class="lp-sub">No installation. It runs in the browser on a computer or a phone.</p>
+    <div class="lp-steps">
+      <div><b>We create your company account</b><span>You get a login for your administrator, with starter categories and a first branch ready.</span></div>
+      <div><b>Import your asset list</b><span>Use the Excel template, or add assets one by one.</span></div>
+      <div><b>Print labels and start scanning</b><span>Stick the QR labels on your assets and open any record from a phone.</span></div>
+    </div>
+  </div></section>
+
+  <section id="lp-packages" class="lp-sec alt"><div class="lp-wrap">
+    <h2 class="lp-h2">Choose the package that fits.</h2>
+    <p class="lp-sub">Every new company starts with a 14-day trial where all features are open. Contact us for pricing.</p>
+    <div class="lp-plans">
+      <div class="lp-plan"><h3>Basic</h3><p class="lim">Up to 100 assets and 3 users</p>
+        <ul class="lp-ul"><li><i data-lucide="check"></i><span>Assets, categories and branches</span></li><li><i data-lucide="check"></i><span>Mutation and service logs</span></li><li><i data-lucide="check"></i><span>Maintenance schedules</span></li><li><i data-lucide="check"></i><span>Excel import and export</span></li><li><i data-lucide="check"></i><span>Backup and restore</span></li></ul>
+        <button class="btn btn-ghost" data-act="lpCta" data-id="Basic">Ask about Basic</button></div>
+      <div class="lp-plan"><h3>Business</h3><p class="lim">Up to 1,000 assets and 10 users</p>
+        <ul class="lp-ul"><li class="strong"><i data-lucide="check"></i><span>Everything in Basic</span></li><li><i data-lucide="check"></i><span>QR labels and scanning</span></li><li><i data-lucide="check"></i><span>Stock opname</span></li><li><i data-lucide="check"></i><span>Depreciation</span></li><li><i data-lucide="check"></i><span>Role permissions</span></li><li><i data-lucide="check"></i><span>Your own code format</span></li><li><i data-lucide="check"></i><span>Audit trail</span></li></ul>
+        <button class="btn btn-primary" data-act="lpCta" data-id="Business">Ask about Business</button></div>
+      <div class="lp-plan"><h3>Enterprise</h3><p class="lim">Unlimited assets and users</p>
+        <ul class="lp-ul"><li class="strong"><i data-lucide="check"></i><span>Everything in Business</span></li><li><i data-lucide="check"></i><span>Handover letters (BAST)</span></li><li><i data-lucide="check"></i><span>A photo for each asset</span></li><li><i data-lucide="check"></i><span>Email and WhatsApp reminders (coming soon)</span></li></ul>
+        <button class="btn btn-ghost" data-act="lpCta" data-id="Enterprise">Ask about Enterprise</button></div>
+    </div>
+  </div></section>
+
+  <section id="lp-faq" class="lp-sec"><div class="lp-wrap">
+    <h2 class="lp-h2">Questions we hear often</h2><p class="lp-sub" style="margin-bottom:28px">Not here? Contact us and we will answer.</p>
+    <div class="lp-faq">
+      <details><summary>Is our data separate from other companies?</summary><p>Yes. Each company has its own isolated data, and only the people you invite can sign in to it.</p></details>
+      <details><summary>Can we use it on a phone?</summary><p>Yes. It works in any modern browser, and the phone camera can scan the QR label on an asset.</p></details>
+      <details><summary>Can we bring our existing Excel list?</summary><p>Yes. Download the import template, copy your columns into it, and import. The app tells you about any row that needs fixing.</p></details>
+      <details><summary>Who can see and change what?</summary><p>There are three roles. A Super Admin manages everything, Staff can edit records, and a Viewer can only read. A Super Admin can limit what Staff are allowed to do.</p></details>
+      <details><summary>What happens when the trial ends?</summary><p>Your data is kept and stays viewable. You can edit again once a package is activated for your company.</p></details>
+    </div>
+  </div></section>
+
+  <section id="lp-contact" class="lp-band"><div class="lp-wrap">
+    <h2>Ready to see your assets in one place?</h2>
+    <p>Tell us how many assets and branches you manage, and we will set up a trial account for you.</p>
+    <div class="lp-actions" style="justify-content:center"><button class="btn btn-primary lp-big" id="lpContactBtn" data-act="lpCta" data-id="trial">Start 14-day free trial</button><button class="btn btn-ghost lp-big" data-act="lpLogin">Sign in</button></div>
+    <p id="lpNoContact" class="hidden" style="margin:18px 0 0;font-size:13px">Contact details will be added here soon.</p>
+  </div></section>
+  <footer class="lp-foot"><div class="lp-wrap"><span>© 2026 Diwanur Al Rasail</span><span id="lpFootBrand"></span></div></footer>
+</div>
+
 <!-- AUTH GATE -->
-<div id="authGate" class="auth">
+<div id="authGate" class="auth hidden">
   <div class="auth-brand">
     <div class="brand" style="padding:0;border:0">
       <div class="brand-logo"><i data-lucide="boxes"></i></div>
-      <div><h1 style="font-size:16px">Asset Management</h1><p style="max-width:none">General Affairs</p></div>
+      <div><h1 style="font-size:16px">Asset Management</h1><p style="max-width:none">Company asset management</p></div>
     </div>
     <div>
       <h2>Every office asset, recorded and maintained.</h2>
@@ -172,6 +363,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <p style="font-size:12px;color:#9db4e6;margin:0">© 2026 Diwanur Al Rasail</p>
   </div>
   <div class="auth-form">
+    <button class="lp-back" data-act="lpHome"><i data-lucide="arrow-left"></i><span>Back to home</span></button>
     <div class="lang auth-lang"><button data-act="setLang" data-id="id">ID</button><button data-act="setLang" data-id="en">EN</button></div>
     <form id="formLogin" class="text-sm">
       <h2 style="font-size:22px;font-weight:800;margin:0 0 4px">Sign in</h2>
@@ -206,7 +398,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
 <aside class="sidebar" id="sidebar">
   <div class="brand">
     <div class="brand-logo"><i data-lucide="boxes"></i></div>
-    <div style="min-width:0"><h1>Asset Management System</h1><p id="headerSub">General Affairs</p></div>
+    <div style="min-width:0"><h1>Asset Management System</h1><p id="headerSub">Company asset management</p></div>
   </div>
   <nav class="nav">
     <button class="nav-item active" id="tab-dashboard" data-act="tab" data-id="dashboard"><i data-lucide="layout-dashboard"></i>Dashboard</button>
@@ -1663,10 +1855,10 @@ async function applySession(session) {
     stopPolling(); snap = emptySnap(); pulledOnce = false; dirty = false;
     renderRoleUI();
     setDbBadge('local', 'Signed Out');
-    $('authGate').classList.remove('hidden');
+    showLoggedOut();
     return;
   }
-  $('authGate').classList.add('hidden');
+  $('authGate').classList.add('hidden'); $('landing').classList.add('hidden');
   if (currentUser.user_metadata && currentUser.user_metadata.must_change_password) forcePw();
   currentRole = await fetchRoleForUser(currentUser.id);
   try { localCompanyMarker = localStorage.getItem('ams_company'); } catch (e) { localCompanyMarker = null; }
@@ -2491,6 +2683,7 @@ function commitImport() {
 function closeMenus() { document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden')); }
 function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden'); closeMenus(); if (was) m.classList.remove('hidden'); }
 const I18N={"Dashboard":"Dashboard","Asset data":"Data aset","Assets":"Aset","Branches":"Cabang","Categories":"Kategori","Transactions":"Transaksi","Mutation & Service Logs":"Mutasi & Riwayat Servis","Import and export":"Impor dan ekspor","Import from Excel / CSV":"Impor dari Excel / CSV","Export to Excel":"Ekspor ke Excel","Export to PDF":"Ekspor ke PDF","Download import template":"Unduh template impor","System":"Sistem","Sync with Supabase":"Sinkronkan dengan Supabase","Deleted / Restore":"Terhapus / Pulihkan","Backup all data (.json)":"Cadangkan semua data (.json)","Restore from backup":"Pulihkan dari cadangan","Load sample data":"Muat data contoh","Clear all data":"Hapus semua data","Asset Management System":"Sistem Manajemen Aset","Asset Management":"Manajemen Aset","Logout":"Keluar","Sign out":"Keluar","Menu":"Menu","Local Mode":"Mode Lokal","Signed Out":"Belum masuk","Supabase Connected":"Terhubung ke Supabase","Supabase Offline":"Supabase tidak terjangkau","Syncing...":"Menyinkronkan…","Syncing…":"Menyinkronkan…","Saving…":"Menyimpan…","Not saved — will retry":"Belum tersimpan, akan dicoba lagi","GUEST":"Tamu","Operational asset tracking":"Pencatatan aset operasional","Sign in":"Masuk","Sign In":"Masuk","Password":"Kata sandi","Use the account given to you by your administrator.":"Gunakan akun yang diberikan oleh administrator Anda.","Every office asset, recorded and maintained.":"Setiap aset kantor, tercatat dan terawat.","One record for each unit, with its full history.":"Satu catatan untuk setiap unit, lengkap dengan riwayatnya.","Routine maintenance reminders before they become overdue.":"Pengingat perawatan rutin sebelum jadwalnya terlewat.","Branch transfers and service logs in one place.":"Mutasi antar cabang dan riwayat servis dalam satu tempat.","Signed in as {} ({})":"Masuk sebagai {} ({})","Signed out.":"Anda sudah keluar.","Sign in first.":"Silakan masuk terlebih dahulu.","Supabase client not initialized.":"Koneksi Supabase belum siap.","Total Units":"Total Unit","Total Asset Value":"Total Nilai Aset","Excludes disposed assets":"Tidak termasuk aset yang sudah afkir","Active":"Aktif","Ready":"Siap","Maintenance Due":"Perawatan Jatuh Tempo","{} overdue":"{} terlambat","Repair / Transit":"Perbaikan / Transit","Under repair or in transit":"Sedang diperbaiki atau dalam perjalanan","Open Logs":"Log Terbuka","Service / transfer in progress":"Servis / mutasi sedang berjalan","Maintenance {}":"Perawatan {}","Total cost of logs this year":"Total biaya log tahun ini","Routine Assets":"Aset Rutin","With a maintenance schedule":"Punya jadwal perawatan","Maintenance Schedule":"Jadwal Perawatan","View all due":"Lihat semua yang jatuh tempo","Needs Attention":"Perlu Perhatian","Status Breakdown":"Rincian Status","Units by Branch":"Unit per Cabang","Units by Category":"Unit per Kategori","Maintenance cost per month":"Biaya perawatan per bulan","Recent Activity":"Aktivitas Terbaru","units":"unit","{} units":"{} unit","No data yet.":"Belum ada data.","All clear.":"Semua aman.","No logs yet.":"Belum ada log.","No maintenance cost recorded this year.":"Belum ada biaya perawatan tercatat tahun ini.","No routine maintenance set up yet.":"Belum ada perawatan rutin yang diatur.","Nothing due in the next 60 days ({} routine units tracked).":"Tidak ada yang jatuh tempo dalam 60 hari ke depan ({} unit rutin dipantau).","Log done":"Catat selesai","Overdue {}d":"Telat {} hari","Due in {}d":"{} hari lagi","Due today":"Hari ini","In {}d":"{} hari lagi","Service overdue":"Servis terlambat","Service due":"Servis segera","Warranty ending":"Garansi berakhir","Major damage":"Rusak berat","Open log":"Log terbuka","{} [{}] — overdue {}d":"{} [{}] — terlambat {} hari","{} [{}] — due in {}d":"{} [{}] — jatuh tempo {} hari lagi","{} [{}] — ends in {}d":"{} [{}] — berakhir {} hari lagi","{} [{}] marked Active":"{} [{}] masih berstatus Aktif","{}: {} [{}]":"{}: {} [{}]","Every {} {}":"Setiap {} {}","month":"bulan","months":"bulan","year":"tahun","years":"tahun","week":"minggu","weeks":"minggu","day":"hari","days":"hari","{} (overdue)":"{} (terlambat)","{} (expired)":"{} (kedaluwarsa)","{} ({}d)":"{} ({} hari)","(overdue)":"(terlambat)","(expired)":"(kedaluwarsa)","Under Repair":"Dalam Perbaikan","In Transit":"Dalam Perjalanan","Disposed":"Afkir","Excellent":"Sangat Baik","Good":"Baik","Minor Damage":"Rusak Ringan","Major Damage":"Rusak Berat","In Progress":"Berjalan","Completed":"Selesai","Cancelled":"Dibatalkan","Service / Repair":"Servis / Perbaikan","Branch Transfer":"Mutasi Cabang","Routine Maintenance":"Perawatan Rutin","Disposed / Written Off":"Afkir / Dihapusbukukan","Search name, code, S/N, PIC...":"Cari nama, kode, S/N, PIC...","All Branches":"Semua Cabang","All Categories":"Semua Kategori","All Statuses":"Semua Status","All Maintenance":"Semua Perawatan","Routine only":"Hanya rutin","Due / overdue":"Jatuh tempo / terlambat","Clear filters":"Hapus filter","Columns":"Kolom","Display columns":"Tampilkan kolom","Add New Asset":"Tambah Aset Baru","No.":"No.","Asset Code":"Kode Aset","Asset Name":"Nama Aset","Category":"Kategori","Branch":"Cabang","Location / Room":"Lokasi / Ruangan","Location":"Lokasi","Qty":"Jml","Unit Price":"Harga Satuan","Asset Value":"Nilai Aset","Asset value":"Nilai aset","Condition":"Kondisi","Status":"Status","Routine":"Rutin","Next Maintenance":"Perawatan Berikutnya","Next maintenance":"Perawatan berikutnya","Warranty":"Garansi","Actions":"Aksi","Serial Number":"Nomor Seri","Code":"Kode","Name":"Nama","Value":"Nilai","Showing":"Menampilkan","of":"dari","units • Total value {}":"unit • Total nilai {}","unit • Total value {}":"unit • Total nilai {}","Page {} / {}":"Halaman {} / {}","No units found.":"Tidak ada unit yang ditemukan.","Set status…":"Ubah status…","{} selected":"{} dipilih","Delete":"Hapus","Edit":"Ubah","View":"Lihat","Clear selection":"Batalkan pilihan","Close":"Tutup","Cancel":"Batal","Confirm":"Konfirmasi","Delete all":"Hapus semua","Add log":"Tambah log","Maintenance done":"Perawatan selesai","Asset Details":"Detail Aset","History ({})":"Riwayat ({})","No history yet.":"Belum ada riwayat.","Log ID":"ID Log","Asset":"Aset","Date":"Tanggal","Action Type":"Jenis Tindakan","Origin":"Asal","Destination / Vendor":"Tujuan / Vendor","Cost":"Biaya","Notes":"Catatan","Search code, name, vendor...":"Cari kode, nama, vendor...","All Types":"Semua Jenis","Add Log Entry":"Tambah Log","No log entries":"Belum ada entri log","entries • Total cost (excl. cancelled):":"entri • Total biaya (tidak termasuk yang dibatalkan):","Mutation, service and routine maintenance history":"Riwayat mutasi, servis, dan perawatan rutin","Edit Asset Unit":"Ubah Unit Aset","Branch *":"Cabang *","Category *":"Kategori *","Asset Code (auto, 1 code = 1 unit)":"Kode Aset (otomatis, 1 kode = 1 unit)","Asset Name *":"Nama Aset *","Units to Create *":"Jumlah Unit yang Dibuat *","Unit Price (IDR)":"Harga Satuan (IDR)","Acquisition Date":"Tanggal Perolehan","PIC (Person in Charge)":"PIC (Penanggung Jawab)","Serial Number (S/N)":"Nomor Seri (S/N)","Warranty Until":"Garansi Sampai","Next Maintenance Due":"Jatuh Tempo Perawatan Berikutnya","Specifications / Notes":"Spesifikasi / Catatan","Save Asset":"Simpan Aset","This asset needs routine maintenance":"Aset ini memerlukan perawatan rutin","Repeat every":"Ulangi setiap","Last maintenance":"Perawatan terakhir","Remind (days before)":"Ingatkan (hari sebelumnya)","Months":"Bulan","Days":"Hari","Weeks":"Minggu","Years":"Tahun","e.g. ThinkPad X1 Carbon":"mis. ThinkPad X1 Carbon","e.g. John Doe":"mis. Budi Santoso","Server Room / Floor 2":"Ruang Server / Lantai 2","Hardware specs or notes...":"Spesifikasi atau catatan...","1 code = 1 unit:":"1 kode = 1 unit:","Creates":"Membuat","{} separate codes":"{} kode terpisah","starting from":"mulai dari","1 is automatically split into 1 code = 1 unit.":"1 otomatis dipecah menjadi 1 kode = 1 unit.","Add Mutation / Service Log":"Tambah Log Mutasi / Servis","Edit Log Entry":"Ubah Log","Asset Code *":"Kode Aset *","Log Date *":"Tanggal Log *","Action Type *":"Jenis Tindakan *","Origin / Current Branch":"Asal / Cabang Saat Ini","Destination / Service Vendor":"Tujuan / Vendor Servis","Cost (IDR)":"Biaya (IDR)","Log Status":"Status Log","Update the asset automatically":"Perbarui aset secara otomatis","(status / branch) based on this log.":"(status / cabang) berdasarkan log ini.","Save Log":"Simpan Log","Type to search...":"Ketik untuk mencari...","Manage":"Kelola","Manage Branches":"Kelola Cabang","Manage Categories":"Kelola Kategori","Branch name":"Nama cabang","Category name":"Nama kategori","Add":"Tambah","In use":"Dipakai","CODE":"KODE","Fill code and name.":"Isi kode dan nama.","Duplicate code or name.":"Kode atau nama sudah ada.","Item is still in use.":"Item ini masih dipakai.","Delete item":"Hapus item","Export":"Ekspor","Everything":"Semuanya","Summary + Assets + Logs":"Ringkasan + Aset + Log","Dashboard Summary":"Ringkasan Dashboard","KPIs, per branch, per category":"KPI, per cabang, per kategori","Asset Data":"Data Aset","Full asset listing":"Daftar aset lengkap","Maintenance and transfer history":"Riwayat perawatan dan mutasi","Only export assets matching the current filter / search":"Ekspor hanya aset sesuai filter / pencarian saat ini","Excel file downloaded.":"File Excel sudah diunduh.","PDF downloaded.":"PDF sudah diunduh.","Drop your file here, or click to browse":"Letakkan file di sini, atau klik untuk memilih","No file selected":"Belum ada file dipilih","Download template":"Unduh template","If an asset code already exists":"Jika kode aset sudah ada","Skip the row":"Lewati baris","Update the existing asset (overwrites it with the file's values)":"Perbarui aset yang ada (ditimpa dengan isi file)","Import as a new asset (new code)":"Impor sebagai aset baru (kode baru)","Unknown branches / categories":"Cabang / kategori yang tidak dikenal","Create them automatically":"Buat otomatis","If unchecked, rows with an unknown branch or category are rejected.":"Jika tidak dicentang, baris dengan cabang atau kategori tidak dikenal akan ditolak.","Type":"Jenis","Row":"Baris","Result":"Hasil","Import":"Impor","Nothing to import":"Tidak ada yang diimpor","Qty ignored on update (1 code = 1 unit)":"Jml diabaikan saat update (1 kode = 1 unit)","Code already exists":"Kode sudah ada","Code auto-generated":"Kode dibuat otomatis","Duplicate code inside the file":"Kode ganda di dalam file","Duplicate code → new code assigned":"Kode ganda → diberi kode baru","Same log already exists":"Log yang sama sudah ada","Asset name is empty":"Nama aset kosong","Asset code is empty":"Kode aset kosong","Date missing or not recognised":"Tanggal kosong atau tidak dikenali","Acquisition date not recognised (left blank)":"Tanggal perolehan tidak dikenali (dikosongkan)","Qty invalid → 1":"Jml tidak valid → 1","No branch available":"Tidak ada cabang","No category available":"Tidak ada kategori","Unknown branch \"{}\"":"Cabang \"{}\" tidak dikenal","Unknown category \"{}\"":"Kategori \"{}\" tidak dikenal","Branch empty → {}":"Cabang kosong → {}","Category empty → {}":"Kategori kosong → {}","Asset code {} not found":"Kode aset {} tidak ditemukan","Unknown condition \"{}\" → Good":"Kondisi \"{}\" tidak dikenal → Baik","Unknown status \"{}\" → Active":"Status \"{}\" tidak dikenal → Aktif","Unknown status \"{}\" → Completed":"Status \"{}\" tidak dikenal → Selesai","Unknown action type \"{}\" → Service / Repair":"Jenis tindakan \"{}\" tidak dikenal → Servis / Perbaikan","Unknown interval unit \"{}\" → Months":"Satuan interval \"{}\" tidak dikenal → Bulan","Routine maintenance needs an interval → routine turned off":"Perawatan rutin butuh interval → rutin dimatikan","Last maintenance date not recognised":"Tanggal perawatan terakhir tidak dikenali","Next maintenance date not recognised":"Tanggal perawatan berikutnya tidak dikenali","Qty {} → {} separate units ({} … {})":"Jml {} → {} unit terpisah ({} … {})","Import {} record{}":"Impor {} data","Import {} units":"Impor {} unit","Showing the first 100 of {} rows (errors first). All valid rows will be imported.":"Menampilkan 100 baris pertama dari {} baris (error lebih dulu). Semua baris yang valid akan diimpor.","Import complete: {} new, {} updated assets, {} logs.":"Impor selesai: {} baru, {} aset diperbarui, {} log.","Could not read the file.":"File tidak bisa dibaca.","Could not read this file:":"File ini tidak bisa dibaca:","No asset or log rows were found. Check the column headers (download the template for reference).":"Tidak ada baris aset atau log. Periksa judul kolom (unduh template sebagai acuan).","Excel library could not be loaded. Check your internet connection.":"Library Excel gagal dimuat. Periksa koneksi internet Anda.","Excel reader could not be loaded. Check your internet connection.":"Pembaca Excel gagal dimuat. Periksa koneksi internet Anda.","Excel library could not be loaded (check your internet). Exporting CSV instead.":"Library Excel gagal dimuat (periksa internet). Mengekspor CSV sebagai gantinya.","PDF library is still loading or blocked. Please try again.":"Library PDF masih dimuat atau diblokir. Silakan coba lagi.","Metric":"Metrik","Summary":"Ringkasan","Asset Summary":"Ringkasan Aset","Generated":"Dibuat","Deleted Records & Restore (Super Admin)":"Data Terhapus & Pemulihan (Super Admin)","Archived snapshots of deleted items":"Arsip data yang sudah dihapus","Table":"Tabel","Key":"Kunci","Deleted By":"Dihapus Oleh","Deleted At":"Dihapus Pada","Archived":"Diarsipkan","Restored":"Dipulihkan","Restore":"Pulihkan","Loading archived records...":"Memuat arsip...","No archived records.":"Tidak ada arsip.","Record not found.":"Data tidak ditemukan.","Restored {}.":"{} dipulihkan.","Failed to archive record before delete:":"Gagal mengarsipkan data sebelum dihapus:","Please confirm":"Mohon konfirmasi","Delete asset":"Hapus aset","Delete assets":"Hapus aset","Delete log":"Hapus log","Replace":"Ganti","Sample data":"Data contoh","Restore backup":"Pulihkan cadangan","Clear everything":"Hapus semuanya","Upload local data":"Unggah data lokal","Upload":"Unggah","Archive & delete \"{}\"?":"Arsipkan & hapus \"{}\"?","Archive & delete {} selected units?":"Arsipkan & hapus {} unit terpilih?","Archive & delete asset {}?":"Arsipkan & hapus aset {}?","Its log history is archived too. You can restore both from Deleted / Restore.":"Riwayat lognya ikut diarsipkan. Keduanya bisa dipulihkan dari Terhapus / Pulihkan.","Archive & delete log {}?":"Arsipkan & hapus log {}?","Delete ALL assets and logs for everyone?":"Hapus SEMUA aset dan log untuk semua orang?","A backup file is downloaded first. This cannot be undone from the app.":"File cadangan diunduh lebih dulu. Ini tidak bisa dibatalkan dari aplikasi.","Replace ALL current data (for everyone) with sample data?":"Ganti SEMUA data saat ini (untuk semua orang) dengan data contoh?","A backup of the current data is downloaded first.":"Cadangan data saat ini diunduh lebih dulu.","Restore this backup ({} assets)?":"Pulihkan cadangan ini ({} aset)?","This REPLACES all current data for everyone. A backup of the current data is downloaded first.":"Ini MENGGANTI semua data saat ini untuk semua orang. Cadangan data saat ini diunduh lebih dulu.","The cloud database is empty, but this browser holds {} assets.":"Database cloud masih kosong, tetapi browser ini menyimpan {} aset.","Upload them to the cloud now?":"Unggah ke cloud sekarang?","(Cancel = clear the local copy and start empty.)":"(Batal = hapus salinan lokal dan mulai dari kosong.)","Asset {} archived & deleted.":"Aset {} diarsipkan & dihapus.","Asset {} added.":"Aset {} ditambahkan.","Asset updated.":"Aset diperbarui.","Log saved.":"Log disimpan.","Log archived & deleted.":"Log diarsipkan & dihapus.","Selected units archived & deleted.":"Unit terpilih diarsipkan & dihapus.","Status updated to {}.":"Status diubah menjadi {}.","Backup restored.":"Cadangan dipulihkan.","Invalid backup file":"File cadangan tidak valid","Asset code not found.":"Kode aset tidak ditemukan.","Up to date with Supabase.":"Sudah sinkron dengan Supabase.","Could not reach Supabase.":"Tidak bisa terhubung ke Supabase.","Supabase connection issue:":"Masalah koneksi Supabase:","Could not save to browser storage.":"Tidak bisa menyimpan ke penyimpanan browser.","Could not save to Supabase:":"Tidak bisa menyimpan ke Supabase:","Read-only role.":"Peran hanya-lihat.","Read-only role: cannot modify assets.":"Peran hanya-lihat: tidak bisa mengubah aset.","Super Admin only.":"Hanya untuk Super Admin.","Only Super Admin can delete assets.":"Hanya Super Admin yang bisa menghapus aset.","Only Super Admin can delete branches/categories.":"Hanya Super Admin yang bisa menghapus cabang/kategori.","Only Super Admin can delete logs.":"Hanya Super Admin yang bisa menghapus log.","Only Super Admin can load sample data.":"Hanya Super Admin yang bisa memuat data contoh.","Only Super Admin can restore a backup.":"Hanya Super Admin yang bisa memulihkan cadangan.","Some changes were not allowed for your role and were reverted.":"Sebagian perubahan tidak diizinkan untuk peran Anda dan dibatalkan.","Unnamed asset":"Aset tanpa nama","Total asset value":"Total nilai aset","(Unassigned)":"(Belum ditentukan)","Action":"Tindakan","Asset Logs":"Log Aset","By Branch":"Per Cabang","By Category":"Per Kategori","Email":"Email","Log":"Log","Logs":"Log","Open logs":"Log terbuka","Under repair / in transit":"Dalam perbaikan / transit","Routine-maintenance assets":"Aset perawatan rutin","Valuation":"Valuasi","Units":"Unit","Yes":"Ya","Interval":"Interval"};
+Object.assign(I18N,{"Features": "Fitur", "Packages": "Paket", "FAQ": "FAQ", "Contact": "Hubungi kami", "Jakarta Pusat, every 3 months": "Jakarta Pusat, setiap 3 bulan", "Bandung, every 6 months": "Bandung, setiap 6 bulan", "Jakarta Barat, every 6 months": "Jakarta Barat, setiap 6 bulan", "Sign in": "Masuk", "Start free trial": "Coba gratis", "Every company asset, recorded and looked after.": "Semua aset perusahaan, tercatat dan terawat.", "Give each asset a QR label, schedule its maintenance, and hand it over with a printable letter. Built for offices, clinics and teams with many branches.": "Beri tiap aset label QR, jadwalkan perawatannya, dan serahkan dengan surat yang bisa dicetak. Dibuat untuk kantor, klinik, dan tim dengan banyak cabang.", "Start 14-day free trial": "Coba gratis 14 hari", "See features": "Lihat fitur", "All features are open during the trial.": "Semua fitur terbuka selama masa coba.", "Sample data": "Contoh data", "Total units": "Total unit", "Maintenance due": "Perawatan jatuh tempo", "Under repair": "Dalam perbaikan", "Maintenance due in 6 days": "Perawatan jatuh tempo 6 hari lagi", "Everything about an asset, in one place.": "Semua tentang aset, di satu tempat.", "From the day it is bought to the day it is retired, each asset keeps its own record.": "Dari hari dibeli sampai dihapusbukukan, setiap aset punya catatannya sendiri.", "One record for every asset": "Satu catatan untuk setiap aset", "Code, category, branch, specifications, warranty and photo, all on one page. Print a QR label, stick it on the asset, and anyone with a phone camera can open its record.": "Kode, kategori, cabang, spesifikasi, garansi, dan foto, semua dalam satu halaman. Cetak label QR, tempel di aset, dan siapa pun dengan kamera HP bisa membuka catatannya.", "QR labels and scanning": "Label QR dan pemindaian", "A photo for each asset": "Foto untuk tiap aset", "Import your existing Excel list": "Impor daftar Excel yang sudah ada", "Category": "Kategori", "Air Conditioner": "Air Conditioner", "Location": "Lokasi", "Warranty until": "Garansi sampai", "Condition": "Kondisi", "Good": "Baik", "Maintenance that does not slip": "Perawatan yang tidak terlewat", "Set a routine once, for example every three months. The dashboard shows what is coming and what is overdue, and one tap records that the work is done.": "Atur jadwal rutin sekali saja, misalnya tiap tiga bulan. Dashboard menunjukkan apa yang akan datang dan apa yang terlambat, dan satu ketukan mencatat pekerjaan selesai.", "Routine maintenance schedules": "Jadwal perawatan rutin", "Service and transfer history": "Riwayat servis dan mutasi", "Maintenance cost per year": "Biaya perawatan per tahun", "Always know who holds what": "Selalu tahu siapa memegang apa", "Hand an asset over to an employee and print the letter on the spot. See who has it, when it is due back, and every earlier holder. Move assets between branches and keep the trail.": "Serahkan aset ke karyawan dan cetak suratnya saat itu juga. Lihat siapa yang memegang, kapan harus kembali, dan semua pemegang sebelumnya. Pindahkan aset antar cabang dan riwayatnya tetap tercatat.", "Printable handover and return letters": "Surat serah terima dan pengembalian siap cetak", "Branch transfers": "Mutasi antar cabang", "Stock opname with your phone camera": "Stok opname dengan kamera HP", "Holder": "Pemegang", "Handed over": "Diserahkan", "Expected return": "Rencana kembali", "Print letter": "Cetak surat", "And the details that save time.": "Dan detail yang menghemat waktu.", "Included to keep a growing asset list under control.": "Disertakan agar daftar aset yang terus bertambah tetap terkendali.", "Stock opname": "Stok opname", "Check every asset against the records, branch by branch, and see what is missing.": "Cocokkan setiap aset dengan catatan, cabang demi cabang, dan lihat apa yang hilang.", "Depreciation": "Penyusutan", "Book value of each asset, calculated automatically.": "Nilai buku tiap aset, dihitung otomatis.", "Role permissions": "Hak akses peran", "Decide what staff and viewers can see and change.": "Tentukan apa yang boleh dilihat dan diubah oleh staf dan pengamat.", "Audit trail": "Jejak audit", "A record of who changed what, and when.": "Catatan siapa mengubah apa, dan kapan.", "Your own code format": "Format kode sendiri", "Asset codes that follow the pattern your company already uses.": "Kode aset yang mengikuti pola yang sudah dipakai perusahaan Anda.", "Indonesian and English": "Bahasa Indonesia dan Inggris", "Switch the language at any time.": "Ganti bahasa kapan saja.", "Start in an afternoon.": "Mulai dalam satu sore.", "No installation. It runs in the browser on a computer or a phone.": "Tanpa instalasi. Berjalan di browser, di komputer maupun HP.", "We create your company account": "Kami membuat akun perusahaan Anda", "You get a login for your administrator, with starter categories and a first branch ready.": "Anda mendapat login untuk administrator, lengkap dengan kategori awal dan satu cabang pertama.", "Import your asset list": "Impor daftar aset Anda", "Use the Excel template, or add assets one by one.": "Pakai template Excel, atau tambahkan aset satu per satu.", "Print labels and start scanning": "Cetak label dan mulai memindai", "Stick the QR labels on your assets and open any record from a phone.": "Tempel label QR di aset Anda dan buka catatan mana pun dari HP.", "Choose the package that fits.": "Pilih paket yang sesuai.", "Every new company starts with a 14-day trial where all features are open. Contact us for pricing.": "Setiap perusahaan baru memulai dengan trial 14 hari dengan semua fitur terbuka. Hubungi kami untuk harga.", "Up to 100 assets and 3 users": "Sampai 100 aset dan 3 pengguna", "Up to 1,000 assets and 10 users": "Sampai 1.000 aset dan 10 pengguna", "Unlimited assets and users": "Aset dan pengguna tanpa batas", "Assets, categories and branches": "Aset, kategori, dan cabang", "Mutation and service logs": "Log mutasi dan servis", "Maintenance schedules": "Jadwal perawatan", "Excel import and export": "Impor dan ekspor Excel", "Backup and restore": "Backup dan restore", "Everything in Basic": "Semua fitur Basic", "Everything in Business": "Semua fitur Business", "Handover letters (BAST)": "Surat serah terima (BAST)", "Email and WhatsApp reminders (coming soon)": "Pengingat Email dan WhatsApp (segera hadir)", "Ask about Basic": "Tanya paket Basic", "Ask about Business": "Tanya paket Business", "Ask about Enterprise": "Tanya paket Enterprise", "Questions we hear often": "Pertanyaan yang sering diajukan", "Not here? Contact us and we will answer.": "Tidak ada di sini? Hubungi kami, kami jawab.", "Is our data separate from other companies?": "Apakah data kami terpisah dari perusahaan lain?", "Yes. Each company has its own isolated data, and only the people you invite can sign in to it.": "Ya. Setiap perusahaan punya data sendiri yang terpisah, dan hanya orang yang Anda undang yang bisa masuk.", "Can we use it on a phone?": "Apakah bisa dipakai di HP?", "Yes. It works in any modern browser, and the phone camera can scan the QR label on an asset.": "Bisa. Berjalan di browser modern apa pun, dan kamera HP bisa memindai label QR di aset.", "Can we bring our existing Excel list?": "Apakah daftar Excel kami yang lama bisa dipakai?", "Yes. Download the import template, copy your columns into it, and import. The app tells you about any row that needs fixing.": "Bisa. Unduh template impor, salin kolom Anda ke dalamnya, lalu impor. Aplikasi memberi tahu baris mana yang perlu diperbaiki.", "Who can see and change what?": "Siapa yang bisa melihat dan mengubah apa?", "There are three roles. A Super Admin manages everything, Staff can edit records, and a Viewer can only read. A Super Admin can limit what Staff are allowed to do.": "Ada tiga peran. Super Admin mengelola semuanya, Staf bisa mengubah data, dan Pengamat hanya bisa membaca. Super Admin bisa membatasi apa yang boleh dilakukan Staf.", "What happens when the trial ends?": "Apa yang terjadi saat masa coba berakhir?", "Your data is kept and stays viewable. You can edit again once a package is activated for your company.": "Data Anda tetap tersimpan dan bisa dilihat. Anda bisa mengubah lagi setelah paket diaktifkan untuk perusahaan Anda.", "Ready to see your assets in one place?": "Siap melihat semua aset Anda di satu tempat?", "Tell us how many assets and branches you manage, and we will set up a trial account for you.": "Beri tahu kami berapa aset dan cabang yang Anda kelola, dan kami siapkan akun trial untuk Anda.", "Contact details will be added here soon.": "Kontak akan segera ditambahkan di sini.", "Back to home": "Kembali ke beranda", "Company asset management": "Pengelolaan aset perusahaan"});
 Object.assign(I18N,{"Click to enlarge":"Klik untuk memperbesar","Close":"Tutup"});
 Object.assign(I18N,{"Photo saved.":"Foto disimpan.","Photo removed.":"Foto dihapus.","No photo yet.":"Belum ada foto.","Add photo":"Tambah foto","Replace photo":"Ganti foto","Remove":"Hapus","Remove photo":"Hapus foto","Remove the photo of this asset?":"Hapus foto aset ini?","Photos are not set up yet. Run photos.sql in Supabase first.":"Foto belum diaktifkan. Jalankan photos.sql di Supabase terlebih dahulu.","This image format is not supported. Use a JPG or PNG photo.":"Format gambar ini tidak didukung. Gunakan foto JPG atau PNG.","This photo is too large even after shrinking.":"Foto ini terlalu besar walau sudah dikecilkan."});
 Object.assign(I18N,{"Handovers (BAST)":"Serah Terima (BAST)","Asset handovers (BAST)":"Serah terima aset (BAST)","Who holds which asset, with a printable handover letter.":"Siapa memegang aset apa, lengkap dengan surat serah terima yang bisa dicetak.","Search holder, code, BAST no...":"Cari pemegang, kode, no. BAST...","Currently held":"Sedang dipegang","Overdue":"Terlambat","Returned":"Sudah dikembalikan","BAST No.":"No. BAST","Holder":"Pemegang","Handed over":"Diserahkan","Expected return":"Rencana kembali","Hand over asset":"Serahkan aset","Return asset":"Kembalikan aset","Receiver name *":"Nama penerima *","Full name":"Nama lengkap","Employee ID":"No. karyawan","Department":"Departemen","Phone":"Telepon","Handed over by":"Diserahkan oleh","Your name":"Nama Anda","Handover date":"Tanggal serah terima","Expected return (optional)":"Rencana kembali (opsional)","Notes / accessories":"Catatan / kelengkapan","e.g. with charger and bag":"mis. beserta charger dan tas","Save and print letter":"Simpan dan cetak surat","Return date":"Tanggal kembali","Received by":"Diterima oleh","Condition on return":"Kondisi saat kembali","Holder (BAST)":"Pemegang (BAST)","Not handed over to anyone.":"Belum diserahkan ke siapa pun.","Hand over":"Serahkan","Print letter":"Cetak surat","Handover":"Serah terima","Return":"Pengembalian","Handover letter":"Surat serah terima","Return letter":"Surat pengembalian","With holder":"Dipegang","No handovers.":"Belum ada serah terima.","{} of {}":"{} dari {}","Handover is not set up yet. Run handover.sql in Supabase first.":"Serah terima belum diaktifkan. Jalankan handover.sql di Supabase terlebih dahulu.","Handovers need an online account (Supabase).":"Serah terima membutuhkan akun online (Supabase).","This asset is already handed over.":"Aset ini sudah diserahkan.","Enter the receiver name.":"Isi nama penerima.","Expected return cannot be before the handover date.":"Rencana kembali tidak boleh sebelum tanggal serah terima.","Return date cannot be before the handover date.":"Tanggal kembali tidak boleh sebelum tanggal serah terima.","Could not create a BAST number. Please try again.":"Gagal membuat nomor BAST. Coba lagi.","Handover saved.":"Serah terima disimpan.","Asset returned.":"Aset dikembalikan.","Handover deleted.":"Serah terima dihapus.","Delete handover":"Hapus serah terima","Only Super Admin can delete.":"Hanya Super Admin yang bisa menghapus.","Delete handover {} ({} \u2192 {})? This cannot be undone.":"Hapus serah terima {} ({} \u2192 {})? Tidak bisa dibatalkan."});
@@ -2986,6 +3179,43 @@ function opExport() {
 }
 
 // ---------------- Owner panel & user management ----------------
+// ================= Public landing page =================
+const SITE = { brand:'Asset Management', wa:'', email:'' };   // fill wa (e.g. 6281234567890) and email to make the contact buttons work
+let wantLanding = true;
+function landingWanted() {
+  try { if (new URLSearchParams(location.search).get('a')) return false; if (/access_token|type=recovery|error_description|^#masuk$|^#login$/.test(location.hash)) return false; } catch (e) {}
+  return wantLanding;
+}
+function showLoggedOut() {
+  if (landingWanted()) { $('landing').classList.remove('hidden'); $('authGate').classList.add('hidden'); renderLanding(); }
+  else { $('landing').classList.add('hidden'); $('authGate').classList.remove('hidden'); }
+}
+function renderLanding() {
+  $('lpBrand').textContent = SITE.brand; $('lpFootBrand').textContent = SITE.brand;
+  const el = $('lpQr');
+  if (el && !el.firstChild && typeof qrMatrix === 'function') {
+    try {
+      const M = qrMatrix('AST-JKT-AC-001'), n = M.length; let d = '';
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (M[r][c]) d += `M${c + 2} ${r + 2}h1v1h-1z`;
+      el.innerHTML = `<svg viewBox="0 0 ${n + 4} ${n + 4}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><path d="${d}" fill="#0d2858"/></svg>`;
+    } catch (e) {}
+  }
+  const hasContact = !!(SITE.wa || SITE.email); $('lpNoContact').classList.toggle('hidden', hasContact);
+  icons();
+}
+function lpCta(kind) {
+  const id = LANG === 'en';
+  const msg = kind === 'trial' ? (id ? "Hello, I'd like to start the 14-day free trial." : 'Halo, saya ingin mencoba trial gratis 14 hari.')
+    : (id ? `Hello, I'd like to ask about the ${kind} package.` : `Halo, saya ingin bertanya tentang paket ${kind}.`);
+  const wa = String(SITE.wa || '').replace(/\D/g, '');
+  const href = wa ? `https://wa.me/${wa}?text=${encodeURIComponent(msg)}` : SITE.email ? `mailto:${SITE.email}?subject=${encodeURIComponent(brandSubject())}&body=${encodeURIComponent(msg)}` : '';
+  if (href) window.open(href, '_blank', 'noopener'); else lpGo('lp-contact');
+}
+const brandSubject = () => (LANG === 'en' ? 'Trial request - ' : 'Permintaan trial - ') + SITE.brand;
+function lpGo(id) { const t = $(id); if (t) t.scrollIntoView({ behavior:'smooth', block:'start' }); }
+function lpLogin() { wantLanding = false; showLoggedOut(); setTimeout(() => { try { $('loginEmail').focus(); } catch (e) {} }, 50); }
+function lpHome() { wantLanding = true; try { if (location.search || location.hash) history.replaceState(null, '', location.pathname); } catch (e) {} showLoggedOut(); }
+
 // ================= Asset photo (one main photo per asset) =================
 let photoErr = '', photoKode = '';
 async function loadPhoto(kode) {
@@ -3414,7 +3644,7 @@ async function changeUserRole(id, role) {
 const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
   drSettings: openDeprSettings, drSave: saveDeprSettings, drExport: exportDepr, perms: openPerms, savePerms: savePerms, codeFmt: openCodeFormat, saveCodeFmt: saveCodeFormat, renumberOpen: openRenumber, renumberApply: rnApply,
-  syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, openPlans, savePlans, openBast, photoView, photoPick, photoRemove, bastHand, saveBast, bastReturn, saveReturn, bastDelete, bastPrint: v => { const [i, k] = String(v).split('|'); printBast(i, k); }, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
+  syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, openPlans, savePlans, lpGo, lpLogin, lpHome, lpCta, openBast, photoView, photoPick, photoRemove, bastHand, saveBast, bastReturn, saveReturn, bastDelete, bastPrint: v => { const [i, k] = String(v).split('|'); printBast(i, k); }, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'), closeNav: () => document.body.classList.remove('nav-open'), setLang,
   openDeleted: openDeletedModal, openAudit, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
   doExport, template: downloadTemplate, backup: backupData, restore: () => $('restoreFile').click(), loadSample, clearAll, commitImport,
@@ -3479,17 +3709,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const { data } = await sb.auth.getSession();
     await applySession(data.session);
     sb.auth.onAuthStateChange(async (_event, session) => {
-      if (_event === 'PASSWORD_RECOVERY') { $('authGate').classList.remove('hidden'); $('formLogin').classList.add('hidden'); $('formRecover').classList.remove('hidden'); return; }
+      if (_event === 'PASSWORD_RECOVERY') { $('landing').classList.add('hidden'); $('authGate').classList.remove('hidden'); $('formLogin').classList.add('hidden'); $('formRecover').classList.remove('hidden'); return; }
       if (!session?.user) {
         currentUser = null; stopPolling();
         currentRole = 'viewer';
         renderRoleUI();
         setDbBadge('local', 'Signed Out');
-        $('authGate').classList.remove('hidden');
+        if (_event === 'SIGNED_OUT') wantLanding = true;
+        showLoggedOut();
       }
     });
   } else {
-    $('authGate').classList.add('hidden');
+    $('authGate').classList.add('hidden'); $('landing').classList.add('hidden');
   }
 });
 </script>

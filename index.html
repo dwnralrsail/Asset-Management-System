@@ -371,6 +371,16 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     body.side-collapsed .nav-item{font-size:13px;gap:11px;justify-content:flex-start;padding:6px 8px}
     .topbar{padding:14px 14px 6px;align-items:center}.page-title{font-size:22px}.page-sub{display:none}.page{padding:8px 14px 24px}
   }
+
+  /* sidebar hover: clearer */
+  .nav-item{transition:background .15s ease,color .15s ease,transform .15s ease,box-shadow .15s ease}
+  .nav-item:not(.active):hover{background:linear-gradient(90deg,rgba(47,108,240,.16),rgba(47,108,240,.07));color:#0f2d78;box-shadow:inset 0 0 0 1px rgba(47,108,240,.28),0 4px 12px -6px rgba(47,108,240,.4);transform:translateX(3px)}
+  .nav-item:not(.active):hover svg{transform:scale(1.08);box-shadow:0 5px 12px -3px rgba(47,108,240,.7),inset 0 1px 0 rgba(255,255,255,.5)}
+  .nav-item svg{transition:transform .15s ease,box-shadow .15s ease}
+  .nav-item:focus-visible{outline:2px solid #2f6cf0;outline-offset:1px}
+  .nav-item.active{box-shadow:0 4px 14px -6px rgba(38,64,140,.4),inset 0 0 0 1px rgba(47,108,240,.2),inset 0 1px 0 #fff}
+  .nav-item.nav-danger:not(.active):hover{background:linear-gradient(90deg,rgba(224,74,74,.18),rgba(224,74,74,.07));color:#a82a2a;box-shadow:inset 0 0 0 1px rgba(224,74,74,.3)}
+  body.side-collapsed .nav-item:not(.active):hover{transform:none}
 </style>
 </head>
 <body>

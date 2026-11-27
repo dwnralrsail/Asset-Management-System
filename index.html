@@ -410,6 +410,14 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   .card .lbl{margin-top:0}
 
   body.booting .sidebar,body.booting .content,body.booting .scrim{visibility:hidden}
+
+  /* ===== round 4 fixes ===== */
+  .card,.panel{position:relative}
+  .card:has(.menu:not(.hidden)),.panel:has(.menu:not(.hidden)){z-index:50}
+  #modalScan>div{-webkit-backdrop-filter:none !important;backdrop-filter:none !important;background:#fff !important}
+  .modal-tbl{overflow:auto;max-height:calc(90vh - 250px)}
+  .modal-tbl thead th{position:sticky;top:0;z-index:2}
+  .dm-addr{max-width:340px;color:var(--muted)}
 </style>
 </head>
 <body class="booting">
@@ -816,11 +824,12 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       <div><h3 class="font-bold" id="settingsTitle">Branches</h3><p class="text-xs text-slate-500 mt-0.5" id="dmHint">Branches and offices where assets are placed. The code is used in asset codes.</p></div>
       <form id="formSettings" class="flex flex-wrap gap-2">
         <input id="setKode" maxlength="6" placeholder="CODE" class="input uppercase font-mono" style="width:130px">
-        <input id="setNama" placeholder="Name" class="input" style="flex:1 1 220px">
+        <input id="setNama" placeholder="Name" class="input" style="flex:1 1 200px">
+        <input id="setAlamat" placeholder="Address (optional)" class="input" style="flex:2 1 260px">
         <button class="btn btn-primary" type="submit"><i data-lucide="plus"></i>Add</button>
       </form>
       <div class="border border-slate-200 rounded-lg overflow-x-auto">
-        <table class="data-table w-full text-left text-sm"><thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-2.5">Code</th><th class="p-2.5">Name</th><th class="p-2.5 text-center">In use</th><th class="p-2.5"></th></tr></thead>
+        <table class="data-table w-full text-left text-sm"><thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr id="settingsHead"></tr></thead>
         <tbody id="settingsBody" class="divide-y divide-slate-100"></tbody></table>
       </div>
     </div>
@@ -997,7 +1006,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
         <select id="auditAct" class="input" style="max-width:160px"><option value="">All actions</option><option value="INSERT">Created</option><option value="UPDATE">Changed</option><option value="DELETE">Deleted</option></select>
         <select id="auditTbl" class="input" style="max-width:180px"><option value="">All data</option><option value="assets">Assets</option><option value="asset_logs">Logs</option><option value="branches">Branches</option><option value="categories">Categories</option></select>
       </div>
-      <div class="border border-slate-200 rounded-lg overflow-x-auto">
+      <div class="modal-tbl border border-slate-200 rounded-lg">
         <table class="data-table w-full text-left text-xs min-w-max">
           <thead class="bg-slate-100 text-slate-600 uppercase"><tr>
             <th class="p-2.5">When</th><th class="p-2.5">User</th><th class="p-2.5">Action</th><th class="p-2.5">Data</th><th class="p-2.5">Key</th><th class="p-2.5">Details</th>
@@ -1023,7 +1032,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       <button data-act="closeModal" data-id="modalDeleted" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div class="p-5 overflow-y-auto grow">
-      <div class="border border-slate-200 rounded-lg overflow-x-auto">
+      <div class="modal-tbl border border-slate-200 rounded-lg">
         <table class="data-table w-full text-left text-xs min-w-max">
           <thead class="bg-slate-100 text-slate-600 uppercase">
             <tr>
@@ -1040,8 +1049,8 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
         </table>
       </div>
     </div>
-    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
-      <button class="btn btn-ghost" data-act="closeModal" data-id="modalDeleted">Close</button>
+    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0">
+      <button class="btn btn-ghost" data-act="purgeRestored" style="margin-right:auto">Clear restored</button><button class="btn btn-ghost" data-act="closeModal" data-id="modalDeleted">Close</button>
     </div>
   </div>
 </div>
@@ -1139,6 +1148,19 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   <button class="btn btn-ghost" style="position:absolute;top:16px;right:16px;background:#fff" data-act="closeModal" data-id="modalPhotoView"><i data-lucide="x"></i>Close</button>
 </div>
 <input type="file" id="photoFile" accept="image/*" class="hidden">
+
+<div id="modalDmEdit" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+    <div class="modal-head flex justify-between items-center"><h3 class="font-bold" id="deTitle">Edit branch</h3>
+      <button data-act="closeModal" data-id="modalDmEdit" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 space-y-3 text-sm">
+      <div><label class="lbl">Code</label><input id="deCode" class="input font-mono" readonly><p class="text-xs text-slate-400 mt-1">The code cannot be changed because it is part of existing asset codes.</p></div>
+      <div><label class="lbl">Name *</label><input id="deNama" class="input" autocomplete="off"></div>
+      <div id="deAlamatWrap"><label class="lbl">Address</label><input id="deAlamat" class="input" placeholder="Street, city" autocomplete="off"></div>
+      <div class="flex justify-end gap-2"><button class="btn btn-ghost" data-act="closeModal" data-id="modalDmEdit">Cancel</button><button class="btn btn-primary" data-act="saveSettingEdit">Save</button></div>
+    </div>
+  </div>
+</div>
 
 <div id="modalBastPick" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
   <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
@@ -1247,6 +1269,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       <div style="background:#0b1220;border-radius:10px;overflow:hidden;aspect-ratio:4/3"><video id="scanVideo" playsinline muted style="width:100%;height:100%;object-fit:cover"></video></div>
       <p id="scanStatus" class="text-sm text-slate-600" style="min-height:2.6em"></p>
       <div class="flex gap-2"><input id="scanManual" class="input" placeholder="Or type the asset code" autocomplete="off"><button class="btn btn-ghost" data-act="scanManualGo">OK</button></div>
+      <label class="btn btn-ghost" style="cursor:pointer;width:100%;justify-content:center"><i data-lucide="camera"></i>Scan from a photo<input type="file" id="scanPhoto" accept="image/*" capture="environment" class="hidden"></label>
     </div>
     <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end"><button class="btn btn-ghost" data-act="closeModal" data-id="modalScan">Done</button></div>
   </div>
@@ -1905,13 +1928,14 @@ const SYNC_SETS = [
   { name:'assets',     table:'assets',     key:'code', order:'code' },
   { name:'logs',       table:'asset_logs', key:'id',   order:'id'   }
 ];
+const bRow = c => { const r = { code:c.kode, name:c.nama }; if (c.alamat) r.address = c.alamat; return r; };
 const emptySnap = () => ({ branches:new Map(), categories:new Map(), assets:new Map(), logs:new Map() });
 let snap = emptySnap();
 let syncing = false, dirty = false, pulling = false, syncFailed = false, pulledOnce = false, syncTimer = null, pollTimer = null;
 
 function localRows() {
   return {
-    branches:   new Map(cabangData.map(c => [c.kode, { code:c.kode, name:c.nama }])),
+    branches:   new Map(cabangData.map(c => [c.kode, bRow(c)])),
     categories: new Map(kategoriData.map(k => [k.kode, { code:k.kode, name:k.nama }])),
     assets:     new Map(assetData.map(a => [a.kode, toDbAsset(a)])),
     logs:       new Map(mutasiData.map(m => [m.id, toDbLog(m)]))
@@ -1919,7 +1943,7 @@ function localRows() {
 }
 function snapFromServer(res) {
   const sn = emptySnap();
-  res.branches.forEach(r => sn.branches.set(r.code, JSON.stringify({ code:r.code, name:r.name })));
+  res.branches.forEach(r => sn.branches.set(r.code, JSON.stringify(bRow({ kode:r.code, nama:r.name, alamat:r.address }))));
   res.categories.forEach(r => sn.categories.set(r.code, JSON.stringify({ code:r.code, name:r.name })));
   res.assets.forEach(r => { const a = fromDbAsset(r); sn.assets.set(a.kode, JSON.stringify(toDbAsset(a))); });
   res.logs.forEach(r => { const m = fromDbLog(r); sn.logs.set(m.id, JSON.stringify(toDbLog(m))); });
@@ -2010,7 +2034,7 @@ async function pullFromSupabase(force = false) {
     const same = !force && pulledOnce && SYNC_SETS.every(s => mapsEqual(newSnap[s.name], snap[s.name]));
     snap = newSnap;
     if (!same) {
-      if (branches.length) cabangData = branches.map(r => ({ kode:r.code, nama:r.name }));
+      if (branches.length) cabangData = branches.map(r => ({ kode:r.code, nama:r.name, alamat:r.address || '' }));
       if (categories.length) kategoriData = categories.map(r => ({ kode:r.code, nama:r.name }));
       assetData = assets.map(fromDbAsset); mutasiData = logs.map(fromDbLog);
       const have = new Set(assetData.map(a => a.kode)); [...sel].forEach(k => { if (!have.has(k)) sel.delete(k); });
@@ -2579,6 +2603,20 @@ function renderAudit() {
   $('auditNote').textContent = `Showing ${rows.length} of the latest ${auditRows.length} records.`;
 }
 
+async function purgeArchived(id) {
+  if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
+  if (!(await confirmDialog('Permanently delete this archived record? It can no longer be restored.', { title:'Delete permanently', ok:'Delete permanently' }))) return;
+  const { data, error } = await sb.from('deleted_records').delete().eq('id', id).select('id');
+  if (error || !(data || []).length) return toast('Not allowed yet. Run purge_deleted.sql in Supabase first.' + (error ? ' (' + error.message + ')' : ''), 'error');
+  toast('Deleted permanently.', 'success'); openDeletedModal();
+}
+async function purgeRestored() {
+  if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
+  if (!(await confirmDialog('Permanently delete all records that were already restored? Their saved copies will be removed.', { title:'Clear restored records', ok:'Delete' }))) return;
+  const { data, error } = await sb.from('deleted_records').delete().not('restored_at', 'is', null).select('id');
+  if (error) return toast('Not allowed yet. Run purge_deleted.sql in Supabase first. (' + error.message + ')', 'error');
+  toast(`${(data || []).length} record(s) removed.`, 'success'); openDeletedModal();
+}
 async function openDeletedModal() {
   if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
   openModal('modalDeleted');
@@ -2605,6 +2643,7 @@ async function openDeletedModal() {
       <td class="p-2.5">${state}</td>
       <td class="p-2.5 text-center">
         <button class="btn btn-success" style="padding:.25rem .6rem" data-act="restoreArchived" data-id="${esc(r.id)}" ${r.restored_at ? 'disabled' : ''}>Restore</button>
+        <button class="btn btn-danger" style="padding:.25rem .6rem" data-act="purgeArchived" data-id="${esc(r.id)}">Delete</button>
       </td>
     </tr>`;
   }).join('');
@@ -2633,7 +2672,7 @@ async function restoreArchived(recId) {
     const idx = mutasiData.findIndex(m => m.id === restored.id);
     if (idx > -1) mutasiData[idx] = restored; else mutasiData.push(restored);
   } else if (rec.table_name === 'branches') {
-    const item = { kode: p.kode || p.code, nama: p.nama || p.name };
+    const item = { kode: p.kode || p.code, nama: p.nama || p.name, alamat: p.alamat || p.address || '' };
     if (item.kode && item.nama && !cabangData.some(c => c.kode === item.kode)) cabangData.push(item);
   } else if (rec.table_name === 'categories') {
     const item = { kode: p.kode || p.code, nama: p.nama || p.name };
@@ -2659,18 +2698,37 @@ function dmSync() {
 function dmTab(id) { settingsMode = id === 'kategori' ? 'kategori' : 'cabang'; $('setKode').value = ''; $('setNama').value = ''; dmSync(); renderSettings(); }
 function renderSettings() {
   if (!$('settingsBody')) return;
-  const list = settingsMode === 'cabang' ? cabangData : kategoriData, key = settingsMode === 'cabang' ? 'cabang' : 'kategori';
-  $('settingsBody').innerHTML = list.map((it, i) => `<tr><td class="p-2.5 font-mono font-bold text-blue-600">${esc(it.kode)}</td><td class="p-2.5">${esc(it.nama)}</td><td class="p-2.5 text-center text-slate-500">${assetData.filter(a => a[key] === it.nama).length}</td><td class="p-2.5 text-center"><button class="text-rose-600 p-1 admin-only" data-act="delSetting" data-id="${i}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
+  const cab = settingsMode === 'cabang', list = cab ? cabangData : kategoriData, key = cab ? 'cabang' : 'kategori';
+  $('settingsHead').innerHTML = `<th class="p-2.5">Code</th><th class="p-2.5">Name</th>${cab ? '<th class="p-2.5">Address</th>' : ''}<th class="p-2.5 text-center">In use</th><th class="p-2.5"></th>`;
+  $('setAlamat').classList.toggle('hidden', !cab);
+  $('settingsBody').innerHTML = list.map((it, i) => `<tr><td class="p-2.5 font-mono font-bold text-blue-600">${esc(it.kode)}</td><td class="p-2.5">${esc(it.nama)}</td>${cab ? `<td class="p-2.5 dm-addr text-xs">${esc(it.alamat || '-')}</td>` : ''}<td class="p-2.5 text-center text-slate-500">${assetData.filter(a => a[key] === it.nama).length}</td><td class="p-2.5 text-center" style="white-space:nowrap"><button class="text-blue-600 p-1" title="Edit" data-act="editSetting" data-id="${i}" ${!canWrite() ? 'disabled' : ''}><i data-lucide="pencil" class="w-4 h-4"></i></button> <button class="text-rose-600 p-1 admin-only" data-act="delSetting" data-id="${i}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
   icons();
 }
 function addSetting(e) {
   e.preventDefault();
   if (!canWrite()) return toast('Read-only role.', 'warn');
-  const kode = $('setKode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''), nama = $('setNama').value.trim();
+  const cab = settingsMode === 'cabang', kode = $('setKode').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''), nama = $('setNama').value.trim(), alamat = $('setAlamat').value.trim();
   if (!kode || !nama) return toast('Fill code and name.', 'error');
-  const list = settingsMode === 'cabang' ? cabangData : kategoriData;
+  const list = cab ? cabangData : kategoriData;
   if (list.some(x => x.kode === kode || x.nama.toLowerCase() === nama.toLowerCase())) return toast('Duplicate code or name.', 'error');
-  list.push({ kode, nama }); saveAll(); $('setKode').value = ''; $('setNama').value = ''; renderSettings(); refreshAll();
+  list.push(cab ? { kode, nama, alamat } : { kode, nama }); saveAll(); $('setKode').value = ''; $('setNama').value = ''; $('setAlamat').value = ''; renderSettings(); refreshAll();
+}
+let dmEditIdx = -1;
+function editSetting(i) {
+  if (!canWrite()) return toast('Read-only role.', 'warn');
+  const cab = settingsMode === 'cabang', it = (cab ? cabangData : kategoriData)[i]; if (!it) return;
+  dmEditIdx = i; $('deTitle').textContent = cab ? 'Edit branch' : 'Edit category';
+  $('deCode').value = it.kode; $('deNama').value = it.nama; $('deAlamat').value = it.alamat || ''; $('deAlamatWrap').classList.toggle('hidden', !cab);
+  openModal('modalDmEdit');
+}
+function saveSettingEdit() {
+  const cab = settingsMode === 'cabang', list = cab ? cabangData : kategoriData, key = cab ? 'cabang' : 'kategori', it = list[dmEditIdx]; if (!it) return;
+  const nama = $('deNama').value.trim(); if (!nama) return toast('Fill the name.', 'error');
+  if (list.some((x, j) => j !== dmEditIdx && x.nama.toLowerCase() === nama.toLowerCase())) return toast('Duplicate code or name.', 'error');
+  const old = it.nama; it.nama = nama;
+  if (cab) it.alamat = $('deAlamat').value.trim();
+  if (old !== nama) assetData.forEach(a => { if (a[key] === old) a[key] = nama; });   // assets refer to the name
+  saveAll(); closeModal('modalDmEdit'); renderSettings(); refreshAll(); toast('Saved.', 'success');
 }
 async function delSetting(i) {
   if (!isSuperAdmin()) return toast('Only Super Admin can delete branches/categories.', 'warn');
@@ -3002,6 +3060,7 @@ const I18N={"Dashboard":"Dashboard","Asset data":"Data aset","Assets":"Aset","Br
 Object.assign(I18N,{"Record, track and maintain every company asset, in one calm place.":"Catat, lacak, dan rawat setiap aset perusahaan, di satu tempat yang tenang."});
 Object.assign(I18N,{"Search assets...":"Cari aset...","Collapse menu":"Ciutkan menu"});
 Object.assign(I18N,{"Master Data": "Data Master", "Settings": "Pengaturan", "System": "Sistem", "Refresh data": "Muat ulang data", "Branches": "Cabang", "Categories": "Kategori", "Branches and offices where assets are placed. The code is used in asset codes.": "Cabang dan kantor tempat aset ditempatkan. Kodenya dipakai dalam kode aset.", "Asset categories. The code is used in asset codes.": "Kategori aset. Kodenya dipakai dalam kode aset.", "Account": "Akun", "Users": "Pengguna", "Access and codes": "Akses dan kode", "Audit and deleted": "Audit dan terhapus", "Data and backup": "Data dan cadangan", "Signed in": "Sedang masuk", "Use a password you do not use anywhere else.": "Pakai kata sandi yang tidak dipakai di tempat lain.", "Role permissions": "Hak akses peran", "Choose what Staff and Viewer can see and do.": "Atur apa yang boleh dilihat dan dilakukan Staff dan Viewer.", "Open": "Buka", "Audit trail": "Jejak audit", "Who changed what and when, recorded automatically by the server.": "Siapa mengubah apa dan kapan, dicatat otomatis oleh server.", "Deleted and restore": "Terhapus dan pulihkan", "Deleted records are archived here and can be restored.": "Data yang dihapus diarsipkan di sini dan bisa dipulihkan.", "Back up all data": "Cadangkan semua data", "Download everything as one .json file.": "Unduh semuanya dalam satu file .json.", "Back up": "Cadangkan", "Restore from backup": "Pulihkan dari cadangan", "Replace the current data with a backup file.": "Ganti data saat ini dengan file cadangan.", "Restore": "Pulihkan", "Load sample data": "Muat data contoh", "Fill the app with example assets for a demo.": "Isi aplikasi dengan aset contoh untuk demo.", "Load sample": "Muat contoh", "Clear all data": "Hapus semua data", "Permanently removes all data in this company.": "Menghapus permanen semua data perusahaan ini.", "Clear all": "Hapus semua", "Handovers": "Serah terima", "Letter template": "Template surat", "New handover": "Serah terima baru", "Asset": "Aset", "Type an asset code or name": "Ketik kode atau nama aset", "Only assets that are not currently handed over are listed.": "Hanya aset yang sedang tidak diserahkan yang ditampilkan.", "Continue": "Lanjut", "Choose an asset from the list.": "Pilih aset dari daftar.", "Adjust the handover letter to your company. Empty fields use the standard text.": "Sesuaikan surat serah terima dengan perusahaan Anda. Kolom kosong memakai teks standar.", "Company logo": "Logo perusahaan", "Choose logo": "Pilih logo", "Remove": "Hapus", "Company name on the letter": "Nama perusahaan di surat", "Defaults to your company name": "Bawaan: nama perusahaan Anda", "Address or contact line (optional)": "Alamat atau kontak (opsional)", "e.g. Jl. Sudirman No. 1, Jakarta": "mis. Jl. Sudirman No. 1, Jakarta", "City on the signature line": "Kota di baris tanda tangan", "e.g. Jakarta": "mis. Jakarta", "Letter number": "Nomor surat", "Number format": "Format nomor", "Unit code (for {UNIT})": "Kode unit (untuk {UNIT})", "e.g. GA": "mis. GA", "Use {NNN} for the running number (more N means more digits), {YYYY} for the year, {MM} for the month, {ROM} for the month in Roman numerals, and {UNIT} for the unit code. Your format gives:": "Pakai {NNN} untuk nomor urut (makin banyak N, makin banyak digit), {YYYY} untuk tahun, {MM} untuk bulan, {ROM} untuk bulan angka Romawi, dan {UNIT} untuk kode unit. Format Anda menghasilkan:", "Wording": "Redaksi", "Title of handover letter": "Judul surat serah terima", "Title of return letter": "Judul surat pengembalian", "Opening sentence, handover (use {d} for the date)": "Kalimat pembuka, serah terima (pakai {d} untuk tanggal)", "Opening sentence, return (use {d} and {n})": "Kalimat pembuka, pengembalian (pakai {d} dan {n})", "Terms (one per line)": "Ketentuan (satu per baris)", "Closing sentence, return letter": "Kalimat penutup, surat pengembalian", "Signatures": "Tanda tangan", "Position of the handing-over party": "Jabatan pihak yang menyerahkan", "e.g. GA Staff": "mis. Staf GA", "Position of the receiving party": "Jabatan pihak yang menerima", "e.g. Employee": "mis. Karyawan", "Add an \"Acknowledged by\" signature": "Tambahkan tanda tangan \"Mengetahui\"", "Acknowledged by": "Mengetahui", "Label": "Label", "Position": "Jabatan", "e.g. HRGA Manager": "mis. Manager HRGA", "Footer note (optional)": "Catatan kaki (opsional)", "e.g. This document is generated by the system.": "mis. Dokumen ini dibuat oleh sistem.", "Save template": "Simpan template", "Preview PDF": "Pratinjau PDF", "Reset to standard": "Kembalikan ke standar", "Template saved.": "Template tersimpan.", "Only Super Admin can change the template.": "Hanya Super Admin yang bisa mengubah template.", "The template needs an online account.": "Template butuh akun online.", "Template is not set up yet. Run bast_template.sql in Supabase first.": "Template belum disiapkan. Jalankan bast_template.sql di Supabase dulu.", "Standard text restored. Click Save template to keep it.": "Teks standar dikembalikan. Klik Simpan template untuk menyimpannya."});
+Object.assign(I18N,{"Address (optional)": "Alamat (opsional)", "Address": "Alamat", "Edit branch": "Ubah cabang", "Edit category": "Ubah kategori", "Edit": "Ubah", "Code": "Kode", "The code cannot be changed because it is part of existing asset codes.": "Kode tidak bisa diubah karena menjadi bagian dari kode aset yang sudah ada.", "Name *": "Nama *", "Street, city": "Jalan, kota", "Fill the name.": "Isi nama.", "Saved.": "Tersimpan.", "Delete": "Hapus", "Clear restored": "Bersihkan yang dipulihkan", "Delete permanently": "Hapus permanen", "Permanently delete this archived record? It can no longer be restored.": "Hapus permanen arsip ini? Arsip tidak bisa dipulihkan lagi.", "Clear restored records": "Bersihkan arsip yang dipulihkan", "Permanently delete all records that were already restored? Their saved copies will be removed.": "Hapus permanen semua arsip yang sudah dipulihkan? Salinan tersimpannya akan dihapus.", "Deleted permanently.": "Dihapus permanen.", "Not allowed yet. Run purge_deleted.sql in Supabase first.": "Belum diizinkan. Jalankan purge_deleted.sql di Supabase dulu.", "Scan from a photo": "Pindai dari foto", "Reading the photo...": "Membaca foto...", "No QR code found in the photo. Try again, closer, with the whole code in focus.": "QR tidak ditemukan di foto. Coba lagi, lebih dekat, dengan seluruh kode tampak jelas.", "Could not read this photo.": "Foto ini tidak bisa dibaca.", "Point the camera at a QR code. Hold it steady, with the code filling a good part of the frame.": "Arahkan kamera ke kode QR. Tahan stabil, dengan kode memenuhi sebagian besar layar.", "Camera permission was denied. Allow camera access for this site in your browser settings, or use the photo button or type the code below.": "Izin kamera ditolak. Izinkan akses kamera untuk situs ini di pengaturan browser, atau pakai tombol foto atau ketik kodenya di bawah.", "Camera not available. Use the photo button or type the code below.": "Kamera tidak tersedia. Pakai tombol foto atau ketik kodenya di bawah."});
 Object.assign(I18N,{"Don't have an account yet?":"Belum punya akun?","Need help signing in? Contact your company administrator.":"Butuh bantuan untuk masuk? Hubungi administrator perusahaan Anda.", "Contact person":"Kontak", "Start your 14-day free trial": "Mulai trial gratis 14 hari", "Tell us a little about your company. We will set up your trial account and contact you.": "Ceritakan sedikit tentang perusahaan Anda. Kami akan menyiapkan akun trial dan menghubungi Anda.", "Your name *": "Nama Anda *", "WhatsApp (optional)": "WhatsApp (opsional)", "Number of assets": "Jumlah aset", "Choose": "Pilih", "Under 50": "Kurang dari 50", "50 to 200": "50 sampai 200", "200 to 1,000": "200 sampai 1.000", "More than 1,000": "Lebih dari 1.000", "Package of interest": "Paket yang diminati", "Help me choose": "Bantu saya memilih", "Message (optional)": "Pesan (opsional)", "Send request": "Kirim permintaan", "We only use this to set up your trial and contact you.": "Data ini hanya dipakai untuk menyiapkan trial dan menghubungi Anda.", "Prefer WhatsApp? Chat with us": "Lebih suka WhatsApp? Chat dengan kami", "Chat on WhatsApp": "Chat lewat WhatsApp", "Request received": "Permintaan diterima", "Thank you. We will contact you to set up your trial account.": "Terima kasih. Kami akan menghubungi Anda untuk menyiapkan akun trial.", "Enter your company name and your name.": "Isi nama perusahaan dan nama Anda.", "Enter a valid email address.": "Isi alamat email yang valid.", "Trial requests are not set up yet. Please contact us another way.": "Permintaan trial belum diaktifkan. Silakan hubungi kami lewat cara lain.", "Could not send your request. Please try again in a moment.": "Permintaan gagal terkirim. Coba lagi sebentar lagi.", "We already have your requests. We will contact you soon.": "Permintaan Anda sudah kami terima. Kami akan segera menghubungi Anda.", "Too many requests right now. Please try again later.": "Terlalu banyak permintaan saat ini. Coba lagi nanti.", "Trial requests": "Permintaan trial", "Show handled requests too": "Tampilkan yang sudah diproses juga", "New": "Baru", "Contacted": "Sudah dihubungi", "Account created": "Akun dibuat", "Rejected": "Ditolak", "Create company": "Buat perusahaan", "Mark contacted": "Tandai sudah dihubungi", "Reject": "Tolak", "No trial requests.": "Belum ada permintaan trial.", "Trial requests are not set up yet. Run trial_requests.sql in Supabase first.": "Permintaan trial belum diaktifkan. Jalankan trial_requests.sql di Supabase terlebih dahulu.", "Delete request": "Hapus permintaan", "Delete the request from {}? This cannot be undone.": "Hapus permintaan dari {}? Tidak bisa dibatalkan.", "e.g. 3 branches, mostly AC and laptops": "mis. 3 cabang, kebanyakan AC dan laptop"});
 Object.assign(I18N,{"Features": "Fitur", "Packages": "Paket", "FAQ": "FAQ", "Contact": "Hubungi kami", "Jakarta Pusat, every 3 months": "Jakarta Pusat, setiap 3 bulan", "Bandung, every 6 months": "Bandung, setiap 6 bulan", "Jakarta Barat, every 6 months": "Jakarta Barat, setiap 6 bulan", "Sign in": "Masuk", "Start free trial": "Coba gratis", "Every company asset, recorded and looked after.": "Semua aset perusahaan, tercatat dan terawat.", "Give each asset a QR label, schedule its maintenance, and hand it over with a printable letter.": "Beri tiap aset label QR, jadwalkan perawatannya, dan serahkan dengan surat yang bisa dicetak.", "Start 14-day free trial": "Coba gratis 14 hari", "See features": "Lihat fitur", "All features are open during the trial.": "Semua fitur terbuka selama masa coba.", "Sample data": "Contoh data", "Total units": "Total unit", "Maintenance due": "Perawatan jatuh tempo", "Under repair": "Dalam perbaikan", "Maintenance due in 6 days": "Perawatan jatuh tempo 6 hari lagi", "Know where every asset is.": "Tahu di mana setiap aset berada.", "Who holds it, when it needs service, and what it is worth today, all in one system.": "Siapa yang memegang, kapan harus dirawat, dan berapa nilainya sekarang, semua tercatat di satu sistem.", "One record for every asset": "Satu catatan untuk setiap aset", "Code, category, branch, specifications, warranty and photo, all on one page. Print a QR label, stick it on the asset, and anyone with a phone camera can open its record.": "Kode, kategori, cabang, spesifikasi, garansi, dan foto, semua dalam satu halaman. Cetak label QR, tempel di aset, dan siapa pun dengan kamera HP bisa membuka catatannya.", "QR labels and scanning": "Label QR dan pemindaian", "A photo for each asset": "Foto untuk tiap aset", "Import your existing Excel list": "Impor daftar Excel yang sudah ada", "Category": "Kategori", "Air Conditioner": "Air Conditioner", "Location": "Lokasi", "Warranty until": "Garansi sampai", "Condition": "Kondisi", "Good": "Baik", "Maintenance that does not slip": "Perawatan yang tidak terlewat", "Set a routine once, for example every three months. The dashboard shows what is coming and what is overdue, and one tap records that the work is done.": "Atur jadwal rutin sekali saja, misalnya tiap tiga bulan. Dashboard menunjukkan apa yang akan datang dan apa yang terlambat, dan satu ketukan mencatat pekerjaan selesai.", "Routine maintenance schedules": "Jadwal perawatan rutin", "Service and transfer history": "Riwayat servis dan mutasi", "Maintenance cost per year": "Biaya perawatan per tahun", "Always know who holds what": "Selalu tahu siapa memegang apa", "Hand an asset over to an employee and print the letter on the spot. See who has it, when it is due back, and every earlier holder. Move assets between branches and keep the trail.": "Serahkan aset ke karyawan dan cetak suratnya saat itu juga. Lihat siapa yang memegang, kapan harus kembali, dan semua pemegang sebelumnya. Pindahkan aset antar cabang dan riwayatnya tetap tercatat.", "Printable handover and return letters": "Surat serah terima dan pengembalian siap cetak", "Branch transfers": "Mutasi antar cabang", "Stock opname with your phone camera": "Stok opname dengan kamera HP", "Holder": "Pemegang", "Handed over": "Diserahkan", "Expected return": "Rencana kembali", "Print letter": "Cetak surat", "And the details that save time.": "Dan detail yang menghemat waktu.", "Included to keep a growing asset list under control.": "Disertakan agar daftar aset yang terus bertambah tetap terkendali.", "Stock opname": "Stok opname", "Check every asset against the records, branch by branch, and see what is missing.": "Cocokkan setiap aset dengan catatan, cabang demi cabang, dan lihat apa yang hilang.", "Depreciation": "Penyusutan", "Book value of each asset, calculated automatically.": "Nilai buku tiap aset, dihitung otomatis.", "Role permissions": "Hak akses peran", "Decide what staff and viewers can see and change.": "Tentukan apa yang boleh dilihat dan diubah oleh staf dan pengamat.", "Audit trail": "Jejak audit", "A record of who changed what, and when.": "Catatan siapa mengubah apa, dan kapan.", "Your own code format": "Format kode sendiri", "Asset codes that follow the pattern your company already uses.": "Kode aset yang mengikuti pola yang sudah dipakai perusahaan Anda.", "Indonesian and English": "Bahasa Indonesia dan Inggris", "Switch the language at any time.": "Ganti bahasa kapan saja.", "Get started in 3 steps.": "Mulai dalam 3 langkah.", "No installation. It runs in the browser on a computer or a phone.": "Tanpa instalasi. Berjalan di browser, di komputer maupun HP.", "We create your company account": "Kami membuat akun perusahaan Anda", "You get a login for your administrator, with starter categories and a first branch ready.": "Anda mendapat login untuk administrator, lengkap dengan kategori awal dan satu cabang pertama.", "Import your asset list": "Impor daftar aset Anda", "Use the Excel template, or add assets one by one.": "Pakai template Excel, atau tambahkan aset satu per satu.", "Print labels and start scanning": "Cetak label dan mulai memindai", "Stick the QR labels on your assets and open any record from a phone.": "Tempel label QR di aset Anda dan buka catatan mana pun dari HP.", "Choose the package that fits.": "Pilih paket yang sesuai.", "Every new company starts with a 14-day trial where all features are open. Contact us for pricing.": "Setiap perusahaan baru memulai dengan trial 14 hari dengan semua fitur terbuka. Hubungi kami untuk harga.", "Up to 100 assets and 3 users": "Sampai 100 aset dan 3 pengguna", "Up to 1,000 assets and 10 users": "Sampai 1.000 aset dan 10 pengguna", "Unlimited assets and users": "Aset dan pengguna tanpa batas", "Assets, categories and branches": "Aset, kategori, dan cabang", "Mutation and service logs": "Log mutasi dan servis", "Maintenance schedules": "Jadwal perawatan", "Excel import and export": "Impor dan ekspor Excel", "Backup and restore": "Backup dan restore", "Everything in Basic": "Semua fitur Basic", "Everything in Business": "Semua fitur Business", "Handover letters (BAST)": "Surat serah terima (BAST)", "Email and WhatsApp reminders (coming soon)": "Pengingat Email dan WhatsApp (segera hadir)", "Ask about Basic": "Tanya paket Basic", "Ask about Business": "Tanya paket Business", "Ask about Enterprise": "Tanya paket Enterprise", "Questions we hear often": "Pertanyaan yang sering diajukan", "Not here? Contact us and we will answer.": "Tidak ada di sini? Hubungi kami, kami jawab.", "Is our data separate from other companies?": "Apakah data kami terpisah dari perusahaan lain?", "Yes. Each company has its own isolated data, and only the people you invite can sign in to it.": "Ya. Setiap perusahaan punya data sendiri yang terpisah, dan hanya orang yang Anda undang yang bisa masuk.", "Can we use it on a phone?": "Apakah bisa dipakai di HP?", "Yes. It works in any modern browser, and the phone camera can scan the QR label on an asset.": "Bisa. Berjalan di browser modern apa pun, dan kamera HP bisa memindai label QR di aset.", "Can we bring our existing Excel list?": "Apakah daftar Excel kami yang lama bisa dipakai?", "Yes. Download the import template, copy your columns into it, and import. The app tells you about any row that needs fixing.": "Bisa. Unduh template impor, salin kolom Anda ke dalamnya, lalu impor. Aplikasi memberi tahu baris mana yang perlu diperbaiki.", "Who can see and change what?": "Siapa yang bisa melihat dan mengubah apa?", "There are three roles. A Super Admin manages everything, Staff can edit records, and a Viewer can only read. A Super Admin can limit what Staff are allowed to do.": "Ada tiga peran. Super Admin mengelola semuanya, Staf bisa mengubah data, dan Pengamat hanya bisa membaca. Super Admin bisa membatasi apa yang boleh dilakukan Staf.", "What happens when the trial ends?": "Apa yang terjadi saat masa coba berakhir?", "Your data is kept and stays viewable. You can edit again once a package is activated for your company.": "Data Anda tetap tersimpan dan bisa dilihat. Anda bisa mengubah lagi setelah paket diaktifkan untuk perusahaan Anda.", "Ready to see your assets in one place?": "Siap melihat semua aset Anda di satu tempat?", "Tell us how many assets and branches you manage, and we will set up a trial account for you.": "Beri tahu kami berapa aset dan cabang yang Anda kelola, dan kami siapkan akun trial untuk Anda.", "Contact details will be added here soon.": "Kontak akan segera ditambahkan di sini.", "Back to home": "Kembali ke beranda", "Company asset management": "Pengelolaan aset perusahaan"});
 Object.assign(I18N,{"Click to enlarge":"Klik untuk memperbesar","Close":"Tutup"});
@@ -3301,32 +3360,55 @@ async function loadJsQR() {
   return new Promise(res => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'; s.onload = () => res(!!window.jsQR); s.onerror = () => res(false); document.head.appendChild(s); });
 }
 async function openScanner(onCode, title) {
-  SC.onCode = onCode; SC.last = ''; $('scanTitle').textContent = title || 'Scan QR code'; $('scanManual').value = '';
+  SC.onCode = onCode; SC.last = ''; SC.n = 0; $('scanTitle').textContent = title || 'Scan QR code'; $('scanManual').value = '';
   $('scanStatus').textContent = 'Starting camera...'; openModal('modalScan');
+  loadJsQR();                                            // backup decoder, loaded in the background
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('no camera api');
-    SC.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+    SC.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+    try { const tr = SC.stream.getVideoTracks()[0], cp = tr.getCapabilities ? tr.getCapabilities() : {}; if (cp.focusMode && cp.focusMode.includes('continuous')) await tr.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch (e) {}
     const v = $('scanVideo'); v.srcObject = SC.stream; await v.play();
+    SC.det = null;
     if ('BarcodeDetector' in window) { try { SC.det = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'code_39', 'ean_13'] }); } catch (e) { SC.det = null; } }
-    if (!SC.det && !(await loadJsQR())) throw new Error('no decoder');
-    $('scanStatus').textContent = 'Point the camera at a QR code.';
-    SC.timer = setInterval(scanFrame, 220);
+    $('scanStatus').textContent = 'Point the camera at a QR code. Hold it steady, with the code filling a good part of the frame.';
+    SC.timer = setInterval(scanFrame, 200);
   } catch (e) {
-    $('scanStatus').textContent = 'Camera not available. Allow camera access, or type the code below.';
+    $('scanStatus').textContent = (e && e.name === 'NotAllowedError') ? 'Camera permission was denied. Allow camera access for this site in your browser settings, or use the photo button or type the code below.' : 'Camera not available. Use the photo button or type the code below.';
   }
+}
+function jsqrRun(src, sx, sy, sw, sh, maxW) {
+  const c = SC.canvas || (SC.canvas = document.createElement('canvas')), k = Math.min(1, maxW / sw);
+  c.width = Math.max(1, Math.round(sw * k)); c.height = Math.max(1, Math.round(sh * k));
+  const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(src, sx, sy, sw, sh, 0, 0, c.width, c.height);
+  const q = window.jsQR(g.getImageData(0, 0, c.width, c.height).data, c.width, c.height, { inversionAttempts: 'attemptBoth' });
+  return q ? q.data : '';
+}
+function jsqrAny(src, w, h, full) {
+  if (!window.jsQR) return '';
+  let r = jsqrRun(src, 0, 0, w, h, full ? 1000 : 800);
+  if (!r) { const cw = Math.round(w * .62), ch = Math.round(h * .62); r = jsqrRun(src, Math.round((w - cw) / 2), Math.round((h - ch) / 2), cw, ch, full ? 1000 : 800); }
+  return r;
 }
 async function scanFrame() {
   const v = $('scanVideo'); if (!v || !v.videoWidth || SC.busy) return; SC.busy = true;
   try {
     let code = '';
-    if (SC.det) { const r = await SC.det.detect(v); if (r.length) code = r[0].rawValue; }
-    else if (window.jsQR) {
-      const c = SC.canvas || (SC.canvas = document.createElement('canvas')), w = Math.min(640, v.videoWidth), h = Math.round(w * v.videoHeight / v.videoWidth);
-      c.width = w; c.height = h; const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(v, 0, 0, w, h);
-      const q = window.jsQR(g.getImageData(0, 0, w, h).data, w, h); if (q) code = q.data;
-    }
+    if (SC.det) { try { const r = await SC.det.detect(v); if (r.length) code = r[0].rawValue; } catch (e) {} }
+    if (!code && window.jsQR) code = jsqrAny(v, v.videoWidth, v.videoHeight, false);
     if (code) await scanHit(code);
   } catch (e) {} finally { SC.busy = false; }
+}
+async function scanPhoto(file) {
+  if (!file) return;
+  $('scanStatus').textContent = 'Reading the photo...';
+  try {
+    const bmp = await createImageBitmap(file), k = Math.min(1, 1800 / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k); c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+    let code = '';
+    if ('BarcodeDetector' in window) { try { const d = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'code_39', 'ean_13'] }), r = await d.detect(c); if (r.length) code = r[0].rawValue; } catch (e) {} }
+    if (!code) { await loadJsQR(); code = jsqrAny(c, c.width, c.height, true); }
+    if (code) { SC.last = ''; await scanHit(code); } else $('scanStatus').textContent = 'No QR code found in the photo. Try again, closer, with the whole code in focus.';
+  } catch (e) { $('scanStatus').textContent = 'Could not read this photo.'; }
 }
 async function scanHit(raw) {
   const code = codeFromScan(raw); if (!code) return;
@@ -4134,6 +4216,7 @@ const ACTIONS = {
   drSettings: openDeprSettings, drSave: saveDeprSettings, drExport: exportDepr, perms: openPerms, savePerms: savePerms, codeFmt: openCodeFormat, saveCodeFmt: saveCodeFormat, renumberOpen: openRenumber, renumberApply: rnApply,
   syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, openPlans, savePlans, lpGo, lpLogin, lpHome, lpCta, lpWa, submitTrial, trialCreate, trialSet, trialDelete, openBast, photoView, photoPick, photoRemove, bastHand, saveBast, bastReturn, saveReturn, bastDelete, bastPrint: v => { const [i, k] = String(v).split('|'); printBast(i, k); }, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'),
   setTab: id => showSetPane(id), dmTab: id => dmTab(id), bastTab: id => bastTab(id), bastNew: () => bastNew(), bastPickGo: () => bastPickGo(), btSave: () => btSave(), btPreview: () => btPreview(), btReset: () => btReset(), btLogoClear: () => { btLogo = ''; btLogoShow(); },
+  purgeArchived: id => purgeArchived(id), purgeRestored: () => purgeRestored(), editSetting: id => editSetting(+id), saveSettingEdit: () => saveSettingEdit(),
   collapseNav: () => { const c = document.body.classList.toggle('side-collapsed'); try { localStorage.setItem('ams_side', c ? '1' : '0'); } catch (e) {} }, closeNav: () => document.body.classList.remove('nav-open'), setLang,
   openDeleted: openDeletedModal, openAudit, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
@@ -4174,6 +4257,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   new MutationObserver(kick).observe(document.body,{attributes:true,attributeFilter:['class']});
   new MutationObserver(kick).observe($('sidebar'),{attributes:true,attributeFilter:['class'],subtree:true});
   kick();
+  const sp=$('scanPhoto'); if(sp) sp.addEventListener('change',e=>{scanPhoto(e.target.files[0]); e.target.value='';});
   const lf=$('btLogoFile'); if(lf) lf.addEventListener('change',e=>{btLogoPick(e.target.files[0]); e.target.value='';});
   const bk=$('btKnow'); if(bk) bk.addEventListener('change',()=>$('btKnowBox').classList.toggle('hidden',!bk.checked));
   const bn=$('btNumFmt'), bu=$('btUnit'); [bn,bu].forEach(x=>x&&x.addEventListener('input',btNumEx));

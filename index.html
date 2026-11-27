@@ -3355,14 +3355,24 @@ function makeLabels() {
 
 // ---------- camera scanner ----------
 const SC = { stream: null, timer: null, det: null, onCode: null, last: '', lastAt: 0, canvas: null };
-async function loadJsQR() {
-  if (window.jsQR) return true;
-  return new Promise(res => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'; s.onload = () => res(!!window.jsQR); s.onerror = () => res(false); document.head.appendChild(s); });
+let jsqrTry = null;
+function loadJsQR() {
+  if (window.jsQR) return Promise.resolve(true);
+  if (jsqrTry) return jsqrTry;
+  const urls = ['https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js', 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js', 'https://unpkg.com/jsqr@1.4.0/dist/jsQR.js'];
+  jsqrTry = (async () => {
+    for (const u of urls) {
+      const ok = await new Promise(res => { const t = document.createElement('script'); t.src = u; t.onload = () => res(!!window.jsQR); t.onerror = () => res(false); document.head.appendChild(t); });
+      if (ok) return true;
+    }
+    jsqrTry = null; return false;
+  })();
+  return jsqrTry;
 }
 async function openScanner(onCode, title) {
   SC.onCode = onCode; SC.last = ''; SC.n = 0; $('scanTitle').textContent = title || 'Scan QR code'; $('scanManual').value = '';
   $('scanStatus').textContent = 'Starting camera...'; openModal('modalScan');
-  loadJsQR();                                            // backup decoder, loaded in the background
+  loadJsQR().then(ok => { if (!ok && !('BarcodeDetector' in window) && $('scanStatus')) $('scanStatus').textContent = 'The scanner could not load (check your internet). Use the photo button or type the code below.'; });
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('no camera api');
     SC.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
@@ -3383,11 +3393,17 @@ function jsqrRun(src, sx, sy, sw, sh, maxW) {
   const q = window.jsQR(g.getImageData(0, 0, c.width, c.height).data, c.width, c.height, { inversionAttempts: 'attemptBoth' });
   return q ? q.data : '';
 }
+let jsqrN = 0;
 function jsqrAny(src, w, h, full) {
   if (!window.jsQR) return '';
-  let r = jsqrRun(src, 0, 0, w, h, full ? 1000 : 800);
-  if (!r) { const cw = Math.round(w * .62), ch = Math.round(h * .62); r = jsqrRun(src, Math.round((w - cw) / 2), Math.round((h - ch) / 2), cw, ch, full ? 1000 : 800); }
-  return r;
+  const big = full ? 1400 : 1280, regs = [[0, 0, w, h, big]];
+  [.7, .5].forEach(f => { const cw = Math.round(w * f), ch = Math.round(h * f); regs.push([Math.round((w - cw) / 2), Math.round((h - ch) / 2), cw, ch, big]); });
+  regs.push([0, 0, w, h, 640]);
+  for (let i = 0; i < regs.length; i++) {
+    if (!full && i > 0 && (jsqrN + i) % 2) continue;       // spread the work across frames on a phone
+    const r = regs[i], q = jsqrRun(src, r[0], r[1], r[2], r[3], r[4]); if (q) return q;
+  }
+  jsqrN++; return '';
 }
 async function scanFrame() {
   const v = $('scanVideo'); if (!v || !v.videoWidth || SC.busy) return; SC.busy = true;

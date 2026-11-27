@@ -381,6 +381,33 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   .nav-item.active{box-shadow:0 4px 14px -6px rgba(38,64,140,.4),inset 0 0 0 1px rgba(47,108,240,.2),inset 0 1px 0 #fff}
   .nav-item.nav-danger:not(.active):hover{background:linear-gradient(90deg,rgba(224,74,74,.18),rgba(224,74,74,.07));color:#a82a2a;box-shadow:inset 0 0 0 1px rgba(224,74,74,.3)}
   body.side-collapsed .nav-item:not(.active):hover{transform:none}
+
+  /* ===== round 3: blue glass sidebar, login brand fix ===== */
+  .auth-brand .brand{margin:0;padding:0;background:none;border:0;box-shadow:none;border-radius:0}
+  .auth-brand .brand h1{font-size:18px}
+  .sidebar{background:linear-gradient(170deg,rgba(38,104,226,.84),rgba(16,52,150,.80));border:1px solid rgba(255,255,255,.35);box-shadow:0 30px 70px -26px rgba(16,52,150,.65),inset 0 1px 0 rgba(255,255,255,.4);color:#e8f0ff}
+  .brand{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+  .brand h1{color:#fff}.brand-logo{background:linear-gradient(145deg,#ffffff,#cfe0ff);color:#1b5fd3;box-shadow:0 6px 16px -4px rgba(10,30,100,.5)}
+  .nav-grp{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+  .nav-grp .nav-title,.nav-title{color:#b9cdf7}
+  .nav-item{color:#eef4ff}
+  .nav-item:not(.active):hover{background:rgba(255,255,255,.22);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4),0 6px 14px -8px rgba(5,20,80,.6);transform:translateX(3px)}
+  .nav-item:not(.active):hover svg{box-shadow:0 5px 12px -3px rgba(5,20,80,.55),inset 0 1px 0 rgba(255,255,255,.5)}
+  .nav-item.active{background:#fff;color:#123f9c;box-shadow:0 6px 16px -6px rgba(5,20,80,.6)}
+  .nav-count{background:rgba(255,255,255,.2);color:#fff}.nav-item.active .nav-count{background:rgba(27,95,211,.12);color:#123f9c}
+  .nav-item.nav-danger{color:#ffd0d0}.nav-item.nav-danger:not(.active):hover{background:rgba(255,90,90,.3);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,180,180,.5)}
+  .nav{scrollbar-color:rgba(255,255,255,.35) transparent}
+  .side-foot{background:transparent;border:0;margin:0 10px 8px;padding:4px 2px;justify-content:flex-start}
+  .side-col{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;box-shadow:none}.side-col:hover{background:rgba(255,255,255,.34)}
+  .nav-item.feat-off{opacity:.7}
+
+  /* ===== pages: segmented control, settings, bast ===== */
+  .seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:999px;background:rgba(255,255,255,.55);border:1px solid var(--glass-b);box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+  .seg button{padding:7px 16px;border-radius:999px;font-size:13px;font-weight:600;color:var(--ink2);transition:background .15s,color .15s}
+  .seg button:hover{background:rgba(27,95,211,.1);color:var(--brand-d)}
+  .seg button.on{background:#fff;color:var(--brand-d);box-shadow:0 2px 8px -3px rgba(38,64,140,.4)}
+  .setpane .card h3{color:var(--ink)}
+  .card .lbl{margin-top:0}
 </style>
 </head>
 <body>
@@ -451,7 +478,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   </div></section>
 
   <section class="lp-sec"><div class="lp-wrap">
-    <h2 class="lp-h2">Start in an afternoon.</h2>
+    <h2 class="lp-h2">Get started in 3 steps.</h2>
     <p class="lp-sub">No installation. It runs in the browser on a computer or a phone.</p>
     <div class="lp-steps">
       <div><b>We create your company account</b><span>You get a login for your administrator, with starter categories and a first branch ready.</span></div>
@@ -469,7 +496,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
         <button class="btn btn-ghost" data-act="lpCta" data-id="Basic">Ask about Basic</button></div>
       <div class="lp-plan"><h3>Business</h3><p class="lim">Up to 1,000 assets and 10 users</p>
         <ul class="lp-ul"><li class="strong"><i data-lucide="check"></i><span>Everything in Basic</span></li><li><i data-lucide="check"></i><span>QR labels and scanning</span></li><li><i data-lucide="check"></i><span>Stock opname</span></li><li><i data-lucide="check"></i><span>Depreciation</span></li><li><i data-lucide="check"></i><span>Role permissions</span></li><li><i data-lucide="check"></i><span>Your own code format</span></li><li><i data-lucide="check"></i><span>Audit trail</span></li></ul>
-        <button class="btn btn-primary" data-act="lpCta" data-id="Business">Ask about Business</button></div>
+        <button class="btn btn-ghost" data-act="lpCta" data-id="Business">Ask about Business</button></div>
       <div class="lp-plan"><h3>Enterprise</h3><p class="lim">Unlimited assets and users</p>
         <ul class="lp-ul"><li class="strong"><i data-lucide="check"></i><span>Everything in Business</span></li><li><i data-lucide="check"></i><span>Handover letters (BAST)</span></li><li><i data-lucide="check"></i><span>A photo for each asset</span></li><li><i data-lucide="check"></i><span>Email and WhatsApp reminders (coming soon)</span></li></ul>
         <button class="btn btn-ghost" data-act="lpCta" data-id="Enterprise">Ask about Enterprise</button></div>
@@ -505,7 +532,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Your name *</label><input id="trName" class="input" autocomplete="name" maxlength="120"></div><div><label class="lbl">Email *</label><input id="trEmail" type="email" class="input" autocomplete="email" maxlength="200"></div></div>
       <div class="grid grid-cols-2 gap-3"><div><label class="lbl">WhatsApp (optional)</label><input id="trPhone" class="input" autocomplete="tel" maxlength="40"></div>
         <div><label class="lbl">Number of assets</label><select id="trAssets" class="input"><option value="">Choose</option><option value="<50">Under 50</option><option value="50-200">50 to 200</option><option value="200-1000">200 to 1,000</option><option value="1000+">More than 1,000</option></select></div></div>
-      <div><label class="lbl">Package of interest</label><select id="trPackage" class="input"><option value="">Not sure yet</option><option value="Basic">Basic</option><option value="Business">Business</option><option value="Enterprise">Enterprise</option></select></div>
+      <div><label class="lbl">Package of interest</label><select id="trPackage" class="input"><option value="">Help me choose</option><option value="Basic">Basic</option><option value="Business">Business</option><option value="Enterprise">Enterprise</option></select></div>
       <div><label class="lbl">Message (optional)</label><textarea id="trMessage" class="input" rows="2" maxlength="1000" placeholder="e.g. 3 branches, mostly AC and laptops"></textarea></div>
       <input id="trWebsite" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <p id="trErr" class="text-xs text-rose-600 hidden"></p>
@@ -576,54 +603,42 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
 <aside class="sidebar" id="sidebar">
   <div class="brand">
     <div class="brand-logo"><i data-lucide="boxes"></i></div>
-    <div style="min-width:0"><h1>Asset Management System</h1><p id="headerSub">Company asset management</p></div>
+    <div style="min-width:0"><h1>Asset Management System</h1><p id="headerSub" style="display:none"></p></div>
   </div>
-  <div class="side-search"><i data-lucide="search"></i><input id="sideSearch" type="text" placeholder="Search assets..." autocomplete="off"><kbd>Ctrl K</kbd></div>
   <nav class="nav">
     <div class="nav-grp">
-    <button class="nav-item active" id="tab-dashboard" data-act="tab" data-id="dashboard"><i data-lucide="layout-dashboard"></i>Dashboard</button>
+      <button class="nav-item active" id="tab-dashboard" data-act="tab" data-id="dashboard"><i data-lucide="layout-dashboard"></i>Dashboard</button>
     </div>
     <div class="nav-grp">
-    <div class="nav-title">Asset data</div>
-    <button class="nav-item" id="tab-master" data-act="tab" data-id="master"><i data-lucide="package"></i>Assets<span id="cntAssets" class="nav-count">0</span></button>
-    <button class="nav-item" data-feat="labels" data-act="quickScan"><i data-lucide="scan-line"></i>Scan QR</button>
-    <button class="nav-item" data-act="settings" data-id="cabang"><i data-lucide="building-2"></i>Branches</button>
-    <button class="nav-item" data-act="settings" data-id="kategori"><i data-lucide="tags"></i>Categories</button>
+      <div class="nav-title">Asset data</div>
+      <button class="nav-item" id="tab-master" data-act="tab" data-id="master"><i data-lucide="package"></i>Assets<span id="cntAssets" class="nav-count">0</span></button>
+      <button class="nav-item" data-feat="labels" data-act="quickScan"><i data-lucide="scan-line"></i>Scan QR</button>
+      <button class="nav-item" id="tab-data" data-act="tab" data-id="data"><i data-lucide="layers"></i>Master Data</button>
     </div>
     <div class="nav-grp">
-    <div class="nav-title">Transactions</div>
-    <button class="nav-item" id="tab-mutasi" data-act="tab" data-id="mutasi"><i data-lucide="arrow-left-right"></i>Mutation &amp; Service Logs<span id="cntLogs" class="nav-count">0</span></button>
-    <button class="nav-item" id="tab-opname" data-feat="opname" data-act="tab" data-id="opname"><i data-lucide="clipboard-check"></i>Stock Opname</button>
-    <button class="nav-item" data-feat="bast" data-act="openBast"><i data-lucide="file-signature"></i>Handovers (BAST)</button>
-    <button class="nav-item" id="tab-depr" data-feat="depr" data-perm="view_price" data-act="tab" data-id="depr"><i data-lucide="trending-down"></i>Depreciation</button>
+      <div class="nav-title">Transactions</div>
+      <button class="nav-item" id="tab-mutasi" data-act="tab" data-id="mutasi"><i data-lucide="arrow-left-right"></i>Mutation &amp; Service Logs<span id="cntLogs" class="nav-count">0</span></button>
+      <button class="nav-item" id="tab-opname" data-feat="opname" data-act="tab" data-id="opname"><i data-lucide="clipboard-check"></i>Stock Opname</button>
+      <button class="nav-item" id="tab-bast" data-feat="bast" data-act="tab" data-id="bast"><i data-lucide="file-signature"></i>Handovers (BAST)</button>
+      <button class="nav-item" id="tab-depr" data-feat="depr" data-perm="view_price" data-act="tab" data-id="depr"><i data-lucide="trending-down"></i>Depreciation</button>
     </div>
     <div class="nav-grp">
-    <div class="nav-title">Import and export</div>
-    <button class="nav-item" data-perm="import" data-act="openImport"><i data-lucide="upload"></i>Import from Excel / CSV</button>
-    <button class="nav-item" data-perm="export" data-act="openExport" data-id="excel"><i data-lucide="file-spreadsheet"></i>Export to Excel</button>
-    <button class="nav-item" data-perm="export" data-act="openExport" data-id="pdf"><i data-lucide="file-text"></i>Export to PDF</button>
-    <button class="nav-item" data-perm="import" data-act="template"><i data-lucide="file-down"></i>Download import template</button>
+      <div class="nav-title">Import and export</div>
+      <button class="nav-item" data-perm="import" data-act="openImport"><i data-lucide="upload"></i>Import from Excel / CSV</button>
+      <button class="nav-item" data-perm="export" data-act="openExport" data-id="excel"><i data-lucide="file-spreadsheet"></i>Export to Excel</button>
+      <button class="nav-item" data-perm="export" data-act="openExport" data-id="pdf"><i data-lucide="file-text"></i>Export to PDF</button>
+      <button class="nav-item" data-perm="import" data-act="template"><i data-lucide="file-down"></i>Download import template</button>
     </div>
     <div class="nav-grp">
-    <div class="nav-title admin-only">Administration</div>
-    <button class="nav-item admin-only" data-feat="role_perms" data-act="perms"><i data-lucide="shield-check"></i>Role permissions</button>
-    <button class="nav-item admin-only" data-feat="code_format" data-act="codeFmt"><i data-lucide="hash"></i>Asset code format</button>
-    <button class="nav-item admin-only" id="tab-users" data-act="tab" data-id="users"><i data-lucide="users"></i>Users</button>
-    <button class="nav-item hidden" id="tab-owner" data-act="tab" data-id="owner"><i data-lucide="building-2"></i>Owner Panel<span id="ownerBadge" class="nav-count hidden" style="margin-left:auto">0</span></button>
+      <div class="nav-title">System</div>
+      <button class="nav-item" data-act="syncNow"><i data-lucide="refresh-cw"></i>Refresh data</button>
+      <button class="nav-item" id="tab-settings" data-act="tab" data-id="settings"><i data-lucide="settings"></i>Settings</button>
     </div>
     <div class="nav-grp">
-    <div class="nav-title">System</div>
-    <button class="nav-item" data-act="changePw"><i data-lucide="key-round"></i>Change password</button>
-    <button class="nav-item" data-act="syncNow"><i data-lucide="refresh-cw"></i>Refresh data</button>
-    <button class="nav-item admin-only" data-feat="audit" data-act="openAudit"><i data-lucide="history"></i>Audit Trail</button>
-    <button class="nav-item hidden" id="menuDeleted" data-act="openDeleted"><i data-lucide="archive-restore"></i>Deleted / Restore</button>
-    <button class="nav-item admin-only" data-act="backup"><i data-lucide="hard-drive-download"></i>Backup all data (.json)</button>
-    <button class="nav-item owner-only" data-act="restore"><i data-lucide="hard-drive-upload"></i>Restore from backup</button>
-    <button class="nav-item owner-only" data-act="loadSample"><i data-lucide="flask-conical"></i>Load sample data</button>
-    <button class="nav-item nav-danger owner-only" data-act="clearAll"><i data-lucide="trash-2"></i>Clear all data</button>
+      <button class="nav-item hidden" id="tab-owner" data-act="tab" data-id="owner"><i data-lucide="building-2"></i>Owner Panel<span id="ownerBadge" class="nav-count hidden" style="margin-left:auto">0</span></button>
     </div>
   </nav>
-  <div class="side-foot"><button class="side-col" data-act="collapseNav" title="Collapse menu"><i data-lucide="panel-left"></i></button><div class="side-foot-t"><b>Diwanur Al Rasail</b><small>Asset Management</small></div></div>
+  <div class="side-foot"><button class="side-col" data-act="collapseNav" title="Collapse menu"><i data-lucide="panel-left"></i></button></div>
 </aside>
 <div class="scrim" data-act="closeNav"></div>
 
@@ -791,7 +806,99 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     </div>
   </section>
 
-  <section id="sec-users" class="hidden space-y-4">
+
+
+  <section id="sec-data" class="hidden space-y-4">
+    <div class="seg" id="dmTabs"><button class="on" data-act="dmTab" data-id="cabang">Branches</button><button data-act="dmTab" data-id="kategori">Categories</button></div>
+    <div class="card p-5 space-y-4">
+      <div><h3 class="font-bold" id="settingsTitle">Branches</h3><p class="text-xs text-slate-500 mt-0.5" id="dmHint">Branches and offices where assets are placed. The code is used in asset codes.</p></div>
+      <form id="formSettings" class="flex flex-wrap gap-2">
+        <input id="setKode" maxlength="6" placeholder="CODE" class="input uppercase font-mono" style="width:130px">
+        <input id="setNama" placeholder="Name" class="input" style="flex:1 1 220px">
+        <button class="btn btn-primary" type="submit"><i data-lucide="plus"></i>Add</button>
+      </form>
+      <div class="border border-slate-200 rounded-lg overflow-x-auto">
+        <table class="data-table w-full text-left text-sm"><thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-2.5">Code</th><th class="p-2.5">Name</th><th class="p-2.5 text-center">In use</th><th class="p-2.5"></th></tr></thead>
+        <tbody id="settingsBody" class="divide-y divide-slate-100"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <section id="sec-bast" class="hidden space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="seg" id="bastTabs"><button class="on" data-act="bastTab" data-id="list">Handovers</button><button class="admin-only" data-act="bastTab" data-id="tpl">Letter template</button></div>
+      <button class="btn btn-primary" data-act="bastNew"><i data-lucide="plus"></i>New handover</button>
+    </div>
+    <div id="bastPaneList" class="space-y-3">
+      <div class="card p-4 flex flex-wrap gap-2"><input id="bastQ" class="input" style="max-width:280px" placeholder="Search holder, code, BAST no...">
+        <select id="bastFilter" class="input" style="max-width:200px"><option value="active">Currently held</option><option value="overdue">Overdue</option><option value="returned">Returned</option><option value="all">All</option></select></div>
+      <div id="bastErr" class="text-sm text-rose-600"></div>
+      <div class="card overflow-x-auto"><table class="data-table w-full text-left text-xs min-w-max">
+        <thead class="bg-slate-100 text-slate-600 uppercase"><tr><th class="p-2.5">BAST No.</th><th class="p-2.5">Asset</th><th class="p-2.5">Holder</th><th class="p-2.5">Handed over</th><th class="p-2.5">Expected return</th><th class="p-2.5">Status</th><th class="p-2.5 text-center">Actions</th></tr></thead>
+        <tbody id="bastBody" class="divide-y divide-slate-100"></tbody></table></div>
+      <p id="bastNote" class="text-xs text-slate-400"></p>
+    </div>
+    <div id="bastPaneTpl" class="hidden space-y-4">
+      <div class="card p-5 space-y-4">
+        <div><h3 class="font-bold text-sm">Letter template</h3><p class="text-xs text-slate-500 mt-0.5">Adjust the handover letter to your company. Empty fields use the standard text.</p></div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="lbl">Company logo</label><div class="flex items-center gap-3"><img id="btLogoImg" alt="" class="hidden" style="height:44px;max-width:120px;object-fit:contain;border:1px solid #e2e8f0;border-radius:8px;background:#fff;padding:3px"><label class="btn btn-ghost" style="cursor:pointer"><i data-lucide="image"></i>Choose logo<input type="file" id="btLogoFile" accept="image/*" class="hidden"></label><button class="btn btn-ghost hidden" id="btLogoClear" data-act="btLogoClear">Remove</button></div></div>
+          <div><label class="lbl">Company name on the letter</label><input id="btOrg" class="input" placeholder="Defaults to your company name" autocomplete="off"></div>
+          <div><label class="lbl">Address or contact line (optional)</label><input id="btAddr" class="input" placeholder="e.g. Jl. Sudirman No. 1, Jakarta" autocomplete="off"></div>
+          <div><label class="lbl">City on the signature line</label><input id="btCity" class="input" placeholder="e.g. Jakarta" autocomplete="off"></div>
+        </div>
+      </div>
+      <div class="card p-5 space-y-4">
+        <h3 class="font-bold text-sm">Letter number</h3>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="lbl">Number format</label><input id="btNumFmt" class="input" placeholder="BAST-{YYYY}-{NNNN}" autocomplete="off"></div>
+          <div><label class="lbl">Unit code (for {UNIT})</label><input id="btUnit" class="input" placeholder="e.g. GA" autocomplete="off"></div>
+        </div>
+        <p class="text-xs text-slate-500">Use {NNN} for the running number (more N means more digits), {YYYY} for the year, {MM} for the month, {ROM} for the month in Roman numerals, and {UNIT} for the unit code. Your format gives: <b id="btNumEx">BAST-2026-0001</b></p>
+      </div>
+      <div class="card p-5 space-y-4">
+        <h3 class="font-bold text-sm">Wording</h3>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="lbl">Title of handover letter</label><input id="btTitleOut" class="input" placeholder="" autocomplete="off"></div>
+          <div><label class="lbl">Title of return letter</label><input id="btTitleRet" class="input" placeholder="" autocomplete="off"></div>
+          <div><label class="lbl">Opening sentence, handover (use {d} for the date)</label><textarea id="btIntroOut" class="input" rows="3" placeholder=""></textarea></div>
+          <div><label class="lbl">Opening sentence, return (use {d} and {n})</label><textarea id="btIntroRet" class="input" rows="3" placeholder=""></textarea></div>
+        </div>
+        <div><label class="lbl">Terms (one per line)</label><textarea id="btTerms" class="input" rows="3" placeholder=""></textarea></div>
+        <div><label class="lbl">Closing sentence, return letter</label><textarea id="btRetClose" class="input" rows="3" placeholder=""></textarea></div>
+      </div>
+      <div class="card p-5 space-y-4">
+        <h3 class="font-bold text-sm">Signatures</h3>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div><label class="lbl">Position of the handing-over party</label><input id="btGiverTitle" class="input" placeholder="e.g. GA Staff" autocomplete="off"></div>
+          <div><label class="lbl">Position of the receiving party</label><input id="btRecvTitle" class="input" placeholder="e.g. Employee" autocomplete="off"></div>
+        </div>
+        <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="btKnow"> Add an "Acknowledged by" signature</label>
+        <div id="btKnowBox" class="grid gap-3 sm:grid-cols-3 hidden">
+          <div><label class="lbl">Label</label><input id="btKnowLabel" class="input" placeholder="Acknowledged by" autocomplete="off"></div>
+          <div><label class="lbl">Name</label><input id="btKnowName" class="input" placeholder="" autocomplete="off"></div>
+          <div><label class="lbl">Position</label><input id="btKnowTitle" class="input" placeholder="e.g. HRGA Manager" autocomplete="off"></div>
+        </div>
+        <div><label class="lbl">Footer note (optional)</label><input id="btFoot" class="input" placeholder="e.g. This document is generated by the system." autocomplete="off"></div>
+      </div>
+      <div class="flex flex-wrap gap-2"><button class="btn btn-primary" data-act="btSave"><i data-lucide="save"></i>Save template</button><button class="btn btn-ghost" data-act="btPreview"><i data-lucide="eye"></i>Preview PDF</button><button class="btn btn-ghost" data-act="btReset">Reset to standard</button></div>
+      <p id="btMsg" class="text-xs text-slate-500"></p>
+    </div>
+  </section>
+
+  <section id="sec-settings" class="hidden space-y-4">
+    <div class="seg" id="setTabs">
+      <button class="on" data-act="setTab" data-id="account">Account</button>
+      <button class="admin-only" data-act="setTab" data-id="users">Users</button>
+      <button class="admin-only" data-act="setTab" data-id="access">Access and codes</button>
+      <button class="admin-only" data-act="setTab" data-id="audit">Audit and deleted</button>
+      <button class="admin-only" data-act="setTab" data-id="data">Data and backup</button>
+    </div>
+    <div id="setPane-account" class="setpane space-y-3">
+      <div class="card p-5"><h3 class="font-bold text-sm">Signed in</h3><p class="text-sm text-slate-600 mt-1" id="setWho">-</p></div>
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Change password</h3><p class="text-xs text-slate-500 mt-0.5">Use a password you do not use anywhere else.</p></div><button class="btn btn-ghost" data-act="changePw"><i data-lucide="key-round"></i>Change password</button></div>
+    </div>
+  <div id="setPane-users" class="setpane hidden space-y-4">
     <div class="card p-4 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-2">
         <select id="usersCompany" class="input hidden" style="min-width:220px"></select>
@@ -806,6 +913,23 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
       </table>
     </div>
     <p class="text-xs text-slate-400">Super Admin can do everything, Staff can add and edit, Viewer can only look. Only Super Admin can delete.</p>
+  </div>
+    <div id="setPane-access" class="setpane hidden space-y-3">
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Role permissions</h3><p class="text-xs text-slate-500 mt-0.5">Choose what Staff and Viewer can see and do.</p></div><button class="btn btn-ghost" data-feat="role_perms" data-act="perms"><i data-lucide="shield-check"></i>Open</button></div>
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Asset code format</h3><p class="text-xs text-slate-500 mt-0.5">Choose how new asset codes look. Existing codes do not change.</p></div><button class="btn btn-ghost" data-feat="code_format" data-act="codeFmt"><i data-lucide="hash"></i>Open</button></div>
+    </div>
+    <div id="setPane-audit" class="setpane hidden space-y-3">
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Audit trail</h3><p class="text-xs text-slate-500 mt-0.5">Who changed what and when, recorded automatically by the server.</p></div><button class="btn btn-ghost" data-feat="audit" data-act="openAudit"><i data-lucide="history"></i>Open</button></div>
+      <div id="menuDeleted" class="hidden">
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Deleted and restore</h3><p class="text-xs text-slate-500 mt-0.5">Deleted records are archived here and can be restored.</p></div><button class="btn btn-ghost" data-act="openDeleted"><i data-lucide="archive-restore"></i>Open</button></div>
+      </div>
+    </div>
+    <div id="setPane-data" class="setpane hidden space-y-3">
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 admin-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Back up all data</h3><p class="text-xs text-slate-500 mt-0.5">Download everything as one .json file.</p></div><button class="btn btn-ghost" data-act="backup"><i data-lucide="hard-drive-download"></i>Back up</button></div>
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 owner-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Restore from backup</h3><p class="text-xs text-slate-500 mt-0.5">Replace the current data with a backup file.</p></div><button class="btn btn-ghost" data-act="restore"><i data-lucide="hard-drive-upload"></i>Restore</button></div>
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 owner-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Load sample data</h3><p class="text-xs text-slate-500 mt-0.5">Fill the app with example assets for a demo.</p></div><button class="btn btn-ghost" data-act="loadSample"><i data-lucide="flask-conical"></i>Load sample</button></div>
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 owner-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Clear all data</h3><p class="text-xs text-slate-500 mt-0.5">Permanently removes all data in this company.</p></div><button class="btn btn-danger" data-act="clearAll"><i data-lucide="trash-2"></i>Clear all</button></div>
+    </div>
   </section>
 
   <section id="sec-owner" class="hidden space-y-4">
@@ -1013,18 +1137,16 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   <button class="btn btn-ghost" style="position:absolute;top:16px;right:16px;background:#fff" data-act="closeModal" data-id="modalPhotoView"><i data-lucide="x"></i>Close</button>
 </div>
 <input type="file" id="photoFile" accept="image/*" class="hidden">
-<div id="modalBastList" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
-    <div class="modal-head flex justify-between items-center shrink-0"><div><h3 class="font-bold">Asset handovers (BAST)</h3><p class="text-xs text-slate-400">Who holds which asset, with a printable handover letter.</p></div>
-      <button data-act="closeModal" data-id="modalBastList" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-    <div class="p-5 overflow-y-auto grow space-y-3">
-      <div class="flex flex-wrap gap-2"><input id="bastQ" class="input" style="max-width:260px" placeholder="Search holder, code, BAST no...">
-        <select id="bastFilter" class="input" style="max-width:200px"><option value="active">Currently held</option><option value="overdue">Overdue</option><option value="returned">Returned</option><option value="all">All</option></select></div>
-      <div id="bastErr" class="text-sm text-rose-600"></div>
-      <div class="border border-slate-200 rounded-lg overflow-x-auto"><table class="data-table w-full text-left text-xs min-w-max">
-        <thead class="bg-slate-100 text-slate-600 uppercase"><tr><th class="p-2.5">BAST No.</th><th class="p-2.5">Asset</th><th class="p-2.5">Holder</th><th class="p-2.5">Handed over</th><th class="p-2.5">Expected return</th><th class="p-2.5">Status</th><th class="p-2.5 text-center">Actions</th></tr></thead>
-        <tbody id="bastBody" class="divide-y divide-slate-100"></tbody></table></div>
-      <p id="bastNote" class="text-xs text-slate-400"></p>
+
+<div id="modalBastPick" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+    <div class="modal-head flex justify-between items-center"><h3 class="font-bold">New handover</h3>
+      <button data-act="closeModal" data-id="modalBastPick" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="p-5 space-y-3 text-sm">
+      <label class="lbl">Asset</label>
+      <input id="bpAsset" list="bpList" class="input" placeholder="Type an asset code or name" autocomplete="off"><datalist id="bpList"></datalist>
+      <p class="text-xs text-slate-400">Only assets that are not currently handed over are listed.</p>
+      <div class="flex justify-end gap-2"><button class="btn btn-ghost" data-act="closeModal" data-id="modalBastPick">Cancel</button><button class="btn btn-primary" data-act="bastPickGo">Continue</button></div>
     </div>
   </div>
 </div>
@@ -1198,25 +1320,6 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   </div>
 </div>
 
-<div id="modalSettings" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-    <div class="modal-head flex justify-between items-center">
-      <h3 class="font-bold" id="settingsTitle">Manage</h3>
-      <button data-act="closeModal" data-id="modalSettings" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div class="p-6 space-y-4 text-sm">
-      <form id="formSettings" class="flex gap-2">
-        <input id="setKode" maxlength="6" placeholder="CODE" class="input uppercase font-mono" style="width:32%">
-        <input id="setNama" placeholder="Name" class="input" style="width:68%">
-        <button class="btn btn-primary" type="submit">Add</button>
-      </form>
-      <div class="border border-slate-200 rounded-lg overflow-hidden max-h-64 overflow-y-auto">
-        <table class="data-table w-full text-left"><thead class="bg-slate-100 text-slate-600 text-xs uppercase"><tr><th class="p-2.5">Code</th><th class="p-2.5">Name</th><th class="p-2.5 text-center">In use</th><th class="p-2.5"></th></tr></thead>
-        <tbody id="settingsBody" class="divide-y divide-slate-100"></tbody></table>
-      </div>
-    </div>
-  </div>
-</div>
 
 <div id="modalExport" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
   <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
@@ -1693,7 +1796,7 @@ function renderRoleUI() {
     rb.textContent = { super_admin:'Super Admin', staff:'Staff', viewer:'Viewer' }[currentRole] || currentRole;
     rb.className = 'pill pill-role';
     if ($('userAvatar')) $('userAvatar').textContent = (currentUser.email || '?').charAt(0).toUpperCase();
-    ue.textContent = currentUser.email || '';
+    ue.textContent = (currentUser.email || '').split('@')[0]; if (ue.parentElement) ue.parentElement.title = currentUser.email || '';
     md.classList.toggle('hidden', !isSuperAdmin());
   } else {
     rb.classList.add('hidden');
@@ -2306,7 +2409,7 @@ function renderLogs() {
 }
 
 function updateBulkBar() { const bar = $('bulkBar'); if (sel.size) { $('bulkCount').textContent = `${sel.size} selected`; bar.classList.remove('hidden'); bar.classList.add('flex'); } else { bar.classList.add('hidden'); bar.classList.remove('flex'); } }
-function switchTab(t) { if (t === 'opname' && !featOK('opname')) { needFeat('opname'); t = 'dashboard'; } if (t === 'depr' && !featOK('depr')) { needFeat('depr'); t = 'dashboard'; } ['dashboard', 'master', 'mutasi', 'opname', 'depr', 'users', 'owner'].forEach(x => { $('sec-' + x).classList.toggle('hidden', x !== t); $('tab-' + x).classList.toggle('active', x === t); }); window.scrollTo({ top:0 }); if ($('pageTitle')) $('pageTitle').textContent = { dashboard:'Dashboard', master:'Assets', mutasi:'Mutation & Service Logs', opname:'Stock Opname', depr:'Depreciation', users:'Users', owner:'Owner Panel' }[t]; document.body.classList.remove('nav-open'); if (t === 'owner') loadOwner(); if (t === 'users') loadUsers(); if (t !== 'opname') { clearInterval(opTimer); opTimer = null; } if (t === 'opname' && !curOp) loadOpnames(); if (t === 'depr') { if (!permOK('view_price')) return switchTab('dashboard'); renderDepr(); } }
+function switchTab(t) { if (t === 'opname' && !featOK('opname')) { needFeat('opname'); t = 'dashboard'; } if (t === 'depr' && !featOK('depr')) { needFeat('depr'); t = 'dashboard'; } if (t === 'bast' && !featOK('bast')) { needFeat('bast'); t = 'dashboard'; } if (t === 'users') { setPaneWant = 'users'; t = 'settings'; } ['dashboard', 'master', 'mutasi', 'opname', 'depr', 'data', 'bast', 'settings', 'owner'].forEach(x => { $('sec-' + x).classList.toggle('hidden', x !== t); $('tab-' + x).classList.toggle('active', x === t); }); window.scrollTo({ top:0 }); if ($('pageTitle')) $('pageTitle').textContent = { dashboard:'Dashboard', master:'Assets', mutasi:'Mutation & Service Logs', opname:'Stock Opname', depr:'Depreciation', data:'Master Data', bast:'Handovers (BAST)', settings:'Settings', owner:'Owner Panel' }[t]; document.body.classList.remove('nav-open'); if (t === 'owner') loadOwner(); if (t === 'settings') { showSetPane(setPaneWant || curSetPane || 'account'); setPaneWant = null; } if (t === 'bast') showBast(); if (t === 'data') showDm(); if (t !== 'opname') { clearInterval(opTimer); opTimer = null; } if (t === 'opname' && !curOp) loadOpnames(); if (t === 'depr') { if (!permOK('view_price')) return switchTab('dashboard'); renderDepr(); } }
 
 function genCode() {
   if ($('editOrig').value) return;
@@ -2541,8 +2644,19 @@ async function restoreArchived(recId) {
   toast(`Restored ${rec.record_key}.`, 'success');
 }
 
-function openSettings(mode) { settingsMode = mode; $('settingsTitle').textContent = mode === 'cabang' ? 'Manage Branches' : 'Manage Categories'; $('setKode').value = ''; $('setNama').value = ''; renderSettings(); openModal('modalSettings'); }
+function openSettings(mode) { settingsMode = mode === 'kategori' ? 'kategori' : 'cabang'; switchTab('data'); }
+let dmShown = false;
+function showDm() { dmSync(); renderSettings(); }
+function dmSync() {
+  const cab = settingsMode === 'cabang';
+  $('settingsTitle').textContent = cab ? 'Branches' : 'Categories';
+  $('dmHint').textContent = cab ? 'Branches and offices where assets are placed. The code is used in asset codes.' : 'Asset categories. The code is used in asset codes.';
+  document.querySelectorAll('#dmTabs button').forEach(b => b.classList.toggle('on', b.dataset.id === settingsMode));
+  trTree($('sec-data'));
+}
+function dmTab(id) { settingsMode = id === 'kategori' ? 'kategori' : 'cabang'; $('setKode').value = ''; $('setNama').value = ''; dmSync(); renderSettings(); }
 function renderSettings() {
+  if (!$('settingsBody')) return;
   const list = settingsMode === 'cabang' ? cabangData : kategoriData, key = settingsMode === 'cabang' ? 'cabang' : 'kategori';
   $('settingsBody').innerHTML = list.map((it, i) => `<tr><td class="p-2.5 font-mono font-bold text-blue-600">${esc(it.kode)}</td><td class="p-2.5">${esc(it.nama)}</td><td class="p-2.5 text-center text-slate-500">${assetData.filter(a => a[key] === it.nama).length}</td><td class="p-2.5 text-center"><button class="text-rose-600 p-1 admin-only" data-act="delSetting" data-id="${i}" ${!isSuperAdmin() ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
   icons();
@@ -2885,8 +2999,9 @@ function toggleMenu(id) { const m = $(id), was = m.classList.contains('hidden');
 const I18N={"Dashboard":"Dashboard","Asset data":"Data aset","Assets":"Aset","Branches":"Cabang","Categories":"Kategori","Transactions":"Transaksi","Mutation & Service Logs":"Mutasi & Riwayat Servis","Import and export":"Impor dan ekspor","Import from Excel / CSV":"Impor dari Excel / CSV","Export to Excel":"Ekspor ke Excel","Export to PDF":"Ekspor ke PDF","Download import template":"Unduh template impor","System":"Sistem","Sync with Supabase":"Sinkronkan dengan Supabase","Deleted / Restore":"Terhapus / Pulihkan","Backup all data (.json)":"Cadangkan semua data (.json)","Restore from backup":"Pulihkan dari cadangan","Load sample data":"Muat data contoh","Clear all data":"Hapus semua data","Asset Management System":"Sistem Manajemen Aset","Asset Management":"Manajemen Aset","Logout":"Keluar","Sign out":"Keluar","Menu":"Menu","Local Mode":"Mode Lokal","Signed Out":"Belum masuk","Supabase Connected":"Terhubung ke Supabase","Supabase Offline":"Supabase tidak terjangkau","Syncing...":"Menyinkronkan…","Syncing…":"Menyinkronkan…","Saving…":"Menyimpan…","Not saved — will retry":"Belum tersimpan, akan dicoba lagi","GUEST":"Tamu","Operational asset tracking":"Pencatatan aset operasional","Sign in":"Masuk","Sign In":"Masuk","Password":"Kata sandi","Use the account given to you by your administrator.":"Gunakan akun yang diberikan oleh administrator Anda.","Every office asset, recorded and maintained.":"Setiap aset kantor, tercatat dan terawat.","One record for each unit, with its full history.":"Satu catatan untuk setiap unit, lengkap dengan riwayatnya.","Routine maintenance reminders before they become overdue.":"Pengingat perawatan rutin sebelum jadwalnya terlewat.","Branch transfers and service logs in one place.":"Mutasi antar cabang dan riwayat servis dalam satu tempat.","Signed in as {} ({})":"Masuk sebagai {} ({})","Signed out.":"Anda sudah keluar.","Sign in first.":"Silakan masuk terlebih dahulu.","Supabase client not initialized.":"Koneksi Supabase belum siap.","Total Units":"Total Unit","Total Asset Value":"Total Nilai Aset","Excludes disposed assets":"Tidak termasuk aset yang sudah afkir","Active":"Aktif","Ready":"Siap","Maintenance Due":"Perawatan Jatuh Tempo","{} overdue":"{} terlambat","Repair / Transit":"Perbaikan / Transit","Under repair or in transit":"Sedang diperbaiki atau dalam perjalanan","Open Logs":"Log Terbuka","Service / transfer in progress":"Servis / mutasi sedang berjalan","Maintenance {}":"Perawatan {}","Total cost of logs this year":"Total biaya log tahun ini","Routine Assets":"Aset Rutin","With a maintenance schedule":"Punya jadwal perawatan","Maintenance Schedule":"Jadwal Perawatan","View all due":"Lihat semua yang jatuh tempo","Needs Attention":"Perlu Perhatian","Status Breakdown":"Rincian Status","Units by Branch":"Unit per Cabang","Units by Category":"Unit per Kategori","Maintenance cost per month":"Biaya perawatan per bulan","Recent Activity":"Aktivitas Terbaru","units":"unit","{} units":"{} unit","No data yet.":"Belum ada data.","All clear.":"Semua aman.","No logs yet.":"Belum ada log.","No maintenance cost recorded this year.":"Belum ada biaya perawatan tercatat tahun ini.","No routine maintenance set up yet.":"Belum ada perawatan rutin yang diatur.","Nothing due in the next 60 days ({} routine units tracked).":"Tidak ada yang jatuh tempo dalam 60 hari ke depan ({} unit rutin dipantau).","Log done":"Catat selesai","Overdue {}d":"Telat {} hari","Due in {}d":"{} hari lagi","Due today":"Hari ini","In {}d":"{} hari lagi","Service overdue":"Servis terlambat","Service due":"Servis segera","Warranty ending":"Garansi berakhir","Major damage":"Rusak berat","Open log":"Log terbuka","{} [{}] — overdue {}d":"{} [{}] — terlambat {} hari","{} [{}] — due in {}d":"{} [{}] — jatuh tempo {} hari lagi","{} [{}] — ends in {}d":"{} [{}] — berakhir {} hari lagi","{} [{}] marked Active":"{} [{}] masih berstatus Aktif","{}: {} [{}]":"{}: {} [{}]","Every {} {}":"Setiap {} {}","month":"bulan","months":"bulan","year":"tahun","years":"tahun","week":"minggu","weeks":"minggu","day":"hari","days":"hari","{} (overdue)":"{} (terlambat)","{} (expired)":"{} (kedaluwarsa)","{} ({}d)":"{} ({} hari)","(overdue)":"(terlambat)","(expired)":"(kedaluwarsa)","Under Repair":"Dalam Perbaikan","In Transit":"Dalam Perjalanan","Disposed":"Afkir","Excellent":"Sangat Baik","Good":"Baik","Minor Damage":"Rusak Ringan","Major Damage":"Rusak Berat","In Progress":"Berjalan","Completed":"Selesai","Cancelled":"Dibatalkan","Service / Repair":"Servis / Perbaikan","Branch Transfer":"Mutasi Cabang","Routine Maintenance":"Perawatan Rutin","Disposed / Written Off":"Afkir / Dihapusbukukan","Search name, code, S/N, PIC...":"Cari nama, kode, S/N, PIC...","All Branches":"Semua Cabang","All Categories":"Semua Kategori","All Statuses":"Semua Status","All Maintenance":"Semua Perawatan","Routine only":"Hanya rutin","Due / overdue":"Jatuh tempo / terlambat","Clear filters":"Hapus filter","Columns":"Kolom","Display columns":"Tampilkan kolom","Add New Asset":"Tambah Aset Baru","No.":"No.","Asset Code":"Kode Aset","Asset Name":"Nama Aset","Category":"Kategori","Branch":"Cabang","Location / Room":"Lokasi / Ruangan","Location":"Lokasi","Qty":"Jml","Unit Price":"Harga Satuan","Asset Value":"Nilai Aset","Asset value":"Nilai aset","Condition":"Kondisi","Status":"Status","Routine":"Rutin","Next Maintenance":"Perawatan Berikutnya","Next maintenance":"Perawatan berikutnya","Warranty":"Garansi","Actions":"Aksi","Serial Number":"Nomor Seri","Code":"Kode","Name":"Nama","Value":"Nilai","Showing":"Menampilkan","of":"dari","units • Total value {}":"unit • Total nilai {}","unit • Total value {}":"unit • Total nilai {}","Page {} / {}":"Halaman {} / {}","No units found.":"Tidak ada unit yang ditemukan.","Set status…":"Ubah status…","{} selected":"{} dipilih","Delete":"Hapus","Edit":"Ubah","View":"Lihat","Clear selection":"Batalkan pilihan","Close":"Tutup","Cancel":"Batal","Confirm":"Konfirmasi","Delete all":"Hapus semua","Add log":"Tambah log","Maintenance done":"Perawatan selesai","Asset Details":"Detail Aset","History ({})":"Riwayat ({})","No history yet.":"Belum ada riwayat.","Log ID":"ID Log","Asset":"Aset","Date":"Tanggal","Action Type":"Jenis Tindakan","Origin":"Asal","Destination / Vendor":"Tujuan / Vendor","Cost":"Biaya","Notes":"Catatan","Search code, name, vendor...":"Cari kode, nama, vendor...","All Types":"Semua Jenis","Add Log Entry":"Tambah Log","No log entries":"Belum ada entri log","entries • Total cost (excl. cancelled):":"entri • Total biaya (tidak termasuk yang dibatalkan):","Mutation, service and routine maintenance history":"Riwayat mutasi, servis, dan perawatan rutin","Edit Asset Unit":"Ubah Unit Aset","Branch *":"Cabang *","Category *":"Kategori *","Asset Code (auto, 1 code = 1 unit)":"Kode Aset (otomatis, 1 kode = 1 unit)","Asset Name *":"Nama Aset *","Units to Create *":"Jumlah Unit yang Dibuat *","Unit Price (IDR)":"Harga Satuan (IDR)","Acquisition Date":"Tanggal Perolehan","PIC (Person in Charge)":"PIC (Penanggung Jawab)","Serial Number (S/N)":"Nomor Seri (S/N)","Warranty Until":"Garansi Sampai","Next Maintenance Due":"Jatuh Tempo Perawatan Berikutnya","Specifications / Notes":"Spesifikasi / Catatan","Save Asset":"Simpan Aset","This asset needs routine maintenance":"Aset ini memerlukan perawatan rutin","Repeat every":"Ulangi setiap","Last maintenance":"Perawatan terakhir","Remind (days before)":"Ingatkan (hari sebelumnya)","Months":"Bulan","Days":"Hari","Weeks":"Minggu","Years":"Tahun","e.g. ThinkPad X1 Carbon":"mis. ThinkPad X1 Carbon","e.g. John Doe":"mis. Budi Santoso","Server Room / Floor 2":"Ruang Server / Lantai 2","Hardware specs or notes...":"Spesifikasi atau catatan...","1 code = 1 unit:":"1 kode = 1 unit:","Creates":"Membuat","{} separate codes":"{} kode terpisah","starting from":"mulai dari","1 is automatically split into 1 code = 1 unit.":"1 otomatis dipecah menjadi 1 kode = 1 unit.","Add Mutation / Service Log":"Tambah Log Mutasi / Servis","Edit Log Entry":"Ubah Log","Asset Code *":"Kode Aset *","Log Date *":"Tanggal Log *","Action Type *":"Jenis Tindakan *","Origin / Current Branch":"Asal / Cabang Saat Ini","Destination / Service Vendor":"Tujuan / Vendor Servis","Cost (IDR)":"Biaya (IDR)","Log Status":"Status Log","Update the asset automatically":"Perbarui aset secara otomatis","(status / branch) based on this log.":"(status / cabang) berdasarkan log ini.","Save Log":"Simpan Log","Type to search...":"Ketik untuk mencari...","Manage":"Kelola","Manage Branches":"Kelola Cabang","Manage Categories":"Kelola Kategori","Branch name":"Nama cabang","Category name":"Nama kategori","Add":"Tambah","In use":"Dipakai","CODE":"KODE","Fill code and name.":"Isi kode dan nama.","Duplicate code or name.":"Kode atau nama sudah ada.","Item is still in use.":"Item ini masih dipakai.","Delete item":"Hapus item","Export":"Ekspor","Everything":"Semuanya","Summary + Assets + Logs":"Ringkasan + Aset + Log","Dashboard Summary":"Ringkasan Dashboard","KPIs, per branch, per category":"KPI, per cabang, per kategori","Asset Data":"Data Aset","Full asset listing":"Daftar aset lengkap","Maintenance and transfer history":"Riwayat perawatan dan mutasi","Only export assets matching the current filter / search":"Ekspor hanya aset sesuai filter / pencarian saat ini","Excel file downloaded.":"File Excel sudah diunduh.","PDF downloaded.":"PDF sudah diunduh.","Drop your file here, or click to browse":"Letakkan file di sini, atau klik untuk memilih","No file selected":"Belum ada file dipilih","Download template":"Unduh template","If an asset code already exists":"Jika kode aset sudah ada","Skip the row":"Lewati baris","Update the existing asset (overwrites it with the file's values)":"Perbarui aset yang ada (ditimpa dengan isi file)","Import as a new asset (new code)":"Impor sebagai aset baru (kode baru)","Unknown branches / categories":"Cabang / kategori yang tidak dikenal","Create them automatically":"Buat otomatis","If unchecked, rows with an unknown branch or category are rejected.":"Jika tidak dicentang, baris dengan cabang atau kategori tidak dikenal akan ditolak.","Type":"Jenis","Row":"Baris","Result":"Hasil","Import":"Impor","Nothing to import":"Tidak ada yang diimpor","Qty ignored on update (1 code = 1 unit)":"Jml diabaikan saat update (1 kode = 1 unit)","Code already exists":"Kode sudah ada","Code auto-generated":"Kode dibuat otomatis","Duplicate code inside the file":"Kode ganda di dalam file","Duplicate code → new code assigned":"Kode ganda → diberi kode baru","Same log already exists":"Log yang sama sudah ada","Asset name is empty":"Nama aset kosong","Asset code is empty":"Kode aset kosong","Date missing or not recognised":"Tanggal kosong atau tidak dikenali","Acquisition date not recognised (left blank)":"Tanggal perolehan tidak dikenali (dikosongkan)","Qty invalid → 1":"Jml tidak valid → 1","No branch available":"Tidak ada cabang","No category available":"Tidak ada kategori","Unknown branch \"{}\"":"Cabang \"{}\" tidak dikenal","Unknown category \"{}\"":"Kategori \"{}\" tidak dikenal","Branch empty → {}":"Cabang kosong → {}","Category empty → {}":"Kategori kosong → {}","Asset code {} not found":"Kode aset {} tidak ditemukan","Unknown condition \"{}\" → Good":"Kondisi \"{}\" tidak dikenal → Baik","Unknown status \"{}\" → Active":"Status \"{}\" tidak dikenal → Aktif","Unknown status \"{}\" → Completed":"Status \"{}\" tidak dikenal → Selesai","Unknown action type \"{}\" → Service / Repair":"Jenis tindakan \"{}\" tidak dikenal → Servis / Perbaikan","Unknown interval unit \"{}\" → Months":"Satuan interval \"{}\" tidak dikenal → Bulan","Routine maintenance needs an interval → routine turned off":"Perawatan rutin butuh interval → rutin dimatikan","Last maintenance date not recognised":"Tanggal perawatan terakhir tidak dikenali","Next maintenance date not recognised":"Tanggal perawatan berikutnya tidak dikenali","Qty {} → {} separate units ({} … {})":"Jml {} → {} unit terpisah ({} … {})","Import {} record{}":"Impor {} data","Import {} units":"Impor {} unit","Showing the first 100 of {} rows (errors first). All valid rows will be imported.":"Menampilkan 100 baris pertama dari {} baris (error lebih dulu). Semua baris yang valid akan diimpor.","Import complete: {} new, {} updated assets, {} logs.":"Impor selesai: {} baru, {} aset diperbarui, {} log.","Could not read the file.":"File tidak bisa dibaca.","Could not read this file:":"File ini tidak bisa dibaca:","No asset or log rows were found. Check the column headers (download the template for reference).":"Tidak ada baris aset atau log. Periksa judul kolom (unduh template sebagai acuan).","Excel library could not be loaded. Check your internet connection.":"Library Excel gagal dimuat. Periksa koneksi internet Anda.","Excel reader could not be loaded. Check your internet connection.":"Pembaca Excel gagal dimuat. Periksa koneksi internet Anda.","Excel library could not be loaded (check your internet). Exporting CSV instead.":"Library Excel gagal dimuat (periksa internet). Mengekspor CSV sebagai gantinya.","PDF library is still loading or blocked. Please try again.":"Library PDF masih dimuat atau diblokir. Silakan coba lagi.","Metric":"Metrik","Summary":"Ringkasan","Asset Summary":"Ringkasan Aset","Generated":"Dibuat","Deleted Records & Restore (Super Admin)":"Data Terhapus & Pemulihan (Super Admin)","Archived snapshots of deleted items":"Arsip data yang sudah dihapus","Table":"Tabel","Key":"Kunci","Deleted By":"Dihapus Oleh","Deleted At":"Dihapus Pada","Archived":"Diarsipkan","Restored":"Dipulihkan","Restore":"Pulihkan","Loading archived records...":"Memuat arsip...","No archived records.":"Tidak ada arsip.","Record not found.":"Data tidak ditemukan.","Restored {}.":"{} dipulihkan.","Failed to archive record before delete:":"Gagal mengarsipkan data sebelum dihapus:","Please confirm":"Mohon konfirmasi","Delete asset":"Hapus aset","Delete assets":"Hapus aset","Delete log":"Hapus log","Replace":"Ganti","Sample data":"Data contoh","Restore backup":"Pulihkan cadangan","Clear everything":"Hapus semuanya","Upload local data":"Unggah data lokal","Upload":"Unggah","Archive & delete \"{}\"?":"Arsipkan & hapus \"{}\"?","Archive & delete {} selected units?":"Arsipkan & hapus {} unit terpilih?","Archive & delete asset {}?":"Arsipkan & hapus aset {}?","Its log history is archived too. You can restore both from Deleted / Restore.":"Riwayat lognya ikut diarsipkan. Keduanya bisa dipulihkan dari Terhapus / Pulihkan.","Archive & delete log {}?":"Arsipkan & hapus log {}?","Delete ALL assets and logs for everyone?":"Hapus SEMUA aset dan log untuk semua orang?","A backup file is downloaded first. This cannot be undone from the app.":"File cadangan diunduh lebih dulu. Ini tidak bisa dibatalkan dari aplikasi.","Replace ALL current data (for everyone) with sample data?":"Ganti SEMUA data saat ini (untuk semua orang) dengan data contoh?","A backup of the current data is downloaded first.":"Cadangan data saat ini diunduh lebih dulu.","Restore this backup ({} assets)?":"Pulihkan cadangan ini ({} aset)?","This REPLACES all current data for everyone. A backup of the current data is downloaded first.":"Ini MENGGANTI semua data saat ini untuk semua orang. Cadangan data saat ini diunduh lebih dulu.","The cloud database is empty, but this browser holds {} assets.":"Database cloud masih kosong, tetapi browser ini menyimpan {} aset.","Upload them to the cloud now?":"Unggah ke cloud sekarang?","(Cancel = clear the local copy and start empty.)":"(Batal = hapus salinan lokal dan mulai dari kosong.)","Asset {} archived & deleted.":"Aset {} diarsipkan & dihapus.","Asset {} added.":"Aset {} ditambahkan.","Asset updated.":"Aset diperbarui.","Log saved.":"Log disimpan.","Log archived & deleted.":"Log diarsipkan & dihapus.","Selected units archived & deleted.":"Unit terpilih diarsipkan & dihapus.","Status updated to {}.":"Status diubah menjadi {}.","Backup restored.":"Cadangan dipulihkan.","Invalid backup file":"File cadangan tidak valid","Asset code not found.":"Kode aset tidak ditemukan.","Up to date with Supabase.":"Sudah sinkron dengan Supabase.","Could not reach Supabase.":"Tidak bisa terhubung ke Supabase.","Supabase connection issue:":"Masalah koneksi Supabase:","Could not save to browser storage.":"Tidak bisa menyimpan ke penyimpanan browser.","Could not save to Supabase:":"Tidak bisa menyimpan ke Supabase:","Read-only role.":"Peran hanya-lihat.","Read-only role: cannot modify assets.":"Peran hanya-lihat: tidak bisa mengubah aset.","Super Admin only.":"Hanya untuk Super Admin.","Only Super Admin can delete assets.":"Hanya Super Admin yang bisa menghapus aset.","Only Super Admin can delete branches/categories.":"Hanya Super Admin yang bisa menghapus cabang/kategori.","Only Super Admin can delete logs.":"Hanya Super Admin yang bisa menghapus log.","Only Super Admin can load sample data.":"Hanya Super Admin yang bisa memuat data contoh.","Only Super Admin can restore a backup.":"Hanya Super Admin yang bisa memulihkan cadangan.","Some changes were not allowed for your role and were reverted.":"Sebagian perubahan tidak diizinkan untuk peran Anda dan dibatalkan.","Unnamed asset":"Aset tanpa nama","Total asset value":"Total nilai aset","(Unassigned)":"(Belum ditentukan)","Action":"Tindakan","Asset Logs":"Log Aset","By Branch":"Per Cabang","By Category":"Per Kategori","Email":"Email","Log":"Log","Logs":"Log","Open logs":"Log terbuka","Under repair / in transit":"Dalam perbaikan / transit","Routine-maintenance assets":"Aset perawatan rutin","Valuation":"Valuasi","Units":"Unit","Yes":"Ya","Interval":"Interval"};
 Object.assign(I18N,{"Record, track and maintain every company asset, in one calm place.":"Catat, lacak, dan rawat setiap aset perusahaan, di satu tempat yang tenang."});
 Object.assign(I18N,{"Search assets...":"Cari aset...","Collapse menu":"Ciutkan menu"});
-Object.assign(I18N,{"Don't have an account yet?":"Belum punya akun?","Need help signing in? Contact your company administrator.":"Butuh bantuan untuk masuk? Hubungi administrator perusahaan Anda.", "Contact person":"Kontak", "Start your 14-day free trial": "Mulai trial gratis 14 hari", "Tell us a little about your company. We will set up your trial account and contact you.": "Ceritakan sedikit tentang perusahaan Anda. Kami akan menyiapkan akun trial dan menghubungi Anda.", "Your name *": "Nama Anda *", "WhatsApp (optional)": "WhatsApp (opsional)", "Number of assets": "Jumlah aset", "Choose": "Pilih", "Under 50": "Kurang dari 50", "50 to 200": "50 sampai 200", "200 to 1,000": "200 sampai 1.000", "More than 1,000": "Lebih dari 1.000", "Package of interest": "Paket yang diminati", "Not sure yet": "Belum yakin", "Message (optional)": "Pesan (opsional)", "Send request": "Kirim permintaan", "We only use this to set up your trial and contact you.": "Data ini hanya dipakai untuk menyiapkan trial dan menghubungi Anda.", "Prefer WhatsApp? Chat with us": "Lebih suka WhatsApp? Chat dengan kami", "Chat on WhatsApp": "Chat lewat WhatsApp", "Request received": "Permintaan diterima", "Thank you. We will contact you to set up your trial account.": "Terima kasih. Kami akan menghubungi Anda untuk menyiapkan akun trial.", "Enter your company name and your name.": "Isi nama perusahaan dan nama Anda.", "Enter a valid email address.": "Isi alamat email yang valid.", "Trial requests are not set up yet. Please contact us another way.": "Permintaan trial belum diaktifkan. Silakan hubungi kami lewat cara lain.", "Could not send your request. Please try again in a moment.": "Permintaan gagal terkirim. Coba lagi sebentar lagi.", "We already have your requests. We will contact you soon.": "Permintaan Anda sudah kami terima. Kami akan segera menghubungi Anda.", "Too many requests right now. Please try again later.": "Terlalu banyak permintaan saat ini. Coba lagi nanti.", "Trial requests": "Permintaan trial", "Show handled requests too": "Tampilkan yang sudah diproses juga", "New": "Baru", "Contacted": "Sudah dihubungi", "Account created": "Akun dibuat", "Rejected": "Ditolak", "Create company": "Buat perusahaan", "Mark contacted": "Tandai sudah dihubungi", "Reject": "Tolak", "No trial requests.": "Belum ada permintaan trial.", "Trial requests are not set up yet. Run trial_requests.sql in Supabase first.": "Permintaan trial belum diaktifkan. Jalankan trial_requests.sql di Supabase terlebih dahulu.", "Delete request": "Hapus permintaan", "Delete the request from {}? This cannot be undone.": "Hapus permintaan dari {}? Tidak bisa dibatalkan.", "e.g. 3 branches, mostly AC and laptops": "mis. 3 cabang, kebanyakan AC dan laptop"});
-Object.assign(I18N,{"Features": "Fitur", "Packages": "Paket", "FAQ": "FAQ", "Contact": "Hubungi kami", "Jakarta Pusat, every 3 months": "Jakarta Pusat, setiap 3 bulan", "Bandung, every 6 months": "Bandung, setiap 6 bulan", "Jakarta Barat, every 6 months": "Jakarta Barat, setiap 6 bulan", "Sign in": "Masuk", "Start free trial": "Coba gratis", "Every company asset, recorded and looked after.": "Semua aset perusahaan, tercatat dan terawat.", "Give each asset a QR label, schedule its maintenance, and hand it over with a printable letter. Built for offices, clinics and teams with many branches.": "Beri tiap aset label QR, jadwalkan perawatannya, dan serahkan dengan surat yang bisa dicetak. Dibuat untuk kantor, klinik, dan tim dengan banyak cabang.", "Start 14-day free trial": "Coba gratis 14 hari", "See features": "Lihat fitur", "All features are open during the trial.": "Semua fitur terbuka selama masa coba.", "Sample data": "Contoh data", "Total units": "Total unit", "Maintenance due": "Perawatan jatuh tempo", "Under repair": "Dalam perbaikan", "Maintenance due in 6 days": "Perawatan jatuh tempo 6 hari lagi", "Everything about an asset, in one place.": "Semua tentang aset, di satu tempat.", "From the day it is bought to the day it is retired, each asset keeps its own record.": "Dari saat dibeli sampai tidak dipakai lagi, setiap aset punya catatannya sendiri.", "One record for every asset": "Satu catatan untuk setiap aset", "Code, category, branch, specifications, warranty and photo, all on one page. Print a QR label, stick it on the asset, and anyone with a phone camera can open its record.": "Kode, kategori, cabang, spesifikasi, garansi, dan foto, semua dalam satu halaman. Cetak label QR, tempel di aset, dan siapa pun dengan kamera HP bisa membuka catatannya.", "QR labels and scanning": "Label QR dan pemindaian", "A photo for each asset": "Foto untuk tiap aset", "Import your existing Excel list": "Impor daftar Excel yang sudah ada", "Category": "Kategori", "Air Conditioner": "Air Conditioner", "Location": "Lokasi", "Warranty until": "Garansi sampai", "Condition": "Kondisi", "Good": "Baik", "Maintenance that does not slip": "Perawatan yang tidak terlewat", "Set a routine once, for example every three months. The dashboard shows what is coming and what is overdue, and one tap records that the work is done.": "Atur jadwal rutin sekali saja, misalnya tiap tiga bulan. Dashboard menunjukkan apa yang akan datang dan apa yang terlambat, dan satu ketukan mencatat pekerjaan selesai.", "Routine maintenance schedules": "Jadwal perawatan rutin", "Service and transfer history": "Riwayat servis dan mutasi", "Maintenance cost per year": "Biaya perawatan per tahun", "Always know who holds what": "Selalu tahu siapa memegang apa", "Hand an asset over to an employee and print the letter on the spot. See who has it, when it is due back, and every earlier holder. Move assets between branches and keep the trail.": "Serahkan aset ke karyawan dan cetak suratnya saat itu juga. Lihat siapa yang memegang, kapan harus kembali, dan semua pemegang sebelumnya. Pindahkan aset antar cabang dan riwayatnya tetap tercatat.", "Printable handover and return letters": "Surat serah terima dan pengembalian siap cetak", "Branch transfers": "Mutasi antar cabang", "Stock opname with your phone camera": "Stok opname dengan kamera HP", "Holder": "Pemegang", "Handed over": "Diserahkan", "Expected return": "Rencana kembali", "Print letter": "Cetak surat", "And the details that save time.": "Dan detail yang menghemat waktu.", "Included to keep a growing asset list under control.": "Disertakan agar daftar aset yang terus bertambah tetap terkendali.", "Stock opname": "Stok opname", "Check every asset against the records, branch by branch, and see what is missing.": "Cocokkan setiap aset dengan catatan, cabang demi cabang, dan lihat apa yang hilang.", "Depreciation": "Penyusutan", "Book value of each asset, calculated automatically.": "Nilai buku tiap aset, dihitung otomatis.", "Role permissions": "Hak akses peran", "Decide what staff and viewers can see and change.": "Tentukan apa yang boleh dilihat dan diubah oleh staf dan pengamat.", "Audit trail": "Jejak audit", "A record of who changed what, and when.": "Catatan siapa mengubah apa, dan kapan.", "Your own code format": "Format kode sendiri", "Asset codes that follow the pattern your company already uses.": "Kode aset yang mengikuti pola yang sudah dipakai perusahaan Anda.", "Indonesian and English": "Bahasa Indonesia dan Inggris", "Switch the language at any time.": "Ganti bahasa kapan saja.", "Start in an afternoon.": "Mulai dalam satu sore.", "No installation. It runs in the browser on a computer or a phone.": "Tanpa instalasi. Berjalan di browser, di komputer maupun HP.", "We create your company account": "Kami membuat akun perusahaan Anda", "You get a login for your administrator, with starter categories and a first branch ready.": "Anda mendapat login untuk administrator, lengkap dengan kategori awal dan satu cabang pertama.", "Import your asset list": "Impor daftar aset Anda", "Use the Excel template, or add assets one by one.": "Pakai template Excel, atau tambahkan aset satu per satu.", "Print labels and start scanning": "Cetak label dan mulai memindai", "Stick the QR labels on your assets and open any record from a phone.": "Tempel label QR di aset Anda dan buka catatan mana pun dari HP.", "Choose the package that fits.": "Pilih paket yang sesuai.", "Every new company starts with a 14-day trial where all features are open. Contact us for pricing.": "Setiap perusahaan baru memulai dengan trial 14 hari dengan semua fitur terbuka. Hubungi kami untuk harga.", "Up to 100 assets and 3 users": "Sampai 100 aset dan 3 pengguna", "Up to 1,000 assets and 10 users": "Sampai 1.000 aset dan 10 pengguna", "Unlimited assets and users": "Aset dan pengguna tanpa batas", "Assets, categories and branches": "Aset, kategori, dan cabang", "Mutation and service logs": "Log mutasi dan servis", "Maintenance schedules": "Jadwal perawatan", "Excel import and export": "Impor dan ekspor Excel", "Backup and restore": "Backup dan restore", "Everything in Basic": "Semua fitur Basic", "Everything in Business": "Semua fitur Business", "Handover letters (BAST)": "Surat serah terima (BAST)", "Email and WhatsApp reminders (coming soon)": "Pengingat Email dan WhatsApp (segera hadir)", "Ask about Basic": "Tanya paket Basic", "Ask about Business": "Tanya paket Business", "Ask about Enterprise": "Tanya paket Enterprise", "Questions we hear often": "Pertanyaan yang sering diajukan", "Not here? Contact us and we will answer.": "Tidak ada di sini? Hubungi kami, kami jawab.", "Is our data separate from other companies?": "Apakah data kami terpisah dari perusahaan lain?", "Yes. Each company has its own isolated data, and only the people you invite can sign in to it.": "Ya. Setiap perusahaan punya data sendiri yang terpisah, dan hanya orang yang Anda undang yang bisa masuk.", "Can we use it on a phone?": "Apakah bisa dipakai di HP?", "Yes. It works in any modern browser, and the phone camera can scan the QR label on an asset.": "Bisa. Berjalan di browser modern apa pun, dan kamera HP bisa memindai label QR di aset.", "Can we bring our existing Excel list?": "Apakah daftar Excel kami yang lama bisa dipakai?", "Yes. Download the import template, copy your columns into it, and import. The app tells you about any row that needs fixing.": "Bisa. Unduh template impor, salin kolom Anda ke dalamnya, lalu impor. Aplikasi memberi tahu baris mana yang perlu diperbaiki.", "Who can see and change what?": "Siapa yang bisa melihat dan mengubah apa?", "There are three roles. A Super Admin manages everything, Staff can edit records, and a Viewer can only read. A Super Admin can limit what Staff are allowed to do.": "Ada tiga peran. Super Admin mengelola semuanya, Staf bisa mengubah data, dan Pengamat hanya bisa membaca. Super Admin bisa membatasi apa yang boleh dilakukan Staf.", "What happens when the trial ends?": "Apa yang terjadi saat masa coba berakhir?", "Your data is kept and stays viewable. You can edit again once a package is activated for your company.": "Data Anda tetap tersimpan dan bisa dilihat. Anda bisa mengubah lagi setelah paket diaktifkan untuk perusahaan Anda.", "Ready to see your assets in one place?": "Siap melihat semua aset Anda di satu tempat?", "Tell us how many assets and branches you manage, and we will set up a trial account for you.": "Beri tahu kami berapa aset dan cabang yang Anda kelola, dan kami siapkan akun trial untuk Anda.", "Contact details will be added here soon.": "Kontak akan segera ditambahkan di sini.", "Back to home": "Kembali ke beranda", "Company asset management": "Pengelolaan aset perusahaan"});
+Object.assign(I18N,{"Master Data": "Data Master", "Settings": "Pengaturan", "System": "Sistem", "Refresh data": "Muat ulang data", "Branches": "Cabang", "Categories": "Kategori", "Branches and offices where assets are placed. The code is used in asset codes.": "Cabang dan kantor tempat aset ditempatkan. Kodenya dipakai dalam kode aset.", "Asset categories. The code is used in asset codes.": "Kategori aset. Kodenya dipakai dalam kode aset.", "Account": "Akun", "Users": "Pengguna", "Access and codes": "Akses dan kode", "Audit and deleted": "Audit dan terhapus", "Data and backup": "Data dan cadangan", "Signed in": "Sedang masuk", "Use a password you do not use anywhere else.": "Pakai kata sandi yang tidak dipakai di tempat lain.", "Role permissions": "Hak akses peran", "Choose what Staff and Viewer can see and do.": "Atur apa yang boleh dilihat dan dilakukan Staff dan Viewer.", "Open": "Buka", "Audit trail": "Jejak audit", "Who changed what and when, recorded automatically by the server.": "Siapa mengubah apa dan kapan, dicatat otomatis oleh server.", "Deleted and restore": "Terhapus dan pulihkan", "Deleted records are archived here and can be restored.": "Data yang dihapus diarsipkan di sini dan bisa dipulihkan.", "Back up all data": "Cadangkan semua data", "Download everything as one .json file.": "Unduh semuanya dalam satu file .json.", "Back up": "Cadangkan", "Restore from backup": "Pulihkan dari cadangan", "Replace the current data with a backup file.": "Ganti data saat ini dengan file cadangan.", "Restore": "Pulihkan", "Load sample data": "Muat data contoh", "Fill the app with example assets for a demo.": "Isi aplikasi dengan aset contoh untuk demo.", "Load sample": "Muat contoh", "Clear all data": "Hapus semua data", "Permanently removes all data in this company.": "Menghapus permanen semua data perusahaan ini.", "Clear all": "Hapus semua", "Handovers": "Serah terima", "Letter template": "Template surat", "New handover": "Serah terima baru", "Asset": "Aset", "Type an asset code or name": "Ketik kode atau nama aset", "Only assets that are not currently handed over are listed.": "Hanya aset yang sedang tidak diserahkan yang ditampilkan.", "Continue": "Lanjut", "Choose an asset from the list.": "Pilih aset dari daftar.", "Adjust the handover letter to your company. Empty fields use the standard text.": "Sesuaikan surat serah terima dengan perusahaan Anda. Kolom kosong memakai teks standar.", "Company logo": "Logo perusahaan", "Choose logo": "Pilih logo", "Remove": "Hapus", "Company name on the letter": "Nama perusahaan di surat", "Defaults to your company name": "Bawaan: nama perusahaan Anda", "Address or contact line (optional)": "Alamat atau kontak (opsional)", "e.g. Jl. Sudirman No. 1, Jakarta": "mis. Jl. Sudirman No. 1, Jakarta", "City on the signature line": "Kota di baris tanda tangan", "e.g. Jakarta": "mis. Jakarta", "Letter number": "Nomor surat", "Number format": "Format nomor", "Unit code (for {UNIT})": "Kode unit (untuk {UNIT})", "e.g. GA": "mis. GA", "Use {NNN} for the running number (more N means more digits), {YYYY} for the year, {MM} for the month, {ROM} for the month in Roman numerals, and {UNIT} for the unit code. Your format gives:": "Pakai {NNN} untuk nomor urut (makin banyak N, makin banyak digit), {YYYY} untuk tahun, {MM} untuk bulan, {ROM} untuk bulan angka Romawi, dan {UNIT} untuk kode unit. Format Anda menghasilkan:", "Wording": "Redaksi", "Title of handover letter": "Judul surat serah terima", "Title of return letter": "Judul surat pengembalian", "Opening sentence, handover (use {d} for the date)": "Kalimat pembuka, serah terima (pakai {d} untuk tanggal)", "Opening sentence, return (use {d} and {n})": "Kalimat pembuka, pengembalian (pakai {d} dan {n})", "Terms (one per line)": "Ketentuan (satu per baris)", "Closing sentence, return letter": "Kalimat penutup, surat pengembalian", "Signatures": "Tanda tangan", "Position of the handing-over party": "Jabatan pihak yang menyerahkan", "e.g. GA Staff": "mis. Staf GA", "Position of the receiving party": "Jabatan pihak yang menerima", "e.g. Employee": "mis. Karyawan", "Add an \"Acknowledged by\" signature": "Tambahkan tanda tangan \"Mengetahui\"", "Acknowledged by": "Mengetahui", "Label": "Label", "Position": "Jabatan", "e.g. HRGA Manager": "mis. Manager HRGA", "Footer note (optional)": "Catatan kaki (opsional)", "e.g. This document is generated by the system.": "mis. Dokumen ini dibuat oleh sistem.", "Save template": "Simpan template", "Preview PDF": "Pratinjau PDF", "Reset to standard": "Kembalikan ke standar", "Template saved.": "Template tersimpan.", "Only Super Admin can change the template.": "Hanya Super Admin yang bisa mengubah template.", "The template needs an online account.": "Template butuh akun online.", "Template is not set up yet. Run bast_template.sql in Supabase first.": "Template belum disiapkan. Jalankan bast_template.sql di Supabase dulu.", "Standard text restored. Click Save template to keep it.": "Teks standar dikembalikan. Klik Simpan template untuk menyimpannya."});
+Object.assign(I18N,{"Don't have an account yet?":"Belum punya akun?","Need help signing in? Contact your company administrator.":"Butuh bantuan untuk masuk? Hubungi administrator perusahaan Anda.", "Contact person":"Kontak", "Start your 14-day free trial": "Mulai trial gratis 14 hari", "Tell us a little about your company. We will set up your trial account and contact you.": "Ceritakan sedikit tentang perusahaan Anda. Kami akan menyiapkan akun trial dan menghubungi Anda.", "Your name *": "Nama Anda *", "WhatsApp (optional)": "WhatsApp (opsional)", "Number of assets": "Jumlah aset", "Choose": "Pilih", "Under 50": "Kurang dari 50", "50 to 200": "50 sampai 200", "200 to 1,000": "200 sampai 1.000", "More than 1,000": "Lebih dari 1.000", "Package of interest": "Paket yang diminati", "Help me choose": "Bantu saya memilih", "Message (optional)": "Pesan (opsional)", "Send request": "Kirim permintaan", "We only use this to set up your trial and contact you.": "Data ini hanya dipakai untuk menyiapkan trial dan menghubungi Anda.", "Prefer WhatsApp? Chat with us": "Lebih suka WhatsApp? Chat dengan kami", "Chat on WhatsApp": "Chat lewat WhatsApp", "Request received": "Permintaan diterima", "Thank you. We will contact you to set up your trial account.": "Terima kasih. Kami akan menghubungi Anda untuk menyiapkan akun trial.", "Enter your company name and your name.": "Isi nama perusahaan dan nama Anda.", "Enter a valid email address.": "Isi alamat email yang valid.", "Trial requests are not set up yet. Please contact us another way.": "Permintaan trial belum diaktifkan. Silakan hubungi kami lewat cara lain.", "Could not send your request. Please try again in a moment.": "Permintaan gagal terkirim. Coba lagi sebentar lagi.", "We already have your requests. We will contact you soon.": "Permintaan Anda sudah kami terima. Kami akan segera menghubungi Anda.", "Too many requests right now. Please try again later.": "Terlalu banyak permintaan saat ini. Coba lagi nanti.", "Trial requests": "Permintaan trial", "Show handled requests too": "Tampilkan yang sudah diproses juga", "New": "Baru", "Contacted": "Sudah dihubungi", "Account created": "Akun dibuat", "Rejected": "Ditolak", "Create company": "Buat perusahaan", "Mark contacted": "Tandai sudah dihubungi", "Reject": "Tolak", "No trial requests.": "Belum ada permintaan trial.", "Trial requests are not set up yet. Run trial_requests.sql in Supabase first.": "Permintaan trial belum diaktifkan. Jalankan trial_requests.sql di Supabase terlebih dahulu.", "Delete request": "Hapus permintaan", "Delete the request from {}? This cannot be undone.": "Hapus permintaan dari {}? Tidak bisa dibatalkan.", "e.g. 3 branches, mostly AC and laptops": "mis. 3 cabang, kebanyakan AC dan laptop"});
+Object.assign(I18N,{"Features": "Fitur", "Packages": "Paket", "FAQ": "FAQ", "Contact": "Hubungi kami", "Jakarta Pusat, every 3 months": "Jakarta Pusat, setiap 3 bulan", "Bandung, every 6 months": "Bandung, setiap 6 bulan", "Jakarta Barat, every 6 months": "Jakarta Barat, setiap 6 bulan", "Sign in": "Masuk", "Start free trial": "Coba gratis", "Every company asset, recorded and looked after.": "Semua aset perusahaan, tercatat dan terawat.", "Give each asset a QR label, schedule its maintenance, and hand it over with a printable letter. Built for offices, clinics and teams with many branches.": "Beri tiap aset label QR, jadwalkan perawatannya, dan serahkan dengan surat yang bisa dicetak. Dibuat untuk kantor, klinik, dan tim dengan banyak cabang.", "Start 14-day free trial": "Coba gratis 14 hari", "See features": "Lihat fitur", "All features are open during the trial.": "Semua fitur terbuka selama masa coba.", "Sample data": "Contoh data", "Total units": "Total unit", "Maintenance due": "Perawatan jatuh tempo", "Under repair": "Dalam perbaikan", "Maintenance due in 6 days": "Perawatan jatuh tempo 6 hari lagi", "Everything about an asset, in one place.": "Semua tentang aset, di satu tempat.", "From the day it is bought to the day it is retired, each asset keeps its own record.": "Dari saat dibeli sampai tidak dipakai lagi, setiap aset punya catatannya sendiri.", "One record for every asset": "Satu catatan untuk setiap aset", "Code, category, branch, specifications, warranty and photo, all on one page. Print a QR label, stick it on the asset, and anyone with a phone camera can open its record.": "Kode, kategori, cabang, spesifikasi, garansi, dan foto, semua dalam satu halaman. Cetak label QR, tempel di aset, dan siapa pun dengan kamera HP bisa membuka catatannya.", "QR labels and scanning": "Label QR dan pemindaian", "A photo for each asset": "Foto untuk tiap aset", "Import your existing Excel list": "Impor daftar Excel yang sudah ada", "Category": "Kategori", "Air Conditioner": "Air Conditioner", "Location": "Lokasi", "Warranty until": "Garansi sampai", "Condition": "Kondisi", "Good": "Baik", "Maintenance that does not slip": "Perawatan yang tidak terlewat", "Set a routine once, for example every three months. The dashboard shows what is coming and what is overdue, and one tap records that the work is done.": "Atur jadwal rutin sekali saja, misalnya tiap tiga bulan. Dashboard menunjukkan apa yang akan datang dan apa yang terlambat, dan satu ketukan mencatat pekerjaan selesai.", "Routine maintenance schedules": "Jadwal perawatan rutin", "Service and transfer history": "Riwayat servis dan mutasi", "Maintenance cost per year": "Biaya perawatan per tahun", "Always know who holds what": "Selalu tahu siapa memegang apa", "Hand an asset over to an employee and print the letter on the spot. See who has it, when it is due back, and every earlier holder. Move assets between branches and keep the trail.": "Serahkan aset ke karyawan dan cetak suratnya saat itu juga. Lihat siapa yang memegang, kapan harus kembali, dan semua pemegang sebelumnya. Pindahkan aset antar cabang dan riwayatnya tetap tercatat.", "Printable handover and return letters": "Surat serah terima dan pengembalian siap cetak", "Branch transfers": "Mutasi antar cabang", "Stock opname with your phone camera": "Stok opname dengan kamera HP", "Holder": "Pemegang", "Handed over": "Diserahkan", "Expected return": "Rencana kembali", "Print letter": "Cetak surat", "And the details that save time.": "Dan detail yang menghemat waktu.", "Included to keep a growing asset list under control.": "Disertakan agar daftar aset yang terus bertambah tetap terkendali.", "Stock opname": "Stok opname", "Check every asset against the records, branch by branch, and see what is missing.": "Cocokkan setiap aset dengan catatan, cabang demi cabang, dan lihat apa yang hilang.", "Depreciation": "Penyusutan", "Book value of each asset, calculated automatically.": "Nilai buku tiap aset, dihitung otomatis.", "Role permissions": "Hak akses peran", "Decide what staff and viewers can see and change.": "Tentukan apa yang boleh dilihat dan diubah oleh staf dan pengamat.", "Audit trail": "Jejak audit", "A record of who changed what, and when.": "Catatan siapa mengubah apa, dan kapan.", "Your own code format": "Format kode sendiri", "Asset codes that follow the pattern your company already uses.": "Kode aset yang mengikuti pola yang sudah dipakai perusahaan Anda.", "Indonesian and English": "Bahasa Indonesia dan Inggris", "Switch the language at any time.": "Ganti bahasa kapan saja.", "Get started in 3 steps.": "Mulai dalam 3 langkah.", "No installation. It runs in the browser on a computer or a phone.": "Tanpa instalasi. Berjalan di browser, di komputer maupun HP.", "We create your company account": "Kami membuat akun perusahaan Anda", "You get a login for your administrator, with starter categories and a first branch ready.": "Anda mendapat login untuk administrator, lengkap dengan kategori awal dan satu cabang pertama.", "Import your asset list": "Impor daftar aset Anda", "Use the Excel template, or add assets one by one.": "Pakai template Excel, atau tambahkan aset satu per satu.", "Print labels and start scanning": "Cetak label dan mulai memindai", "Stick the QR labels on your assets and open any record from a phone.": "Tempel label QR di aset Anda dan buka catatan mana pun dari HP.", "Choose the package that fits.": "Pilih paket yang sesuai.", "Every new company starts with a 14-day trial where all features are open. Contact us for pricing.": "Setiap perusahaan baru memulai dengan trial 14 hari dengan semua fitur terbuka. Hubungi kami untuk harga.", "Up to 100 assets and 3 users": "Sampai 100 aset dan 3 pengguna", "Up to 1,000 assets and 10 users": "Sampai 1.000 aset dan 10 pengguna", "Unlimited assets and users": "Aset dan pengguna tanpa batas", "Assets, categories and branches": "Aset, kategori, dan cabang", "Mutation and service logs": "Log mutasi dan servis", "Maintenance schedules": "Jadwal perawatan", "Excel import and export": "Impor dan ekspor Excel", "Backup and restore": "Backup dan restore", "Everything in Basic": "Semua fitur Basic", "Everything in Business": "Semua fitur Business", "Handover letters (BAST)": "Surat serah terima (BAST)", "Email and WhatsApp reminders (coming soon)": "Pengingat Email dan WhatsApp (segera hadir)", "Ask about Basic": "Tanya paket Basic", "Ask about Business": "Tanya paket Business", "Ask about Enterprise": "Tanya paket Enterprise", "Questions we hear often": "Pertanyaan yang sering diajukan", "Not here? Contact us and we will answer.": "Tidak ada di sini? Hubungi kami, kami jawab.", "Is our data separate from other companies?": "Apakah data kami terpisah dari perusahaan lain?", "Yes. Each company has its own isolated data, and only the people you invite can sign in to it.": "Ya. Setiap perusahaan punya data sendiri yang terpisah, dan hanya orang yang Anda undang yang bisa masuk.", "Can we use it on a phone?": "Apakah bisa dipakai di HP?", "Yes. It works in any modern browser, and the phone camera can scan the QR label on an asset.": "Bisa. Berjalan di browser modern apa pun, dan kamera HP bisa memindai label QR di aset.", "Can we bring our existing Excel list?": "Apakah daftar Excel kami yang lama bisa dipakai?", "Yes. Download the import template, copy your columns into it, and import. The app tells you about any row that needs fixing.": "Bisa. Unduh template impor, salin kolom Anda ke dalamnya, lalu impor. Aplikasi memberi tahu baris mana yang perlu diperbaiki.", "Who can see and change what?": "Siapa yang bisa melihat dan mengubah apa?", "There are three roles. A Super Admin manages everything, Staff can edit records, and a Viewer can only read. A Super Admin can limit what Staff are allowed to do.": "Ada tiga peran. Super Admin mengelola semuanya, Staf bisa mengubah data, dan Pengamat hanya bisa membaca. Super Admin bisa membatasi apa yang boleh dilakukan Staf.", "What happens when the trial ends?": "Apa yang terjadi saat masa coba berakhir?", "Your data is kept and stays viewable. You can edit again once a package is activated for your company.": "Data Anda tetap tersimpan dan bisa dilihat. Anda bisa mengubah lagi setelah paket diaktifkan untuk perusahaan Anda.", "Ready to see your assets in one place?": "Siap melihat semua aset Anda di satu tempat?", "Tell us how many assets and branches you manage, and we will set up a trial account for you.": "Beri tahu kami berapa aset dan cabang yang Anda kelola, dan kami siapkan akun trial untuk Anda.", "Contact details will be added here soon.": "Kontak akan segera ditambahkan di sini.", "Back to home": "Kembali ke beranda", "Company asset management": "Pengelolaan aset perusahaan"});
 Object.assign(I18N,{"Click to enlarge":"Klik untuk memperbesar","Close":"Tutup"});
 Object.assign(I18N,{"Photo saved.":"Foto disimpan.","Photo removed.":"Foto dihapus.","No photo yet.":"Belum ada foto.","Add photo":"Tambah foto","Replace photo":"Ganti foto","Remove":"Hapus","Remove photo":"Hapus foto","Remove the photo of this asset?":"Hapus foto aset ini?","Photos are not set up yet. Run photos.sql in Supabase first.":"Foto belum diaktifkan. Jalankan photos.sql di Supabase terlebih dahulu.","This image format is not supported. Use a JPG or PNG photo.":"Format gambar ini tidak didukung. Gunakan foto JPG atau PNG.","This photo is too large even after shrinking.":"Foto ini terlalu besar walau sudah dikecilkan."});
 Object.assign(I18N,{"Handovers (BAST)":"Serah Terima (BAST)","Asset handovers (BAST)":"Serah terima aset (BAST)","Who holds which asset, with a printable handover letter.":"Siapa memegang aset apa, lengkap dengan surat serah terima yang bisa dicetak.","Search holder, code, BAST no...":"Cari pemegang, kode, no. BAST...","Currently held":"Sedang dipegang","Overdue":"Terlambat","Returned":"Sudah dikembalikan","BAST No.":"No. BAST","Holder":"Pemegang","Handed over":"Diserahkan","Expected return":"Rencana kembali","Hand over asset":"Serahkan aset","Return asset":"Kembalikan aset","Receiver name *":"Nama penerima *","Full name":"Nama lengkap","Employee ID":"No. karyawan","Department":"Departemen","Phone":"Telepon","Handed over by":"Diserahkan oleh","Your name":"Nama Anda","Handover date":"Tanggal serah terima","Expected return (optional)":"Rencana kembali (opsional)","Notes / accessories":"Catatan / kelengkapan","e.g. with charger and bag":"mis. beserta charger dan tas","Save and print letter":"Simpan dan cetak surat","Return date":"Tanggal kembali","Received by":"Diterima oleh","Condition on return":"Kondisi saat kembali","Holder (BAST)":"Pemegang (BAST)","Not handed over to anyone.":"Belum diserahkan ke siapa pun.","Hand over":"Serahkan","Print letter":"Cetak surat","Handover":"Serah terima","Return":"Pengembalian","Handover letter":"Surat serah terima","Return letter":"Surat pengembalian","With holder":"Dipegang","No handovers.":"Belum ada serah terima.","{} of {}":"{} dari {}","Handover is not set up yet. Run handover.sql in Supabase first.":"Serah terima belum diaktifkan. Jalankan handover.sql di Supabase terlebih dahulu.","Handovers need an online account (Supabase).":"Serah terima membutuhkan akun online (Supabase).","This asset is already handed over.":"Aset ini sudah diserahkan.","Enter the receiver name.":"Isi nama penerima.","Expected return cannot be before the handover date.":"Rencana kembali tidak boleh sebelum tanggal serah terima.","Return date cannot be before the handover date.":"Tanggal kembali tidak boleh sebelum tanggal serah terima.","Could not create a BAST number. Please try again.":"Gagal membuat nomor BAST. Coba lagi.","Handover saved.":"Serah terima disimpan.","Asset returned.":"Aset dikembalikan.","Handover deleted.":"Serah terima dihapus.","Delete handover":"Hapus serah terima","Only Super Admin can delete.":"Hanya Super Admin yang bisa menghapus.","Delete handover {} ({} \u2192 {})? This cannot be undone.":"Hapus serah terima {} ({} \u2192 {})? Tidak bisa dibatalkan."});
@@ -3491,6 +3606,19 @@ async function photoRemove() {
   renderDetailPhoto(kode, null); toast('Photo removed.', 'success');
 }
 
+
+/* ---- Settings page ---- */
+let curSetPane = 'account', setPaneWant = null;
+function showSetPane(id) {
+  if (id !== 'account' && !isSuperAdmin()) id = 'account';
+  curSetPane = id;
+  document.querySelectorAll('#setTabs button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+  document.querySelectorAll('#sec-settings .setpane').forEach(x => x.classList.toggle('hidden', x.id !== 'setPane-' + id));
+  if (id === 'account') $('setWho').textContent = currentUser ? `${currentUser.email || ''} (${{ super_admin:'Super Admin', staff:'Staff', viewer:'Viewer' }[currentRole] || currentRole})` : 'Local mode';
+  if (id === 'users') loadUsers();
+  trTree($('sec-settings'));
+}
+
 // ================= Asset handover (BAST) =================
 let bastRows = [], bastErr = '', bastRetId = null;
 const BAST_T = {
@@ -3513,16 +3641,36 @@ const BAST_T = {
 };
 async function loadBast() {
   if (!sb || !currentUser) { bastRows = []; bastErr = 'Handovers need an online account (Supabase).'; return false; }
+  await loadBastCfg();
   const { data, error } = await sb.from('asset_handovers').select('*').order('handed_at', { ascending:false }).order('created_at', { ascending:false }).limit(2000);
   if (error) { bastRows = []; bastErr = (error.code === '42P01' || /does not exist|schema cache/i.test(error.message || '')) ? 'Handover is not set up yet. Run handover.sql in Supabase first.' : error.message; return false; }
   bastErr = ''; bastRows = data || []; return true;
 }
 const bastActive = code => bastRows.find(r => r.asset_code === code && !r.returned_at);
 const bastOverdue = r => !r.returned_at && r.due_at && r.due_at < todayStr();
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+const BAST_CFG_DEF = { logo:'', org:'', addr:'', city:'', unit:'GA', numFmt:'BAST-{YYYY}-{NNNN}', titleOut:'', titleRet:'', introOut:'', introRet:'', terms:'', retClose:'', giverTitle:'', recvTitle:'', know:false, knowLabel:'', knowName:'', knowTitle:'', foot:'' };
+let bastCfg = { ...BAST_CFG_DEF }, bastCfgLoaded = false;
+async function loadBastCfg(force) {
+  if (bastCfgLoaded && !force) return;
+  if (!sb || !currentUser) return;
+  try {
+    const r = await sb.from('company_settings').select('bast_template').maybeSingle();
+    if (!r.error) { bastCfgLoaded = true; const t = r.data && r.data.bast_template; if (t && typeof t === 'object') bastCfg = { ...BAST_CFG_DEF, ...t }; }
+  } catch (e) {}
+}
+function bastFmtOf(cfg) { const f = String((cfg && cfg.numFmt) || '').trim(); return /\{N+\}/.test(f) ? f : BAST_CFG_DEF.numFmt; }
+function bastNoFmt(cfg, seq, d) {
+  d = d || new Date(); const y = d.getFullYear(), m = d.getMonth() + 1;
+  return bastFmtOf(cfg).replace(/\{(N+)\}/, (_, n) => String(seq).padStart(n.length, '0')).replace('{YYYY}', y).replace('{YY}', String(y).slice(2)).replace('{MM}', String(m).padStart(2, '0')).replace('{ROM}', ROMAN[m - 1]).replace('{UNIT}', (cfg.unit || 'GA'));
+}
 function nextBastNo() {
-  const y = new Date().getFullYear(); let max = 0;
-  bastRows.forEach(r => { const m = /^BAST-(\d{4})-(\d+)$/.exec(r.bast_no); if (m && +m[1] === y) max = Math.max(max, +m[2]); });
-  return `BAST-${y}-${String(max + 1).padStart(4, '0')}`;
+  const f = bastFmtOf(bastCfg), y = String(new Date().getFullYear()), unit = (bastCfg.unit || 'GA');
+  const esc = x => x.replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&');
+  const re = new RegExp('^' + esc(f).replace(/\\\{N+\\\}/, '(\\d+)').replace('\\{YYYY\\}', y).replace('\\{YY\\}', y.slice(2)).replace('\\{MM\\}', '\\d{2}').replace('\\{ROM\\}', '[IVX]+').replace('\\{UNIT\\}', esc(unit)) + '$');
+  let max = 0;
+  bastRows.forEach(r => { const m = re.exec(r.bast_no || ''); if (m) max = Math.max(max, +m[1]); });
+  return bastNoFmt(bastCfg, max + 1);
 }
 function lastName(k) { try { return localStorage.getItem('ams_' + k) || ''; } catch (e) { return ''; } }
 function rememberName(k, v) { try { localStorage.setItem('ams_' + k, v); } catch (e) {} }
@@ -3542,10 +3690,70 @@ function renderDetailHolder(kode) {
   if (done.length) h += `<div class="mt-2">${done.map(r => `<div class="flex items-center justify-between gap-2 py-1 border-b border-slate-100 text-xs"><span>${esc(r.holder_name)} • ${fmtDate(r.handed_at)} → ${fmtDate(r.returned_at)}</span><span class="whitespace-nowrap"><button class="text-blue-600" data-act="bastPrint" data-id="${esc(r.id)}|out">Handover</button> • <button class="text-blue-600" data-act="bastPrint" data-id="${esc(r.id)}|ret">Return</button></span></div>`).join('')}</div>`;
   el.innerHTML = h; icons();
 }
-async function openBast() {
-  if (!needFeat('bast')) return;
-  openModal('modalBastList'); $('bastBody').innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Loading...</td></tr>`;
+function openBast() { switchTab('bast'); }
+async function showBast() {
+  $('bastBody').innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Loading...</td></tr>`;
+  bastTab(curBastTab);
   await loadBast(); renderBast();
+}
+let curBastTab = 'list';
+function bastTab(id) {
+  if (id === 'tpl' && !isSuperAdmin()) id = 'list';
+  curBastTab = id;
+  document.querySelectorAll('#bastTabs button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+  $('bastPaneList').classList.toggle('hidden', id !== 'list'); $('bastPaneTpl').classList.toggle('hidden', id !== 'tpl');
+  if (id === 'tpl') { loadBastCfg().then(fillBt); }
+}
+async function bastNew() {
+  if (!needFeat('bast')) return;
+  if (!canLogs()) return toast('Read-only role.', 'warn');
+  if (!bastRows.length || bastErr) await loadBast();
+  if (bastErr) return toast(bastErr, 'error');
+  $('bpList').innerHTML = assetData.filter(a => !bastActive(a.kode)).map(a => `<option value="${esc(a.kode)} — ${esc(a.nama)}"></option>`).join('');
+  $('bpAsset').value = ''; openModal('modalBastPick');
+}
+function bastPickGo() {
+  const v = ($('bpAsset').value || '').split(' — ')[0].trim().toUpperCase();
+  const a = assetData.find(x => x.kode.toUpperCase() === v);
+  if (!a) return toast('Choose an asset from the list.', 'warn');
+  closeModal('modalBastPick'); bastHand(a.kode);
+}
+const BT_IDS = { org:'btOrg', addr:'btAddr', city:'btCity', unit:'btUnit', numFmt:'btNumFmt', titleOut:'btTitleOut', titleRet:'btTitleRet', introOut:'btIntroOut', introRet:'btIntroRet', terms:'btTerms', retClose:'btRetClose', giverTitle:'btGiverTitle', recvTitle:'btRecvTitle', knowLabel:'btKnowLabel', knowName:'btKnowName', knowTitle:'btKnowTitle', foot:'btFoot' };
+let btLogo = '';
+function fillBt() {
+  Object.entries(BT_IDS).forEach(([k, id]) => { $(id).value = bastCfg[k] || ''; });
+  $('btKnow').checked = !!bastCfg.know; $('btKnowBox').classList.toggle('hidden', !bastCfg.know);
+  btLogo = bastCfg.logo || ''; btLogoShow(); btNumEx();
+}
+function btLogoShow() { const i = $('btLogoImg'); i.classList.toggle('hidden', !btLogo); if (btLogo) i.src = btLogo; $('btLogoClear').classList.toggle('hidden', !btLogo); }
+function btNumEx() { const c = readBt(); $('btNumEx').textContent = bastNoFmt(c, 1); }
+function readBt() {
+  const c = { ...BAST_CFG_DEF, logo: btLogo };
+  Object.entries(BT_IDS).forEach(([k, id]) => { c[k] = $(id).value.trim(); });
+  c.know = $('btKnow').checked; if (!c.unit) c.unit = 'GA'; if (!/\{N+\}/.test(c.numFmt)) c.numFmt = BAST_CFG_DEF.numFmt;
+  return c;
+}
+async function btSave() {
+  if (!isSuperAdmin()) return toast('Only Super Admin can change the template.', 'warn');
+  if (!sb || !currentCompany) return toast('The template needs an online account.', 'warn');
+  const c = readBt();
+  const { error } = await sb.from('company_settings').upsert({ company_id: currentCompany.id, bast_template: c, updated_at: new Date().toISOString() }, { onConflict: 'company_id' });
+  if (error) { toast(/bast_template|does not exist|schema cache/i.test(error.message || '') ? 'Template is not set up yet. Run bast_template.sql in Supabase first.' : 'Could not save: ' + error.message, 'error'); return; }
+  bastCfg = c; bastCfgLoaded = true; $('btMsg').textContent = ''; toast('Template saved.', 'success');
+}
+function btReset() { bastCfg = { ...BAST_CFG_DEF }; fillBt(); toast('Standard text restored. Click Save template to keep it.', 'info'); }
+function btPreview() {
+  const c = readBt(), r = { bast_no: bastNoFmt(c, 1), asset_code:'AST-JKT-IT-001', asset_name:'Laptop Lenovo ThinkPad', asset_category:'IT & Office Equipment', asset_sn:'SN-123456', holder_name:'Budi Santoso', holder_id:'EMP-0123', holder_dept:'Finance', holder_phone:'0812-0000-0000', giver_name:'Admin GA', handed_at: todayStr(), due_at:null, condition_out:'Good', notes:'' };
+  const doc = buildBastDoc(r, 'out', c); if (!doc) return;
+  try { const w = window.open(doc.output('bloburl'), '_blank'); if (!w) doc.save('BAST-preview.pdf'); } catch (e) { doc.save('BAST-preview.pdf'); }
+}
+function btLogoPick(file) {
+  if (!file) return;
+  createImageBitmap(file).then(bmp => {
+    const k = Math.min(1, 260 / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(bmp.width * k)); c.height = Math.max(1, Math.round(bmp.height * k));
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); btLogo = c.toDataURL('image/png'); btLogoShow();
+  }).catch(() => toast('This image format is not supported. Use a JPG or PNG image.', 'error'));
 }
 function renderBast() {
   $('bastErr').textContent = bastErr;
@@ -3599,7 +3807,7 @@ async function saveBast() {
   } catch (e) { toast(e.message || String(e), 'error'); }
   btn.disabled = false;
 }
-function refreshBastViews(code) { if (!$('modalBastList').classList.contains('hidden')) renderBast(); if ($('detailHolder')) { $('detailHolder').dataset.k = code; renderDetailHolder(code); } }
+function refreshBastViews(code) { if (!$('sec-bast').classList.contains('hidden')) renderBast(); if ($('detailHolder')) { $('detailHolder').dataset.k = code; renderDetailHolder(code); } }
 function bastReturn(id) {
   if (!canLogs()) return toast('Read-only role.', 'warn');
   const r = bastRows.find(x => x.id === id); if (!r) return;
@@ -3631,19 +3839,24 @@ async function bastDelete(id) {
 }
 function printBast(id, kind) {
   const r = bastRows.find(x => x.id === id); if (!r) return;
-  if (!(window.jspdf && window.jspdf.jsPDF)) return toast('PDF library is still loading or blocked. Please try again.', 'error');
+  const doc = buildBastDoc(r, kind, bastCfg); if (doc) doc.save(`${r.bast_no.replace(/[\\/]/g, '-')}${kind === 'ret' ? '-RETURN' : ''}.pdf`);
+}
+function buildBastDoc(r, kind, cfg) {
+  if (!(window.jspdf && window.jspdf.jsPDF)) { toast('PDF library is still loading or blocked. Please try again.', 'error'); return null; }
   const ret = kind === 'ret', T = BAST_T[LANG === 'en' ? 'en' : 'id'];
   const doc = new window.jspdf.jsPDF({ unit:'mm', format:'a4' }), W = 210, M = 20, CW = W - 2 * M; let y = 22;
-  const co = (currentCompany && currentCompany.name) || '';
+  const co = cfg.org || (currentCompany && currentCompany.name) || '';
   const room = h => { if (y + h > 280) { doc.addPage(); y = 20; } };
   const para = (txt, x = M, w = CW, lh = 5) => { const ls = doc.splitTextToSize(String(txt), w); room(ls.length * lh); ls.forEach(l => { doc.text(l, x, y); y += lh; }); };
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text(co.toUpperCase(), W / 2, y, { align:'center' }); y += 7;
-  doc.setFontSize(12); doc.text(ret ? T.titleRet : T.titleOut, W / 2, y, { align:'center' }); y += 4;
+  if (cfg.logo) { try { const fm = /^data:image\/png/.test(cfg.logo) ? 'PNG' : 'JPEG', pr = doc.getImageProperties(cfg.logo), h = 16, w = Math.min(40, h * pr.width / pr.height); doc.addImage(cfg.logo, fm, M, y - 6, w, h); } catch (e) {} }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text(co.toUpperCase(), W / 2, y, { align:'center' }); y += 6;
+  if (cfg.addr) { doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(cfg.addr, W / 2, y, { align:'center' }); y += 5; }
+  y += 1; doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text(ret ? (cfg.titleRet || T.titleRet) : (cfg.titleOut || T.titleOut), W / 2, y, { align:'center' }); y += 4;
   doc.setLineWidth(0.5); doc.line(M, y, W - M, y); y += 7;
   doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
   doc.text(`${T.no}: ${r.bast_no}${ret ? '-R' : ''}`, M, y); y += 6;
   const when = ret ? r.returned_at : r.handed_at;
-  para((ret ? T.introRet : T.introOut).replace('{d}', fmtDate(when)).replace('{n}', r.bast_no)); y += 3;
+  para((ret ? (cfg.introRet || T.introRet) : (cfg.introOut || T.introOut)).replace('{d}', fmtDate(when)).replace('{n}', r.bast_no)); y += 3;
   const party = (title, o) => {
     room(34); doc.setFont('helvetica', 'bold'); doc.text(title, M, y); y += 5.5; doc.setFont('helvetica', 'normal');
     [[T.name, o.name], [T.empId, o.id], [T.dept, o.dept], [T.phone, o.phone]].filter(x => x[1]).forEach(([k, v]) => { doc.text(k, M + 4, y); doc.text(': ' + v, M + 38, y); y += 5; }); y += 2;
@@ -3663,16 +3876,21 @@ function printBast(id, kind) {
   if (!ret) { extra(T.notes, r.notes); if (r.due_at) extra(T.due, fmtDate(r.due_at)); }
   else { extra(T.retCond, r.condition_in); extra(T.notes, r.return_notes); }
   y += 2;
-  if (!ret) { room(30); doc.setFont('helvetica', 'bold'); doc.text(T.termsTitle, M, y); y += 5; doc.setFont('helvetica', 'normal'); T.terms.forEach((t, i) => { para(`${i + 1}. ${t}`, M + 2, CW - 2); }); }
-  else para(T.retClose);
+  const termList = cfg.terms ? cfg.terms.split(/\r?\n/).map(x => x.trim()).filter(Boolean) : T.terms;
+  if (!ret) { room(30); doc.setFont('helvetica', 'bold'); doc.text(T.termsTitle, M, y); y += 5; doc.setFont('helvetica', 'normal'); termList.forEach((t, i) => { para(`${i + 1}. ${t}`, M + 2, CW - 2); }); }
+  else para(cfg.retClose || T.retClose);
   y += 8; room(48);
-  doc.text(`${T.place}: ........................, ${fmtDate(when)}`, M, y); y += 8;
+  doc.text(cfg.city ? `${cfg.city}, ${fmtDate(when)}` : `${T.place}: ........................, ${fmtDate(when)}`, M, y); y += 8;
   const left = ret ? T.signRet : T.sign, right = ret ? T.signRecvBack : T.signRecv;
   const lname = ret ? r.holder_name : (r.giver_name || ''), rname = ret ? (r.receiver_name || '') : r.holder_name;
   doc.text(left, M + 5, y); doc.text(right, W - M - 55, y);
   y += 26; doc.setLineWidth(0.3); doc.line(M, y, M + 60, y); doc.line(W - M - 60, y, W - M, y);
   doc.text(lname ? `( ${lname} )` : '(                    )', M + 5, y + 5); doc.text(rname ? `( ${rname} )` : '(                    )', W - M - 55, y + 5);
-  doc.save(`${r.bast_no}${ret ? '-RETURN' : ''}.pdf`);
+  const lt = ret ? cfg.recvTitle : cfg.giverTitle, rt = ret ? cfg.giverTitle : cfg.recvTitle;
+  doc.setFontSize(9); if (lt) doc.text(lt, M + 5, y + 10); if (rt) doc.text(rt, W - M - 55, y + 10); doc.setFontSize(10); y += 10;
+  if (cfg.know) { y += 10; room(40); doc.text(cfg.knowLabel || (LANG === 'en' ? 'Acknowledged by' : 'Mengetahui'), W / 2, y, { align:'center' }); y += 24; doc.line(W / 2 - 30, y, W / 2 + 30, y); doc.text(cfg.knowName ? `( ${cfg.knowName} )` : '(                    )', W / 2, y + 5, { align:'center' }); if (cfg.knowTitle) { doc.setFontSize(9); doc.text(cfg.knowTitle, W / 2, y + 10, { align:'center' }); doc.setFontSize(10); } }
+  if (cfg.foot) { doc.setFontSize(8); doc.setTextColor(120); doc.text(cfg.foot, W / 2, 289, { align:'center' }); doc.setTextColor(0); }
+  return doc;
 }
 
 let planTiers = [], ownerCompanies = [], usersCompanyId = null, usersList = [], coEditId = null, userMode = 'add', userTargetId = null;
@@ -3913,6 +4131,7 @@ const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
   drSettings: openDeprSettings, drSave: saveDeprSettings, drExport: exportDepr, perms: openPerms, savePerms: savePerms, codeFmt: openCodeFormat, saveCodeFmt: saveCodeFormat, renumberOpen: openRenumber, renumberApply: rnApply,
   syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, openPlans, savePlans, lpGo, lpLogin, lpHome, lpCta, lpWa, submitTrial, trialCreate, trialSet, trialDelete, openBast, photoView, photoPick, photoRemove, bastHand, saveBast, bastReturn, saveReturn, bastDelete, bastPrint: v => { const [i, k] = String(v).split('|'); printBast(i, k); }, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'),
+  setTab: id => showSetPane(id), dmTab: id => dmTab(id), bastTab: id => bastTab(id), bastNew: () => bastNew(), bastPickGo: () => bastPickGo(), btSave: () => btSave(), btPreview: () => btPreview(), btReset: () => btReset(), btLogoClear: () => { btLogo = ''; btLogoShow(); },
   collapseNav: () => { const c = document.body.classList.toggle('side-collapsed'); try { localStorage.setItem('ams_side', c ? '1' : '0'); } catch (e) {} }, closeNav: () => document.body.classList.remove('nav-open'), setLang,
   openDeleted: openDeletedModal, openAudit, restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
@@ -3953,6 +4172,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   new MutationObserver(kick).observe(document.body,{attributes:true,attributeFilter:['class']});
   new MutationObserver(kick).observe($('sidebar'),{attributes:true,attributeFilter:['class'],subtree:true});
   kick();
+  const lf=$('btLogoFile'); if(lf) lf.addEventListener('change',e=>{btLogoPick(e.target.files[0]); e.target.value='';});
+  const bk=$('btKnow'); if(bk) bk.addEventListener('change',()=>$('btKnowBox').classList.toggle('hidden',!bk.checked));
+  const bn=$('btNumFmt'), bu=$('btUnit'); [bn,bu].forEach(x=>x&&x.addEventListener('input',btNumEx));
   const ss=$('sideSearch');
   if(ss){
     ss.addEventListener('keydown',e=>{

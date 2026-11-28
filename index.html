@@ -1391,6 +1391,9 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
 <input type="file" id="restoreFile" accept=".json,application/json" class="hidden">
 
 <script>
+// Dibaca SEBELUM klien Supabase dibuat: klien menghapus #hash dari URL saat memprosesnya.
+const RECOVERY_LINK = /type=recovery/.test(location.hash + location.search);
+const LINK_ERROR = /error_code=|error_description=/.test(location.hash + location.search);
 const SUPABASE_URL = 'https://drwdhaxmlgfwvgrayoqu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyd2RoYXhtbGdmd3ZncmF5b3F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMTMyMDYsImV4cCI6MjExMDg4OTIwNn0.XIDVZyjVpPIbn3ZP6niwGWeSwPdN9PApEFS5atWAdCg';
 
@@ -3066,6 +3069,7 @@ Object.assign(I18N,{"Deleted records": "Data terhapus", "Reload": "Muat ulang", 
 Object.assign(I18N,{"The audit trail needs the online server.": "Jejak audit membutuhkan server online.", "Deleted records need the online server.": "Data terhapus membutuhkan server online."});
 Object.assign(I18N,{"User limit reached ({} / {}). Upgrade the plan to add more users.":"Batas pengguna tercapai ({} / {}). Upgrade paket untuk menambah pengguna.","USER_LIMIT: your plan allows a maximum of {} users. Upgrade to add more.":"Paket Anda dibatasi maksimal {} pengguna. Upgrade untuk menambah."});
 Object.assign(I18N,{"User limit reached ({}). Upgrade the plan to add more users.":"Batas pengguna tercapai ({}). Upgrade paket untuk menambah pengguna."});
+Object.assign(I18N,{"This link has expired or was already used. Click \"Forgot password?\" to request a new one.":"Tautan ini sudah kedaluwarsa atau sudah dipakai. Klik \"Lupa kata sandi?\" untuk meminta yang baru."});
 const I18N_PATS=Object.keys(I18N).filter(k=>k.includes('{}')).sort((a,b)=>b.length-a.length).map(k=>({re:new RegExp('^'+k.replace(/[.*+?^$()|[\]\\]/g,'\\$&').replace(/\{\}/g,'([\\s\\S]+?)')+'$'),to:I18N[k]}));
 function trCore(s,d){
   if(Object.prototype.hasOwnProperty.call(I18N,s))return I18N[s];
@@ -4343,7 +4347,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   setTimeout(() => document.body.classList.remove('booting'), 5000);
   if (sb) {
-    try { const { data } = await sb.auth.getSession(); await applySession(data.session); }
+    try {
+      const { data } = await sb.auth.getSession();
+      if (RECOVERY_LINK && data.session) {
+        // Tautan reset kata sandi: tampilkan form kata sandi baru, jangan langsung masuk ke dashboard.
+        $('landing').classList.add('hidden'); $('authGate').classList.remove('hidden'); $('formLogin').classList.add('hidden'); $('formRecover').classList.remove('hidden');
+        try { history.replaceState(null, '', location.pathname); } catch (e) {}
+      } else {
+        await applySession(data.session);
+        if (LINK_ERROR && !data.session) {
+          $('landing').classList.add('hidden'); $('authGate').classList.remove('hidden');
+          const le = $('loginErr'); if (le) { le.textContent = 'This link has expired or was already used. Click "Forgot password?" to request a new one.'; le.classList.remove('hidden'); }
+          try { history.replaceState(null, '', location.pathname); } catch (e) {}
+        }
+      }
+    }
     finally { document.body.classList.remove('booting'); }
     sb.auth.onAuthStateChange(async (_event, session) => {
       if (_event === 'PASSWORD_RECOVERY') { $('landing').classList.add('hidden'); $('authGate').classList.remove('hidden'); $('formLogin').classList.add('hidden'); $('formRecover').classList.remove('hidden'); return; }

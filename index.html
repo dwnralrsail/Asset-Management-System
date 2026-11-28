@@ -3065,6 +3065,7 @@ Object.assign(I18N,{"Control the recording, tracking and maintenance of assets i
 Object.assign(I18N,{"Deleted records": "Data terhapus", "Reload": "Muat ulang", "Reset": "Atur ulang", "Clear all data": "Hapus semua data", "Permanently removes all assets and logs of this company. A backup file is downloaded first.": "Menghapus permanen semua aset dan log perusahaan ini. File cadangan diunduh lebih dulu.", "Type": "Ketik", "to continue": "untuk melanjutkan", "Delete ALL assets and logs of this company for everyone?\n\nA backup file is downloaded first. This cannot be undone from the app.": "Hapus SEMUA aset dan log perusahaan ini untuk semua orang?\n\nFile cadangan diunduh lebih dulu. Ini tidak bisa dibatalkan dari aplikasi.", "Who changed what and when, recorded automatically by the server. It cannot be edited or deleted.": "Siapa mengubah apa dan kapan, dicatat otomatis oleh server. Tidak bisa diubah atau dihapus.", "Archived snapshots of deleted items. Restore them, or delete them permanently.": "Salinan arsip item yang dihapus. Pulihkan, atau hapus permanen."});
 Object.assign(I18N,{"The audit trail needs the online server.": "Jejak audit membutuhkan server online.", "Deleted records need the online server.": "Data terhapus membutuhkan server online."});
 Object.assign(I18N,{"User limit reached ({} / {}). Upgrade the plan to add more users.":"Batas pengguna tercapai ({} / {}). Upgrade paket untuk menambah pengguna.","USER_LIMIT: your plan allows a maximum of {} users. Upgrade to add more.":"Paket Anda dibatasi maksimal {} pengguna. Upgrade untuk menambah."});
+Object.assign(I18N,{"User limit reached ({}). Upgrade the plan to add more users.":"Batas pengguna tercapai ({}). Upgrade paket untuk menambah pengguna."});
 const I18N_PATS=Object.keys(I18N).filter(k=>k.includes('{}')).sort((a,b)=>b.length-a.length).map(k=>({re:new RegExp('^'+k.replace(/[.*+?^$()|[\]\\]/g,'\\$&').replace(/\{\}/g,'([\\s\\S]+?)')+'$'),to:I18N[k]}));
 function trCore(s,d){
   if(Object.prototype.hasOwnProperty.call(I18N,s))return I18N[s];
@@ -4199,7 +4200,7 @@ async function userLimitFor(id) {
   try { const r = await sb.from('companies').select('max_users').eq('id', id).maybeSingle(); return r.data ? r.data.max_users : null; } catch (e) { return null; }
 }
 async function addUser() {
-  const lim = await userLimitFor(usersCompanyId), n = usersList.filter(u => !u.is_owner).length;
+  const lim = await userLimitFor(usersCompanyId), n = usersList.length;
   if (lim && n >= lim) return toast('User limit reached (' + n + ' / ' + lim + '). Upgrade the plan to add more users.', 'warn');
   userMode = 'add'; userTargetId = null; $('modalUserTitle').textContent = 'Add user';
   $('usEmail').value = ''; $('usEmail').readOnly = false; $('usPass').value = genPw(); $('usRoleBox').classList.remove('hidden');

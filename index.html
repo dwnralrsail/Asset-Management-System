@@ -567,13 +567,17 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold">Start your 14-day free trial</h3>
       <button data-act="closeModal" data-id="modalTrial" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
     <div id="trialFormBox" class="p-5 overflow-y-auto grow space-y-3">
-      <p class="text-sm text-slate-500">Tell us a little about your company. We will set up your trial account and contact you.</p>
+      <p id="trIntro" class="text-sm text-slate-500">Tell us a little about your company. We will set up your trial account and contact you.</p>
       <div><label class="lbl">Company name *</label><input id="trCompany" class="input" autocomplete="organization" maxlength="120"></div>
       <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Your name *</label><input id="trName" class="input" autocomplete="name" maxlength="120"></div><div><label class="lbl">Email *</label><input id="trEmail" type="email" class="input" autocomplete="email" maxlength="200"></div></div>
       <div class="grid grid-cols-2 gap-3"><div><label class="lbl">WhatsApp (optional)</label><input id="trPhone" class="input" autocomplete="tel" maxlength="40"></div>
         <div><label class="lbl">Number of assets</label><select id="trAssets" class="input"><option value="">Choose</option><option value="<50">Under 50</option><option value="50-200">50 to 200</option><option value="200-1000">200 to 1,000</option><option value="1000+">More than 1,000</option></select></div></div>
       <div><label class="lbl">Package of interest</label><select id="trPackage" class="input"><option value="">Help me choose</option><option value="Basic">Basic</option><option value="Business">Business</option><option value="Enterprise">Enterprise</option></select></div>
       <div><label class="lbl">Message (optional)</label><textarea id="trMessage" class="input" rows="2" maxlength="1000" placeholder="e.g. 3 branches, mostly AC and laptops"></textarea></div>
+      <div id="trSignup" class="hidden space-y-3">
+        <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Password * (min. 8 characters)</label><input id="trPass" type="password" class="input" autocomplete="new-password" maxlength="72"></div><div><label class="lbl">Repeat password *</label><input id="trPass2" type="password" class="input" autocomplete="new-password" maxlength="72"></div></div>
+        <div id="trCaptcha"></div>
+      </div>
       <input id="trWebsite" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
       <p id="trErr" class="text-xs text-rose-600 hidden"></p>
       <button class="btn btn-primary" id="trSend" data-act="submitTrial" style="width:100%;justify-content:center;padding:.65rem">Send request</button>
@@ -582,8 +586,8 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     </div>
     <div id="trialDone" class="p-8 text-center hidden">
       <div style="width:52px;height:52px;border-radius:50%;background:#d9f5e8;color:#0e7a4f;display:grid;place-items:center;margin:0 auto 14px"><i data-lucide="check"></i></div>
-      <h3 class="font-bold" style="font-size:18px;margin:0 0 6px">Request received</h3>
-      <p class="text-sm text-slate-500" style="margin:0 0 18px">Thank you. We will contact you to set up your trial account.</p>
+      <h3 id="trDoneTitle" class="font-bold" style="font-size:18px;margin:0 0 6px">Request received</h3>
+      <p id="trDoneText" class="text-sm text-slate-500" style="margin:0 0 18px">Thank you. We will contact you to set up your trial account.</p>
       <button class="btn btn-primary" data-act="closeModal" data-id="modalTrial">Close</button>
     </div>
   </div>
@@ -1393,6 +1397,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
 <script>
 // Dibaca SEBELUM klien Supabase dibuat: klien menghapus #hash dari URL saat memprosesnya.
 const RECOVERY_LINK = /type=recovery/.test(location.hash + location.search);
+const SIGNUP_LINK = /type=signup/.test(location.hash + location.search);
 const LINK_ERROR = /error_code=|error_description=/.test(location.hash + location.search);
 const SUPABASE_URL = 'https://drwdhaxmlgfwvgrayoqu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyd2RoYXhtbGdmd3ZncmF5b3F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUzMTMyMDYsImV4cCI6MjExMDg4OTIwNn0.XIDVZyjVpPIbn3ZP6niwGWeSwPdN9PApEFS5atWAdCg';
@@ -2217,7 +2222,7 @@ async function handleLogin(e) {
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
   btn.disabled = false;
   if (error) {
-    $('loginErr').textContent = error.message;
+    $('loginErr').textContent = /not confirmed/i.test(error.message || '') ? tr('Your email is not verified yet. Open the verification link we sent to your inbox.') : error.message;
     $('loginErr').classList.remove('hidden');
     return;
   }
@@ -3070,6 +3075,7 @@ Object.assign(I18N,{"The audit trail needs the online server.": "Jejak audit mem
 Object.assign(I18N,{"User limit reached ({} / {}). Upgrade the plan to add more users.":"Batas pengguna tercapai ({} / {}). Upgrade paket untuk menambah pengguna.","USER_LIMIT: your plan allows a maximum of {} users. Upgrade to add more.":"Paket Anda dibatasi maksimal {} pengguna. Upgrade untuk menambah."});
 Object.assign(I18N,{"User limit reached ({}). Upgrade the plan to add more users.":"Batas pengguna tercapai ({}). Upgrade paket untuk menambah pengguna."});
 Object.assign(I18N,{"This link has expired or was already used. Click \"Forgot password?\" to request a new one.":"Tautan ini sudah kedaluwarsa atau sudah dipakai. Klik \"Lupa kata sandi?\" untuk meminta yang baru."});
+Object.assign(I18N,{"Create your trial account. We will email you a link to verify your address.":"Buat akun trial Anda. Kami akan mengirim tautan ke email untuk memverifikasi alamat Anda.","Create my trial account":"Buat akun trial saya","Password * (min. 8 characters)":"Kata sandi * (min. 8 karakter)","Repeat password *":"Ulangi kata sandi *","Password must be at least 8 characters.":"Kata sandi minimal 8 karakter.","Please complete the captcha first.":"Selesaikan captcha terlebih dahulu.","The captcha could not be loaded. Check your connection.":"Captcha gagal dimuat. Periksa koneksi Anda.","Could not create your account. Please try again in a moment.":"Akun belum bisa dibuat. Silakan coba lagi sebentar lagi.","Sign-up is not available yet. Please contact us another way.":"Pendaftaran belum tersedia. Silakan hubungi kami lewat cara lain.","Check your email":"Periksa email Anda","We sent a verification link to":"Kami mengirim tautan verifikasi ke","Open it to activate your trial. If you do not see it, check your spam folder.":"Buka tautan itu untuk mengaktifkan trial Anda. Jika tidak terlihat, periksa folder spam.","Email verified. Welcome to Amasys!":"Email terverifikasi. Selamat datang di Amasys!","Your email is not verified yet. Open the verification link we sent to your inbox.":"Email Anda belum diverifikasi. Buka tautan verifikasi yang kami kirim ke kotak masuk Anda.","Captcha check failed. Please try again.":"Pemeriksaan captcha gagal. Silakan coba lagi.","This email is already registered. Sign in, or use Forgot password.":"Email ini sudah terdaftar. Silakan masuk, atau gunakan Lupa kata sandi.","Could not send the verification email. Please try again.":"Email verifikasi gagal dikirim. Silakan coba lagi.","Please complete the captcha.":"Selesaikan captcha terlebih dahulu."});
 const I18N_PATS=Object.keys(I18N).filter(k=>k.includes('{}')).sort((a,b)=>b.length-a.length).map(k=>({re:new RegExp('^'+k.replace(/[.*+?^$()|[\]\\]/g,'\\$&').replace(/\{\}/g,'([\\s\\S]+?)')+'$'),to:I18N[k]}));
 function trCore(s,d){
   if(Object.prototype.hasOwnProperty.call(I18N,s))return I18N[s];
@@ -3627,8 +3633,33 @@ function lpWa() {
   const msg = LANG === 'en' ? "Hello, I'd like to start the 14-day free trial." : 'Halo, saya ingin mencoba trial gratis 14 hari.';
   window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
 }
+// Pendaftaran trial mandiri aktif jika Site Key Cloudflare Turnstile diisi. Kosong = mode lama (permintaan trial).
+const TURNSTILE_SITEKEY = '0x4AAAAAAGXLnbunBYIHGjPZ';
+let trWidget = null, trToken = '';
+const trSelf = () => !!TURNSTILE_SITEKEY;
+function loadTurnstile() {
+  return new Promise((res, rej) => {
+    if (window.turnstile) return res();
+    const t = document.createElement('script'); t.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; t.async = true;
+    t.onload = () => res(); t.onerror = () => rej(new Error('The captcha could not be loaded. Check your connection.'));
+    document.head.appendChild(t);
+  });
+}
+async function trRenderCaptcha() {
+  trToken = '';
+  try {
+    await loadTurnstile();
+    if (trWidget !== null) { window.turnstile.reset(trWidget); return; }
+    trWidget = window.turnstile.render('#trCaptcha', { sitekey: TURNSTILE_SITEKEY, callback: t => { trToken = t; }, 'expired-callback': () => { trToken = ''; }, 'error-callback': () => { trToken = ''; } });
+  } catch (e) { $('trErr').textContent = tr(e.message); $('trErr').classList.remove('hidden'); }
+}
 function openTrial(pkg) {
-  ['trCompany', 'trName', 'trEmail', 'trPhone', 'trMessage', 'trWebsite'].forEach(i => $(i).value = '');
+  ['trCompany', 'trName', 'trEmail', 'trPhone', 'trMessage', 'trWebsite', 'trPass', 'trPass2'].forEach(i => $(i).value = '');
+  $('trSignup').classList.toggle('hidden', !trSelf());
+  $('trIntro').textContent = tr(trSelf() ? 'Create your trial account. We will email you a link to verify your address.' : 'Tell us a little about your company. We will set up your trial account and contact you.');
+  $('trSend').textContent = tr(trSelf() ? 'Create my trial account' : 'Send request');
+  $('trDoneTitle').textContent = tr('Request received'); $('trDoneText').textContent = tr('Thank you. We will contact you to set up your trial account.');
+  if (trSelf()) trRenderCaptcha();
   $('trAssets').value = ''; $('trPackage').value = ['Basic', 'Business', 'Enterprise'].includes(pkg) ? pkg : '';
   $('trErr').classList.add('hidden'); $('trialFormBox').classList.remove('hidden'); $('trialDone').classList.add('hidden'); $('trSend').disabled = false;
   $('trWaRow').classList.toggle('hidden', !SITE.wa);
@@ -3641,6 +3672,25 @@ async function submitTrial() {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('trEmail'))) return err('Enter a valid email address.');
   $('trErr').classList.add('hidden');
   if ($('trWebsite').value) { $('trialFormBox').classList.add('hidden'); $('trialDone').classList.remove('hidden'); return; }   // hidden trap field filled in: a bot
+  if (trSelf()) {
+    if ($('trPass').value.length < 8) return err('Password must be at least 8 characters.');
+    if ($('trPass').value !== $('trPass2').value) return err('Passwords do not match.');
+    if (!trToken) return err('Please complete the captcha first.');
+    const b = $('trSend'); b.disabled = true;
+    try {
+      const { data, error } = await sb.functions.invoke('signup-trial', { body: { company:v('trCompany'), name:v('trName'), email:v('trEmail'), phone:v('trPhone'), assets:$('trAssets').value, package:$('trPackage').value, message:v('trMessage'), password:$('trPass').value, token:trToken } });
+      if (error) {
+        let m = 'Could not create your account. Please try again in a moment.';
+        try { if (error.context && error.context.status === 404) m = 'Sign-up is not available yet. Please contact us another way.'; else { const j = await error.context.json(); if (j && j.error) m = j.error; } } catch (e2) {}
+        throw new Error(m);
+      }
+      if (data && data.error) throw new Error(data.error);
+      $('trDoneTitle').textContent = tr('Check your email');
+      $('trDoneText').textContent = tr('We sent a verification link to') + ' ' + v('trEmail') + '. ' + tr('Open it to activate your trial. If you do not see it, check your spam folder.');
+      $('trialFormBox').classList.add('hidden'); $('trialDone').classList.remove('hidden'); icons();
+    } catch (e) { err(e.message); b.disabled = false; trRenderCaptcha(); }
+    return;
+  }
   const btn = $('trSend'); btn.disabled = true;
   try {
     const { data, error } = await sb.rpc('submit_trial_request', { p_company:v('trCompany'), p_name:v('trName'), p_email:v('trEmail'), p_phone:v('trPhone'), p_assets:$('trAssets').value, p_package:$('trPackage').value, p_message:v('trMessage') });
@@ -4355,6 +4405,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { history.replaceState(null, '', location.pathname); } catch (e) {}
       } else {
         await applySession(data.session);
+        if (SIGNUP_LINK && data.session) { toast('Email verified. Welcome to Amasys!', 'success'); try { history.replaceState(null, '', location.pathname); } catch (e) {} }
         if (LINK_ERROR && !data.session) {
           $('landing').classList.add('hidden'); $('authGate').classList.remove('hidden');
           const le = $('loginErr'); if (le) { le.textContent = 'This link has expired or was already used. Click "Forgot password?" to request a new one.'; le.classList.remove('hidden'); }
@@ -4364,7 +4415,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     finally { document.body.classList.remove('booting'); }
     sb.auth.onAuthStateChange(async (_event, session) => {
-      if (_event === 'PASSWORD_RECOVERY') { $('landing').classList.add('hidden'); $('authGate').classList.remove('hidden'); $('formLogin').classList.add('hidden'); $('formRecover').classList.remove('hidden'); return; }
+      if (_event === 'PASSWORD_RECOVERY') { if (!RECOVERY_LINK) return; $('landing').classList.add('hidden'); $('authGate').classList.remove('hidden'); $('formLogin').classList.add('hidden'); $('formRecover').classList.remove('hidden'); return; }
       if (!session?.user) {
         currentUser = null; stopPolling();
         currentRole = 'viewer';

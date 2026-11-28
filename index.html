@@ -445,6 +445,9 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   .auth-brand .auth-logo{height:76px;width:auto;margin:0 0 26px}
   .sidebar .brand{background:rgba(255,255,255,.96);border:1px solid #fff;box-shadow:0 10px 24px -14px rgba(8,24,90,.6),inset 0 1px 0 #fff}
   .sidebar .brand .brand-mark{box-shadow:none;background:transparent;padding:3px}
+  .pane-tbl{overflow:auto;max-height:calc(100vh - 360px);min-height:160px}
+  .pane-tbl thead th{position:sticky;top:0;z-index:2}
+  .seg button.feat-off{opacity:.55}
 </style>
 </head>
 <body class="booting">
@@ -926,8 +929,10 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <div class="seg" id="setTabs">
       <button class="on" data-act="setTab" data-id="account">Account</button>
       <button class="admin-only" data-act="setTab" data-id="users">Users</button>
-      <button class="admin-only" data-act="setTab" data-id="access">Access and codes</button>
-      <button class="admin-only" data-act="setTab" data-id="audit">Audit and deleted</button>
+      <button class="admin-only" data-feat="role_perms" data-act="setTab" data-id="perms">Role permissions</button>
+      <button class="admin-only" data-feat="code_format" data-act="setTab" data-id="codefmt">Asset code format</button>
+      <button class="admin-only" data-feat="audit" data-act="setTab" data-id="audit">Audit trail</button>
+      <button class="admin-only" id="menuDeleted" data-act="setTab" data-id="deleted">Deleted records</button>
       <button class="admin-only" data-act="setTab" data-id="data">Data and backup</button>
     </div>
     <div id="setPane-account" class="setpane space-y-3">
@@ -950,21 +955,68 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     </div>
     <p class="text-xs text-slate-400">Super Admin can do everything, Staff can add and edit, Viewer can only look. Only Super Admin can delete.</p>
   </div>
-    <div id="setPane-access" class="setpane hidden space-y-3">
-      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Role permissions</h3><p class="text-xs text-slate-500 mt-0.5">Choose what Staff and Viewer can see and do.</p></div><button class="btn btn-ghost" data-feat="role_perms" data-act="perms"><i data-lucide="shield-check"></i>Open</button></div>
-      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Asset code format</h3><p class="text-xs text-slate-500 mt-0.5">Choose how new asset codes look. Existing codes do not change.</p></div><button class="btn btn-ghost" data-feat="code_format" data-act="codeFmt"><i data-lucide="hash"></i>Open</button></div>
+    <div id="setPane-perms" class="setpane hidden space-y-3">
+      <div class="card p-5 space-y-3 text-sm" style="max-width:760px">
+        <div><h3 class="font-bold">Role permissions</h3><p class="text-xs text-slate-500 mt-0.5">Choose what each role can use. Super Admin can always use everything. Viewer can never change data.</p></div>
+        <div class="border border-slate-200 rounded-lg overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-slate-100 text-xs text-slate-600"><tr><th class="p-2">Feature</th><th class="p-2 text-center w-20">Staff</th><th class="p-2 text-center w-20">Viewer</th></tr></thead><tbody id="permBody"></tbody></table></div>
+        <p class="text-xs text-slate-500"><b>Locked by server</b>: the database refuses the action even if someone tries to bypass the screen.<br><b>Hidden only</b>: the feature is hidden from the screen, but the role can still read this data.</p>
+        <div class="flex justify-end gap-2"><button class="btn btn-ghost" data-act="permsReset">Reset</button><button class="btn btn-primary" data-act="savePerms"><i data-lucide="save"></i>Save</button></div>
+      </div>
+    </div>
+    <div id="setPane-codefmt" class="setpane hidden space-y-3">
+      <div class="card p-5 space-y-3 text-sm" style="max-width:640px">
+        <div><h3 class="font-bold">Asset code format</h3><p class="text-xs text-slate-500 mt-0.5">Choose how new asset codes look. Existing codes do not change.</p></div>
+        <div><label class="lbl">Prefix (optional, letters and numbers only)</label><input id="cfPrefix" class="input" maxlength="8" placeholder="e.g. AST or your company initials"></div>
+        <div class="space-y-1"><label class="flex items-center gap-2"><input type="checkbox" id="cfCategory"> Include category code</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="cfBranch"> Include branch code</label>
+          <label class="flex items-center gap-2"><input type="checkbox" id="cfYear"> Include current year</label></div>
+        <p id="cfBranchWarn" class="hidden text-xs text-amber-700 bg-amber-50 rounded-lg p-2">If an asset moves to another branch, its code still shows the old branch. Leave this off if assets often move.</p>
+        <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Number length</label><select id="cfDigits" class="input"><option value="3">3 digits (001)</option><option value="4">4 digits (0001)</option><option value="5">5 digits (00001)</option><option value="6">6 digits (000001)</option></select></div>
+          <div><label class="lbl">Separator</label><select id="cfSep" class="input"><option value="-">Dash ( - )</option><option value=".">Dot ( . )</option><option value="_">Underscore ( _ )</option><option value="">None</option></select></div></div>
+        <div class="rounded-lg bg-slate-50 border border-slate-200 p-3"><p class="text-xs text-slate-500 mb-1">Next code will look like</p><p id="cfExample" class="font-mono font-bold text-blue-600 text-base"></p></div>
+        <div class="border-t border-slate-200 pt-3"><p class="text-xs text-slate-500 mb-2">Want your existing assets to use this format too?</p><button class="btn btn-ghost" data-act="renumberOpen"><i data-lucide="list-ordered"></i>Apply to existing assets…</button></div>
+        <div class="flex justify-end"><button class="btn btn-primary" data-act="saveCodeFmt"><i data-lucide="save"></i>Save</button></div>
+      </div>
     </div>
     <div id="setPane-audit" class="setpane hidden space-y-3">
-      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Audit trail</h3><p class="text-xs text-slate-500 mt-0.5">Who changed what and when, recorded automatically by the server.</p></div><button class="btn btn-ghost" data-feat="audit" data-act="openAudit"><i data-lucide="history"></i>Open</button></div>
-      <div id="menuDeleted" class="hidden">
-      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 "><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Deleted and restore</h3><p class="text-xs text-slate-500 mt-0.5">Deleted records are archived here and can be restored.</p></div><button class="btn btn-ghost" data-act="openDeleted"><i data-lucide="archive-restore"></i>Open</button></div>
+      <div class="card p-5 space-y-3">
+        <div><h3 class="font-bold text-sm">Audit trail</h3><p class="text-xs text-slate-500 mt-0.5">Who changed what and when, recorded automatically by the server. It cannot be edited or deleted.</p></div>
+        <div class="flex flex-wrap gap-2">
+          <input id="auditQ" class="input" style="max-width:260px" placeholder="Search code, user, field...">
+          <select id="auditAct" class="input" style="max-width:160px"><option value="">All actions</option><option value="INSERT">Created</option><option value="UPDATE">Changed</option><option value="DELETE">Deleted</option></select>
+          <select id="auditTbl" class="input" style="max-width:180px"><option value="">All data</option><option value="assets">Assets</option><option value="asset_logs">Logs</option><option value="branches">Branches</option><option value="categories">Categories</option></select>
+          <button class="btn btn-ghost" data-act="auditReload"><i data-lucide="refresh-cw"></i>Reload</button>
+        </div>
+        <div class="pane-tbl border border-slate-200 rounded-lg">
+          <table class="data-table w-full text-left text-xs min-w-max">
+            <thead class="bg-slate-100 text-slate-600 uppercase"><tr>
+              <th class="p-2.5">When</th><th class="p-2.5">User</th><th class="p-2.5">Action</th><th class="p-2.5">Data</th><th class="p-2.5">Key</th><th class="p-2.5">Details</th>
+            </tr></thead>
+            <tbody id="auditBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+        <p id="auditNote" class="text-xs text-slate-400"></p>
+      </div>
+    </div>
+    <div id="setPane-deleted" class="setpane hidden space-y-3">
+      <div class="card p-5 space-y-3">
+        <div class="flex flex-wrap items-start justify-between gap-3"><div><h3 class="font-bold text-sm">Deleted records</h3><p class="text-xs text-slate-500 mt-0.5">Archived snapshots of deleted items. Restore them, or delete them permanently.</p></div>
+          <button class="btn btn-ghost" data-act="purgeRestored"><i data-lucide="eraser"></i>Clear restored</button></div>
+        <div class="pane-tbl border border-slate-200 rounded-lg">
+          <table class="data-table w-full text-left text-xs min-w-max">
+            <thead class="bg-slate-100 text-slate-600 uppercase">
+              <tr><th class="p-2.5">Table</th><th class="p-2.5">Key</th><th class="p-2.5">Summary</th><th class="p-2.5">Deleted By</th><th class="p-2.5">Deleted At</th><th class="p-2.5">State</th><th class="p-2.5 text-center">Action</th></tr>
+            </thead>
+            <tbody id="deletedBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
       </div>
     </div>
     <div id="setPane-data" class="setpane hidden space-y-3">
       <div class="card p-5 flex flex-wrap items-center justify-between gap-3 admin-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Back up all data</h3><p class="text-xs text-slate-500 mt-0.5">Download everything as one .json file.</p></div><button class="btn btn-ghost" data-act="backup"><i data-lucide="hard-drive-download"></i>Back up</button></div>
       <div class="card p-5 flex flex-wrap items-center justify-between gap-3 owner-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Restore from backup</h3><p class="text-xs text-slate-500 mt-0.5">Replace the current data with a backup file.</p></div><button class="btn btn-ghost" data-act="restore"><i data-lucide="hard-drive-upload"></i>Restore</button></div>
       <div class="card p-5 flex flex-wrap items-center justify-between gap-3 owner-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Load sample data</h3><p class="text-xs text-slate-500 mt-0.5">Fill the app with example assets for a demo.</p></div><button class="btn btn-ghost" data-act="loadSample"><i data-lucide="flask-conical"></i>Load sample</button></div>
-      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 owner-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Clear all data</h3><p class="text-xs text-slate-500 mt-0.5">Permanently removes all data in this company.</p></div><button class="btn btn-danger" data-act="clearAll"><i data-lucide="trash-2"></i>Clear all</button></div>
+      <div class="card p-5 flex flex-wrap items-center justify-between gap-3 admin-only"><div style="min-width:0;flex:1 1 260px"><h3 class="font-bold text-sm">Clear all data</h3><p class="text-xs text-slate-500 mt-0.5">Permanently removes all assets and logs of this company. A backup file is downloaded first.</p></div><button class="btn btn-danger" data-act="clearAll"><i data-lucide="trash-2"></i>Clear all</button></div>
     </div>
   </section>
 
@@ -1009,73 +1061,10 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
     <h3 id="confirmTitle" class="font-bold text-lg text-slate-900">Please confirm</h3>
     <p id="confirmMsg" class="text-sm text-slate-600 mt-2 whitespace-pre-line"></p>
+    <div id="confirmTypeWrap" class="hidden mt-3"><p class="text-xs text-slate-500 mb-1">Type <b id="confirmTypeWord"></b> to continue</p><input id="confirmType" class="input" autocomplete="off"></div>
     <div class="flex justify-end gap-2 mt-6">
       <button class="btn btn-ghost" data-act="confirmNo">Cancel</button>
       <button id="confirmOk" class="btn btn-danger" data-act="confirmYes">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<div id="modalAudit" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
-    <div class="modal-head flex justify-between items-center shrink-0">
-      <div>
-        <h3 class="font-bold">Audit Trail (Super Admin)</h3>
-        <p class="text-xs text-slate-400">Who changed what, and when. Recorded automatically by the server.</p>
-      </div>
-      <button data-act="closeModal" data-id="modalAudit" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div class="p-5 overflow-y-auto grow">
-      <div class="flex flex-wrap gap-2 mb-3">
-        <input id="auditQ" class="input" style="max-width:260px" placeholder="Search code, user, field...">
-        <select id="auditAct" class="input" style="max-width:160px"><option value="">All actions</option><option value="INSERT">Created</option><option value="UPDATE">Changed</option><option value="DELETE">Deleted</option></select>
-        <select id="auditTbl" class="input" style="max-width:180px"><option value="">All data</option><option value="assets">Assets</option><option value="asset_logs">Logs</option><option value="branches">Branches</option><option value="categories">Categories</option></select>
-      </div>
-      <div class="modal-tbl border border-slate-200 rounded-lg">
-        <table class="data-table w-full text-left text-xs min-w-max">
-          <thead class="bg-slate-100 text-slate-600 uppercase"><tr>
-            <th class="p-2.5">When</th><th class="p-2.5">User</th><th class="p-2.5">Action</th><th class="p-2.5">Data</th><th class="p-2.5">Key</th><th class="p-2.5">Details</th>
-          </tr></thead>
-          <tbody id="auditBody" class="divide-y divide-slate-100"></tbody>
-        </table>
-      </div>
-      <p id="auditNote" class="text-xs text-slate-400 mt-2"></p>
-    </div>
-    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
-      <button class="btn btn-ghost" data-act="closeModal" data-id="modalAudit">Close</button>
-    </div>
-  </div>
-</div>
-
-<div id="modalDeleted" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-    <div class="modal-head flex justify-between items-center shrink-0">
-      <div>
-        <h3 class="font-bold">Deleted Records & Restore (Super Admin)</h3>
-        <p class="text-xs text-slate-400">Archived snapshots of deleted items</p>
-      </div>
-      <button data-act="closeModal" data-id="modalDeleted" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div class="p-5 overflow-y-auto grow">
-      <div class="modal-tbl border border-slate-200 rounded-lg">
-        <table class="data-table w-full text-left text-xs min-w-max">
-          <thead class="bg-slate-100 text-slate-600 uppercase">
-            <tr>
-              <th class="p-2.5">Table</th>
-              <th class="p-2.5">Key</th>
-              <th class="p-2.5">Summary</th>
-              <th class="p-2.5">Deleted By</th>
-              <th class="p-2.5">Deleted At</th>
-              <th class="p-2.5">State</th>
-              <th class="p-2.5 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody id="deletedBody" class="divide-y divide-slate-100"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0">
-      <button class="btn btn-ghost" data-act="purgeRestored" style="margin-right:auto">Clear restored</button><button class="btn btn-ghost" data-act="closeModal" data-id="modalDeleted">Close</button>
     </div>
   </div>
 </div>
@@ -1309,26 +1298,6 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   </div>
 </div>
 
-<div id="modalCodeFmt" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
-    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold">Asset code format</h3>
-      <button data-act="closeModal" data-id="modalCodeFmt" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-    <div class="p-5 overflow-y-auto grow space-y-3 text-sm">
-      <p class="text-xs text-slate-500">Choose how new asset codes look. Existing codes do not change.</p>
-      <div><label class="lbl">Prefix (optional, letters and numbers only)</label><input id="cfPrefix" class="input" maxlength="8" placeholder="e.g. AST or your company initials"></div>
-      <div class="space-y-1"><label class="flex items-center gap-2"><input type="checkbox" id="cfCategory"> Include category code</label>
-        <label class="flex items-center gap-2"><input type="checkbox" id="cfBranch"> Include branch code</label>
-        <label class="flex items-center gap-2"><input type="checkbox" id="cfYear"> Include current year</label></div>
-      <p id="cfBranchWarn" class="hidden text-xs text-amber-700 bg-amber-50 rounded-lg p-2">If an asset moves to another branch, its code still shows the old branch. Leave this off if assets often move.</p>
-      <div class="grid grid-cols-2 gap-3"><div><label class="lbl">Number length</label><select id="cfDigits" class="input"><option value="3">3 digits (001)</option><option value="4">4 digits (0001)</option><option value="5">5 digits (00001)</option><option value="6">6 digits (000001)</option></select></div>
-        <div><label class="lbl">Separator</label><select id="cfSep" class="input"><option value="-">Dash ( - )</option><option value=".">Dot ( . )</option><option value="_">Underscore ( _ )</option><option value="">None</option></select></div></div>
-      <div class="rounded-lg bg-slate-50 border border-slate-200 p-3"><p class="text-xs text-slate-500 mb-1">Next code will look like</p><p id="cfExample" class="font-mono font-bold text-blue-600 text-base"></p></div>
-      <div class="border-t border-slate-200 pt-3"><p class="text-xs text-slate-500 mb-2">Want your existing assets to use this format too?</p><button class="btn btn-ghost" data-act="renumberOpen"><i data-lucide="list-ordered"></i>Apply to existing assets…</button></div>
-    </div>
-    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalCodeFmt">Cancel</button><button class="btn btn-primary" data-act="saveCodeFmt">Save</button></div>
-  </div>
-</div>
-
 <div id="modalRenumber" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
   <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
     <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold">Apply new code format</h3>
@@ -1356,20 +1325,6 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalDepr">Cancel</button><button class="btn btn-primary" data-act="drSave">Save</button></div>
   </div>
 </div>
-
-<div id="modalPerms" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden">
-    <div class="modal-head flex justify-between items-center shrink-0"><h3 class="font-bold">Role permissions</h3>
-      <button data-act="closeModal" data-id="modalPerms" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-    <div class="p-5 overflow-y-auto grow space-y-3 text-sm">
-      <p class="text-xs text-slate-500">Choose what each role can use. Super Admin can always use everything. Viewer can never change data.</p>
-      <div class="border border-slate-200 rounded-lg overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-slate-100 text-xs text-slate-600"><tr><th class="p-2">Feature</th><th class="p-2 text-center w-20">Staff</th><th class="p-2 text-center w-20">Viewer</th></tr></thead><tbody id="permBody"></tbody></table></div>
-      <p class="text-xs text-slate-500"><b>Locked by server</b>: the database refuses the action even if someone tries to bypass the screen.<br><b>Hidden only</b>: the feature is hidden from the screen, but the role can still read this data.</p>
-    </div>
-    <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0"><button class="btn btn-ghost" data-act="closeModal" data-id="modalPerms">Cancel</button><button class="btn btn-primary" data-act="savePerms">Save</button></div>
-  </div>
-</div>
-
 
 <div id="modalExport" class="modal fixed inset-0 bg-slate-900/50 flex items-center justify-center hidden z-50 p-4">
   <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
@@ -1587,11 +1542,9 @@ async function exportDepr() {
   toast('Depreciation report downloaded.', 'success');
 }
 
-function openPerms() {
-  if (!needFeat('role_perms')) return;
+function fillPerms() {
   $('permBody').innerHTML = PERM_FEATURES.map(f => `<tr class="border-t border-slate-100"><td class="p-2"><div class="font-medium">${esc(f.l)}</div><div class="text-xs ${f.server ? 'text-emerald-700' : 'text-slate-400'}">${f.server ? 'Locked by server' : 'Hidden only'}</div></td>`
     + ['staff', 'viewer'].map(r => f.roles.includes(r) ? `<td class="p-2 text-center"><input type="checkbox" data-pr="${r}" data-pf="${f.k}" ${((perms[r] || {})[f.k] === false) ? '' : 'checked'}></td>` : `<td class="p-2 text-center text-slate-300">—</td>`).join('') + '</tr>').join('');
-  openModal('modalPerms');
 }
 async function savePerms() {
   const next = { staff:{}, viewer:{} };
@@ -1600,7 +1553,7 @@ async function savePerms() {
     const { error } = await sb.from('company_settings').upsert({ company_id: currentCompany.id, permissions: next, updated_at: new Date().toISOString() }, { onConflict: 'company_id' });
     if (error) { toast(/permissions|does not exist|schema cache/i.test(error.message || '') ? 'Permissions are not set up yet. Run role_permissions.sql in Supabase first.' : 'Could not save: ' + error.message, 'error'); return; }
   }
-  perms = next; closeModal('modalPerms'); renderRoleUI(); refreshAll(); toast('Permissions saved.', 'success');
+  perms = next; renderRoleUI(); refreshAll(); toast('Permissions saved.', 'success');
 }
 
 // ---- Asset code format (per company) ----
@@ -1658,11 +1611,10 @@ function cfPreview() {
   $('cfExample').textContent = nextCode(codePrefix(cab.kode, kat.kode, f), taken, f.digits);
   $('cfBranchWarn').classList.toggle('hidden', !f.branch);
 }
-function openCodeFormat() {
-  if (!needFeat('code_format')) return;
+function fillCodeFmt() {
   const f = codeFmt;
   $('cfPrefix').value = f.prefix; $('cfBranch').checked = f.branch; $('cfCategory').checked = f.category; $('cfYear').checked = f.year; $('cfDigits').value = f.digits; $('cfSep').value = f.sep;
-  cfPreview(); openModal('modalCodeFmt');
+  cfPreview();
 }
 async function persistCodeFormat(f) {
   if (!sb || !currentCompany) { codeFmt = f; return true; }
@@ -1673,7 +1625,7 @@ async function persistCodeFormat(f) {
   codeFmt = f; return true;
 }
 async function saveCodeFormat() {
-  if (await persistCodeFormat(readFmtForm())) { closeModal('modalCodeFmt'); toast('Code format saved.', 'success'); }
+  if (await persistCodeFormat(readFmtForm())) { toast('Code format saved.', 'success'); }
 }
 
 // ---- Apply the format to existing assets (renumber) ----
@@ -1723,7 +1675,7 @@ async function rnApply() {
       assetData.forEach(a => { if (map.has(a.kode)) a.kode = map.get(a.kode); }); mutasiData.forEach(m => { if (map.has(m.kode)) m.kode = map.get(m.kode); });
       sel.clear(); await persistCodeFormat(readFmtForm()); saveAll(); refreshAll();
     }
-    closeModal('modalRenumber'); closeModal('modalCodeFmt'); toast(`${rnPlan.length} asset codes changed.`, 'success');
+    closeModal('modalRenumber'); fillCodeFmt(); toast(`${rnPlan.length} asset codes changed.`, 'success');
   } finally { btn.disabled = false; }
 }
 
@@ -1883,10 +1835,12 @@ function toast(msg, type = 'info') {
 }
 function openModal(id) { $(id).classList.remove('hidden'); icons(); }
 function closeModal(id) { if (id === 'modalPw' && pwForced) return; if (id === 'modalScan') stopScanner(); $(id).classList.add('hidden'); }
-function confirmDialog(msg, { title = 'Please confirm', ok = 'Confirm', danger = true } = {}) {
+let confirmWord = '';
+function confirmDialog(msg, { title = 'Please confirm', ok = 'Confirm', danger = true, typeWord = '' } = {}) {
   $('confirmTitle').textContent = title;
   $('confirmMsg').textContent = msg;
-  const b = $('confirmOk'); b.textContent = ok; b.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+  confirmWord = typeWord; $('confirmTypeWrap').classList.toggle('hidden', !typeWord); $('confirmTypeWord').textContent = typeWord; $('confirmType').value = '';
+  const b = $('confirmOk'); b.textContent = ok; b.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary'); b.disabled = !!typeWord;
   openModal('modalConfirm');
   return new Promise(r => { confirmResolve = r; });
 }
@@ -2587,10 +2541,10 @@ async function deleteLog(id) {
 
 
 let auditRows = [];
-async function openAudit() {
-  if (!needFeat('audit')) return;
+async function loadAudit() {
   if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
-  openModal('modalAudit');
+  if (!sb) { $('auditBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">The audit trail needs the online server.</td></tr>`; return; }
+  $('auditBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Loading...</td></tr>`;
   $('auditBody').innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Loading...</td></tr>`;
   const { data, error } = await sb.from('audit_trail').select('*').order('at', { ascending:false }).limit(500);
   if (error) {
@@ -2633,18 +2587,18 @@ async function purgeArchived(id) {
   if (!(await confirmDialog('Permanently delete this archived record? It can no longer be restored.', { title:'Delete permanently', ok:'Delete permanently' }))) return;
   const { data, error } = await sb.from('deleted_records').delete().eq('id', id).select('id');
   if (error || !(data || []).length) return toast('Not allowed yet. Run purge_deleted.sql in Supabase first.' + (error ? ' (' + error.message + ')' : ''), 'error');
-  toast('Deleted permanently.', 'success'); openDeletedModal();
+  toast('Deleted permanently.', 'success'); loadDeleted();
 }
 async function purgeRestored() {
   if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
   if (!(await confirmDialog('Permanently delete all records that were already restored? Their saved copies will be removed.', { title:'Clear restored records', ok:'Delete' }))) return;
   const { data, error } = await sb.from('deleted_records').delete().not('restored_at', 'is', null).select('id');
   if (error) return toast('Not allowed yet. Run purge_deleted.sql in Supabase first. (' + error.message + ')', 'error');
-  toast(`${(data || []).length} record(s) removed.`, 'success'); openDeletedModal();
+  toast(`${(data || []).length} record(s) removed.`, 'success'); loadDeleted();
 }
-async function openDeletedModal() {
+async function loadDeleted() {
   if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
-  openModal('modalDeleted');
+  if (!sb) { $('deletedBody').innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Deleted records need the online server.</td></tr>`; return; }
   $('deletedBody').innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Loading archived records...</td></tr>`;
   const { data, error } = await sb.from('deleted_records').select('*').order('deleted_at', { ascending:false }).limit(100);
   if (error) {
@@ -2706,7 +2660,7 @@ async function restoreArchived(recId) {
   await sb.from('deleted_records').update({ restored_at: new Date().toISOString() }).eq('id', recId);
   saveAll();
   refreshAll();
-  await openDeletedModal();
+  await loadDeleted();
   toast(`Restored ${rec.record_key}.`, 'success');
 }
 
@@ -2898,7 +2852,8 @@ async function loadSample() {
 }
 async function clearAll() {
   if (!isSuperAdmin()) return toast('Super Admin only.', 'warn');
-  if (!(await confirmDialog('Delete ALL assets and logs for everyone?\n\nA backup file is downloaded first. This cannot be undone from the app.', { title:'Clear all data', ok:'Clear everything' }))) return;
+  const word = (currentCompany && currentCompany.name) || 'DELETE';
+  if (!(await confirmDialog('Delete ALL assets and logs of this company for everyone?\n\nA backup file is downloaded first. This cannot be undone from the app.', { title:'Clear all data', ok:'Clear everything', typeWord: word }))) return;
   backupData();
   assetData = []; mutasiData = []; sel.clear(); saveAll(); refreshAll();
 }
@@ -3107,6 +3062,8 @@ const locale=()=>LANG==='id'?'id-ID':'en-GB';
 Object.assign(I18N,{"Control assets, transfers and maintenance in one system.": "Kontrol aset, mutasi, dan perawatan dalam satu sistem.", "QR labels, asset details, handover letters (BAST), service history, and Excel/PDF import and export.": "Label QR, Detail Aset, serah terima (BAST), riwayat servis, serta ekspor-impor Excel/PDF.", "All your asset data, neatly in one place.": "Semua data aset, rapi di satu tempat.", "Unit monitoring, routine service schedules, and an activity history.": "Pemantauan unit, jadwal servis berkala, dan riwayat aktivitas.", "Complete data for every unit, just scan the QR.": "Data lengkap tiap unit, cukup pindai QR.", "Keep the code, category, branch, location, warranty and photo of each unit in one record. Scan the QR with a phone camera to open the asset details right in the field.": "Simpan kode, kategori, cabang, lokasi, garansi, dan foto unit dalam satu catatan. Pindai QR lewat kamera HP untuk membuka detail aset langsung di lapangan.", "QR labels and phone scanning": "Label QR & pemindaian HP", "A condition photo for each unit": "Foto kondisi tiap unit", "Import your old Excel data": "Impor data Excel lama", "Service schedules kept neatly, nothing missed.": "Jadwal servis tercatat rapi, tanpa terlewat.", "Set up recurring maintenance cycles. The dashboard reminds you of what is coming up or overdue, and you record the completion in one click.": "Atur siklus perawatan berkala. Dasbor mengingatkan jadwal yang mendekat atau terlewat, lalu catat penyelesaiannya dalam satu klik.", "Routine maintenance schedules": "Jadwal perawatan rutin", "Service and transfer history": "Riwayat servis & mutasi", "Maintenance cost recap, monthly to yearly": "Rekap biaya perawatan per bulan hingga per tahun", "Track asset locations and holders transparently.": "Pantau pergerakan lokasi dan pemegang aset secara transparan.", "Record transfers of location, department and the person in charge, so the movement history (audit trail) stays accurate.": "Catat mutasi lokasi, departemen, dan penanggung jawab aset agar riwayat perpindahan (jejak audit) selalu akurat.", "Printable handover and return letters": "Berita acara serah terima & pengembalian siap cetak", "Transfers between branches": "Mutasi antar-cabang", "Activity history": "Riwayat aktivitas", "More features.": "Fitur lainnya.", "Backup and restore": "Cadangan dan pemulihan", "Download a backup of your data at any time and restore it when needed.": "Unduh cadangan data kapan saja dan pulihkan saat dibutuhkan.", "No installation. Open it straight in a browser on desktop or phone.": "Tanpa instalasi. Diakses langsung lewat browser di desktop maupun HP.", "Active company accountGet full admin access with a starter set of categories and branches.": "Dapatkan akses admin lengkap dengan struktur kategori dan cabang awal.", "Active company account": "Akun perusahaan aktif", "Import your asset listUse the Excel template, or enter new units straight into the system.": "Gunakan template Excel atau input unit baru langsung ke sistem.", "Import your asset list": "Impor daftar aset", "Print QR labels and track unitsStick the QR labels on your assets and follow their status from anywhere.": "Tempel label QR pada aset dan pantau statusnya dari mana pun.", "Print QR labels and track units": "Cetak QR & lacak unit", "Common questions": "Pertanyaan umum", "Need more details? Contact us.": "Butuh detail lebih lanjut? Hubungi kami.", "Yes. Each company account is isolated and can only be accessed by invited users.": "Ya. Setiap akun perusahaan terisolasi dan hanya dapat diakses oleh pengguna yang diundang.", "Yes. It opens in any modern browser and supports QR scanning through the phone camera.": "Bisa. Dapat dibuka di browser modern dan mendukung pemindaian QR melalui kamera HP.", "Yes. Download the import template, adjust the columns, then upload. The system flags rows that need fixing.": "Bisa. Unduh template impor, sesuaikan kolomnya, lalu unggah. Sistem akan menandai baris yang perlu diperbaiki.", "Super Admin, Staff and Viewer roles are available, with access permissions you can adjust.": "Tersedia peran Super Admin, Staf, dan Pengamat dengan pengaturan izin akses yang dapat disesuaikan.", "Your data stays safely stored and viewable, and can be edited again once your company package is activated.": "Data tetap tersimpan aman untuk dilihat dan dapat kembali diedit setelah paket perusahaan diaktifkan.", "Get started in 3 steps.": "Mulai dalam 3 langkah.", "All features are open during the trial.": "Akses penuh ke seluruh fitur selama masa trial.", "Start 14-day free trial": "Mulai Trial 14 Hari", "See features": "Lihat Fitur"});
 Object.assign(I18N,{"Get full admin access with a starter set of categories and branches.": "Dapatkan akses admin lengkap dengan struktur kategori dan cabang awal.", "Use the Excel template, or enter new units straight into the system.": "Gunakan template Excel atau input unit baru langsung ke sistem.", "Stick the QR labels on your assets and follow their status from anywhere.": "Tempel label QR pada aset dan pantau statusnya dari mana pun."});
 Object.assign(I18N,{"Control the recording, tracking and maintenance of assets in one tidy system.": "Kontrol pencatatan, pelacakan, dan perawatan aset dalam satu sistem yang rapi."});
+Object.assign(I18N,{"Deleted records": "Data terhapus", "Reload": "Muat ulang", "Reset": "Atur ulang", "Clear all data": "Hapus semua data", "Permanently removes all assets and logs of this company. A backup file is downloaded first.": "Menghapus permanen semua aset dan log perusahaan ini. File cadangan diunduh lebih dulu.", "Type": "Ketik", "to continue": "untuk melanjutkan", "Delete ALL assets and logs of this company for everyone?\n\nA backup file is downloaded first. This cannot be undone from the app.": "Hapus SEMUA aset dan log perusahaan ini untuk semua orang?\n\nFile cadangan diunduh lebih dulu. Ini tidak bisa dibatalkan dari aplikasi.", "Who changed what and when, recorded automatically by the server. It cannot be edited or deleted.": "Siapa mengubah apa dan kapan, dicatat otomatis oleh server. Tidak bisa diubah atau dihapus.", "Archived snapshots of deleted items. Restore them, or delete them permanently.": "Salinan arsip item yang dihapus. Pulihkan, atau hapus permanen."});
+Object.assign(I18N,{"The audit trail needs the online server.": "Jejak audit membutuhkan server online.", "Deleted records need the online server.": "Data terhapus membutuhkan server online."});
 const I18N_PATS=Object.keys(I18N).filter(k=>k.includes('{}')).sort((a,b)=>b.length-a.length).map(k=>({re:new RegExp('^'+k.replace(/[.*+?^$()|[\]\\]/g,'\\$&').replace(/\{\}/g,'([\\s\\S]+?)')+'$'),to:I18N[k]}));
 function trCore(s,d){
   if(Object.prototype.hasOwnProperty.call(I18N,s))return I18N[s];
@@ -3745,14 +3702,20 @@ async function photoRemove() {
 
 /* ---- Settings page ---- */
 let curSetPane = 'account', setPaneWant = null;
+const PANE_FEAT = { perms:'role_perms', codefmt:'code_format', audit:'audit' };
 function showSetPane(id) {
   if (id !== 'account' && !isSuperAdmin()) id = 'account';
+  if (PANE_FEAT[id] && !needFeat(PANE_FEAT[id])) return;
   curSetPane = id;
   document.querySelectorAll('#setTabs button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
   document.querySelectorAll('#sec-settings .setpane').forEach(x => x.classList.toggle('hidden', x.id !== 'setPane-' + id));
   if (id === 'account') $('setWho').textContent = currentUser ? `${currentUser.email || ''} (${{ super_admin:'Super Admin', staff:'Staff', viewer:'Viewer' }[currentRole] || currentRole})` : 'Local mode';
   if (id === 'users') loadUsers();
-  trTree($('sec-settings'));
+  if (id === 'perms') fillPerms();
+  if (id === 'codefmt') fillCodeFmt();
+  if (id === 'audit') loadAudit();
+  if (id === 'deleted') loadDeleted();
+  icons(); trTree($('sec-settings'));
 }
 
 // ================= Asset handover (BAST) =================
@@ -4265,12 +4228,12 @@ async function changeUserRole(id, role) {
 
 const ACTIONS = {
   menu: id => toggleMenu(id), tab: id => switchTab(id), settings: id => openSettings(id), closeModal: id => closeModal(id),
-  drSettings: openDeprSettings, drSave: saveDeprSettings, drExport: exportDepr, perms: openPerms, savePerms: savePerms, codeFmt: openCodeFormat, saveCodeFmt: saveCodeFormat, renumberOpen: openRenumber, renumberApply: rnApply,
+  drSettings: openDeprSettings, drSave: saveDeprSettings, drExport: exportDepr, perms: () => showSetPane('perms'), permsReset: () => fillPerms(), auditReload: () => loadAudit(), savePerms: savePerms, codeFmt: () => showSetPane('codefmt'), saveCodeFmt: saveCodeFormat, renumberOpen: openRenumber, renumberApply: rnApply,
   syncNow: () => manualSync(), labelsSelected: () => openLabels([...sel]), labelsFiltered: () => openLabels(sel.size ? [...sel] : filteredAssets().map(a => a.kode)), labelOne: id => openLabels([id]), makeLabels, quickScan, scanManualGo, newOpname, saveOpname, openOpname, opBack, opFilter: id => { opFilter = id; renderOpDetail(); }, opMark, opUndo, opCamera, opCloseSession, opDelete, opExport, changePw, savePw, newCompany, editCompany, saveCompany, openPlans, savePlans, lpGo, lpLogin, lpHome, lpCta, lpWa, submitTrial, trialCreate, trialSet, trialDelete, openBast, photoView, photoPick, photoRemove, bastHand, saveBast, bastReturn, saveReturn, bastDelete, bastPrint: v => { const [i, k] = String(v).split('|'); printBast(i, k); }, extendDate, companyUsers, addUser, resetPw, saveUser, removeUser, copyCreds, genPw: id => { $(id).value = genPw(); }, forgotPassword, toggleNav: () => document.body.classList.toggle('nav-open'),
   setTab: id => showSetPane(id), dmTab: id => dmTab(id), bastTab: id => bastTab(id), bastNew: () => bastNew(), bastPickGo: () => bastPickGo(), btSave: () => btSave(), btPreview: () => btPreview(), btReset: () => btReset(), btLogoClear: () => { btLogo = ''; btLogoShow(); },
   purgeArchived: id => purgeArchived(id), purgeRestored: () => purgeRestored(), editSetting: id => editSetting(+id), saveSettingEdit: () => saveSettingEdit(),
   collapseNav: () => { const c = document.body.classList.toggle('side-collapsed'); try { localStorage.setItem('ams_side', c ? '1' : '0'); } catch (e) {} }, closeNav: () => document.body.classList.remove('nav-open'), setLang,
-  openDeleted: openDeletedModal, openAudit, restoreArchived, logout,
+  openDeleted: () => showSetPane('deleted'), openAudit: () => showSetPane('audit'), restoreArchived, logout,
   openImport, openExport: id => { exportKind = id; $('exportTitle').textContent = id === 'excel' ? 'Export to Excel' : 'Export to PDF'; openModal('modalExport'); },
   doExport, template: downloadTemplate, backup: backupData, restore: () => $('restoreFile').click(), loadSample, clearAll, commitImport,
   addAsset: () => openAssetForm(), editAsset: id => { closeModal('modalDetail'); openAssetForm(id); }, delAsset: deleteAsset, view: viewAsset,
@@ -4310,6 +4273,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   new MutationObserver(kick).observe($('sidebar'),{attributes:true,attributeFilter:['class'],subtree:true});
   kick();
   const sp=$('scanPhoto'); if(sp) sp.addEventListener('change',e=>{scanPhoto(e.target.files[0]); e.target.value='';});
+  const ct=$('confirmType'); if(ct) ct.addEventListener('input',()=>{ $('confirmOk').disabled = !!confirmWord && ct.value.trim().toLowerCase() !== confirmWord.toLowerCase(); });
   const lf=$('btLogoFile'); if(lf) lf.addEventListener('change',e=>{btLogoPick(e.target.files[0]); e.target.value='';});
   const bk=$('btKnow'); if(bk) bk.addEventListener('change',()=>$('btKnowBox').classList.toggle('hidden',!bk.checked));
   const bn=$('btNumFmt'), bu=$('btUnit'); [bn,bu].forEach(x=>x&&x.addEventListener('input',btNumEx));

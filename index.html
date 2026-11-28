@@ -424,13 +424,25 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .logo-img{display:block;width:auto;max-width:100%}
   .lp-logo .logo-img{height:38px}
-  .auth-form .auth-top .logo-img{height:40px}
   .sidebar .brand{padding:12px 14px}
   .sidebar .brand .logo-side{height:34px}
   .sidebar .brand .brand-mark{display:none;background:#fff;padding:5px}
   .sidebar .brand .brand-mark img{width:100%;height:100%;object-fit:contain}
   body.side-collapsed .sidebar .brand .brand-mark{display:grid}
   @media (max-width:1023px){body.side-collapsed .sidebar .brand .brand-mark{display:none}}
+  .auth-form .auth-top{justify-content:center}
+  .auth-form .auth-top .logo-img{height:132px}
+  @media (max-width:640px){.auth-form .auth-top .logo-img{height:112px}}
+  .auth-logo-wrap{flex:1;display:grid;place-items:center;padding:12px 0}
+  .auth-logo-card{background:rgba(255,255,255,.94);border-radius:30px;padding:26px 36px;box-shadow:0 24px 60px -24px rgba(8,24,90,.55),inset 0 1px 0 #fff}
+  .auth-brand .auth-logo-card .logo-img{height:64px;width:auto}
+  /* light login panel so the coloured logo reads clearly */
+  .auth-brand{background:radial-gradient(65% 50% at 100% 0%,#3f7bff 0,transparent 66%),radial-gradient(60% 45% at 0% 0%,#8fb8ff 0,transparent 68%),radial-gradient(70% 50% at 100% 100%,#5b8cff 0,transparent 66%),radial-gradient(55% 45% at 0% 100%,#37c3ea 0,transparent 66%),radial-gradient(40% 30% at 55% 55%,#f3f7ff 0,transparent 100%),#d6e5ff;color:#0f2a5c}
+  .auth-brand .wall-b{display:none}
+  .auth-brand h2{color:#0f2a5c}
+  .auth-sub{color:#4a5d85}
+  .auth-brand p[style*="font-size:12px"]{color:#7b8bb0 !important}
+  .auth-brand .auth-logo{height:76px;width:auto;margin:0 0 26px}
 </style>
 </head>
 <body class="booting">
@@ -575,12 +587,11 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
 <!-- AUTH GATE -->
 <div id="authGate" class="auth hidden">
   <div class="auth-brand wall"><span class="wall-b b1"></span><span class="wall-b b2"></span>
-    <div class="brand" style="padding:0;border:0">
-      <img class="logo-img" data-logo="white" alt="Amasys" height="40">
-    </div>
+    <div aria-hidden="true"></div>
     <div>
+      <img class="logo-img auth-logo" data-logo="horiz" alt="Amasys">
       <h2>Every office asset, recorded and maintained.</h2>
-      <p class="auth-sub">Record, track and maintain every company asset, in one calm place.</p>
+      <p class="auth-sub">Control the recording, tracking and maintenance of assets in one tidy system.</p>
     </div>
     <p style="font-size:12px;color:#9db4e6;margin:0">© 2026 Diwanur Al Rasail</p>
   </div>
@@ -588,7 +599,7 @@ button{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;cu
     <button class="lp-back" data-act="lpHome"><i data-lucide="arrow-left"></i><span>Back to home</span></button>
     <div class="lang auth-lang"><button data-act="setLang" data-id="id">ID</button><button data-act="setLang" data-id="en">EN</button></div>
     <div class="auth-card">
-    <div class="auth-top"><img class="logo-img" data-logo="horiz" alt="Amasys" height="42"><span class="auth-brandname sr">Amasys</span></div>
+    <div class="auth-top"><img class="logo-img" data-logo="large" alt="Amasys Asset Management System"><span class="auth-brandname sr">Amasys</span></div>
     <form id="formLogin" class="text-sm">
       <h2 style="font-size:22px;font-weight:800;margin:0 0 4px">Sign in</h2>
       <p style="color:var(--muted);margin:0 0 22px;font-size:13px">Use the account given to you by your administrator.</p>
@@ -3093,6 +3104,7 @@ if(LANG!=='id'&&LANG!=='en')LANG='id';
 const locale=()=>LANG==='id'?'id-ID':'en-GB';
 Object.assign(I18N,{"Control assets, transfers and maintenance in one system.": "Kontrol aset, mutasi, dan perawatan dalam satu sistem.", "QR labels, asset details, handover letters (BAST), service history, and Excel/PDF import and export.": "Label QR, Detail Aset, serah terima (BAST), riwayat servis, serta ekspor-impor Excel/PDF.", "All your asset data, neatly in one place.": "Semua data aset, rapi di satu tempat.", "Unit monitoring, routine service schedules, and an activity history.": "Pemantauan unit, jadwal servis berkala, dan riwayat aktivitas.", "Complete data for every unit, just scan the QR.": "Data lengkap tiap unit, cukup pindai QR.", "Keep the code, category, branch, location, warranty and photo of each unit in one record. Scan the QR with a phone camera to open the asset details right in the field.": "Simpan kode, kategori, cabang, lokasi, garansi, dan foto unit dalam satu catatan. Pindai QR lewat kamera HP untuk membuka detail aset langsung di lapangan.", "QR labels and phone scanning": "Label QR & pemindaian HP", "A condition photo for each unit": "Foto kondisi tiap unit", "Import your old Excel data": "Impor data Excel lama", "Service schedules kept neatly, nothing missed.": "Jadwal servis tercatat rapi, tanpa terlewat.", "Set up recurring maintenance cycles. The dashboard reminds you of what is coming up or overdue, and you record the completion in one click.": "Atur siklus perawatan berkala. Dasbor mengingatkan jadwal yang mendekat atau terlewat, lalu catat penyelesaiannya dalam satu klik.", "Routine maintenance schedules": "Jadwal perawatan rutin", "Service and transfer history": "Riwayat servis & mutasi", "Maintenance cost recap, monthly to yearly": "Rekap biaya perawatan per bulan hingga per tahun", "Track asset locations and holders transparently.": "Pantau pergerakan lokasi dan pemegang aset secara transparan.", "Record transfers of location, department and the person in charge, so the movement history (audit trail) stays accurate.": "Catat mutasi lokasi, departemen, dan penanggung jawab aset agar riwayat perpindahan (jejak audit) selalu akurat.", "Printable handover and return letters": "Berita acara serah terima & pengembalian siap cetak", "Transfers between branches": "Mutasi antar-cabang", "Activity history": "Riwayat aktivitas", "More features.": "Fitur lainnya.", "Backup and restore": "Cadangan dan pemulihan", "Download a backup of your data at any time and restore it when needed.": "Unduh cadangan data kapan saja dan pulihkan saat dibutuhkan.", "No installation. Open it straight in a browser on desktop or phone.": "Tanpa instalasi. Diakses langsung lewat browser di desktop maupun HP.", "Active company accountGet full admin access with a starter set of categories and branches.": "Dapatkan akses admin lengkap dengan struktur kategori dan cabang awal.", "Active company account": "Akun perusahaan aktif", "Import your asset listUse the Excel template, or enter new units straight into the system.": "Gunakan template Excel atau input unit baru langsung ke sistem.", "Import your asset list": "Impor daftar aset", "Print QR labels and track unitsStick the QR labels on your assets and follow their status from anywhere.": "Tempel label QR pada aset dan pantau statusnya dari mana pun.", "Print QR labels and track units": "Cetak QR & lacak unit", "Common questions": "Pertanyaan umum", "Need more details? Contact us.": "Butuh detail lebih lanjut? Hubungi kami.", "Yes. Each company account is isolated and can only be accessed by invited users.": "Ya. Setiap akun perusahaan terisolasi dan hanya dapat diakses oleh pengguna yang diundang.", "Yes. It opens in any modern browser and supports QR scanning through the phone camera.": "Bisa. Dapat dibuka di browser modern dan mendukung pemindaian QR melalui kamera HP.", "Yes. Download the import template, adjust the columns, then upload. The system flags rows that need fixing.": "Bisa. Unduh template impor, sesuaikan kolomnya, lalu unggah. Sistem akan menandai baris yang perlu diperbaiki.", "Super Admin, Staff and Viewer roles are available, with access permissions you can adjust.": "Tersedia peran Super Admin, Staf, dan Pengamat dengan pengaturan izin akses yang dapat disesuaikan.", "Your data stays safely stored and viewable, and can be edited again once your company package is activated.": "Data tetap tersimpan aman untuk dilihat dan dapat kembali diedit setelah paket perusahaan diaktifkan.", "Get started in 3 steps.": "Mulai dalam 3 langkah.", "All features are open during the trial.": "Akses penuh ke seluruh fitur selama masa trial.", "Start 14-day free trial": "Mulai Trial 14 Hari", "See features": "Lihat Fitur"});
 Object.assign(I18N,{"Get full admin access with a starter set of categories and branches.": "Dapatkan akses admin lengkap dengan struktur kategori dan cabang awal.", "Use the Excel template, or enter new units straight into the system.": "Gunakan template Excel atau input unit baru langsung ke sistem.", "Stick the QR labels on your assets and follow their status from anywhere.": "Tempel label QR pada aset dan pantau statusnya dari mana pun."});
+Object.assign(I18N,{"Control the recording, tracking and maintenance of assets in one tidy system.": "Kontrol pencatatan, pelacakan, dan perawatan aset dalam satu sistem yang rapi."});
 const I18N_PATS=Object.keys(I18N).filter(k=>k.includes('{}')).sort((a,b)=>b.length-a.length).map(k=>({re:new RegExp('^'+k.replace(/[.*+?^$()|[\]\\]/g,'\\$&').replace(/\{\}/g,'([\\s\\S]+?)')+'$'),to:I18N[k]}));
 function trCore(s,d){
   if(Object.prototype.hasOwnProperty.call(I18N,s))return I18N[s];
